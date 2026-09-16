@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { BarChart3, Brain, Building2, GraduationCap, LayoutDashboard, LogOut, School, ShieldCheck, Users } from 'lucide-react'
 import Login from './pages/auth/Login'
 import Branches from './pages/admin/Branches'
+import Programs from './pages/admin/Programs'
 import { logoutUser } from './services/authService'
 
 const adminModules = [
   { title: 'Branches', description: 'Manage institute branches and locations.', icon: Building2, page: 'branches' },
-  { title: 'Programs', description: 'Manage school, junior college and degree programs.', icon: GraduationCap },
+  { title: 'Programs', description: 'Manage school, junior college and degree programs.', icon: GraduationCap, page: 'programs' },
   { title: 'Academic Years', description: 'Set up academic years and sessions.', icon: School },
   { title: 'Classes & Sections', description: 'Organize classes, sections and academic structure.', icon: LayoutDashboard },
   { title: 'Students', description: 'Add and manage student profiles and enrollments.', icon: Users },
@@ -24,6 +25,7 @@ function App() {
 
   if (page === 'login') return <Login onLogin={handleLogin} onBack={() => setPage('home')} />
   if (page === 'branches') return <Branches onBack={() => setPage('dashboard')} />
+  if (page === 'programs') return <Programs onBack={() => setPage('dashboard')} />
   if (page === 'dashboard') return <Dashboard user={user} onLogout={handleLogout} onNavigate={setPage} />
   return <LandingPage onSignIn={() => setPage('login')} onExplore={() => setPage('login')} />
 }
