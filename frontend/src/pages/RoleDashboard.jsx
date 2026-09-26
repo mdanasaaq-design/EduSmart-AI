@@ -31,7 +31,8 @@ export default function RoleDashboard({ user, onBack }) {
         const [marksSnap, attendanceSnap, predictionsSnap] = await Promise.all([
           getDocs(query(collection(db, 'marks'), where('studentUserId', '==', user.uid))),
           getDocs(query(collection(db, 'attendance'), where('studentUserId', '==', user.uid))),
-          getDocs(query(collection(db, 'predictions'), where('studentId', '==', studentDoc.id))),
+          getDocs(query(collection(db, 'predictions'), where('studentUserId', '==', user.uid))),
+          getDocs(query(collection(db, 'recommendations'), where('studentUserId', '==', user.uid))),
         ])
 
         setRecords({
@@ -97,6 +98,7 @@ export default function RoleDashboard({ user, onBack }) {
                     <p>Average marks: {latestPrediction.features?.averageMarks ?? '—'}%</p>
                   </div>
                 )}
+                {latestRecommendation && <p className="mt-4 text-sm text-slate-400">Recommendation: {latestRecommendation.text}</p>}
               </div>
 
               <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
