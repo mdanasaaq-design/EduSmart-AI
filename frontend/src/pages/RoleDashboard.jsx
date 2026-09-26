@@ -29,7 +29,7 @@ export default function RoleDashboard({ user, onBack }) {
         setStudent(studentData)
 
         const [marksSnap, attendanceSnap, predictionsSnap] = await Promise.all([
-          getDocs(query(collection(db, 'marks'), where('studentId', '==', studentDoc.id))),
+          getDocs(query(collection(db, 'marks'), where('studentUserId', '==', user.uid))),
           getDocs(query(collection(db, 'attendance'), where('studentId', '==', studentDoc.id))),
           getDocs(query(collection(db, 'predictions'), where('studentId', '==', studentDoc.id))),
         ])
