@@ -4,7 +4,7 @@ import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
 
 export default function RoleDashboard({ user, onBack }) {
-  const [records, setRecords] = useState({ marks: [], attendance: [], predictions: [] })
+  const [records, setRecords] = useState({ marks: [], attendance: [], predictions: [], recommendations: [] })
   const [student, setStudent] = useState(null)
   const [error, setError] = useState('')
 
@@ -19,7 +19,7 @@ export default function RoleDashboard({ user, onBack }) {
 
         if (studentSnap.empty) {
           setStudent(null)
-          setRecords({ marks: [], attendance: [], predictions: [] })
+          setRecords({ marks: [], attendance: [], predictions: [], recommendations: [] })
           setError('No student profile is linked to this account yet.')
           return
         }
@@ -38,6 +38,7 @@ export default function RoleDashboard({ user, onBack }) {
           marks: marksSnap.docs.map(x => x.data()),
           attendance: attendanceSnap.docs.map(x => x.data()),
           predictions: predictionsSnap.docs.map(x => x.data()),
+          recommendations: recommendationsSnap.docs.map(x => x.data()),
         })
         setError('')
       } catch (e) {
@@ -54,6 +55,7 @@ export default function RoleDashboard({ user, onBack }) {
       : '—'
 
   const latestPrediction = records.predictions.at(-1)
+  const latestRecommendation = records.recommendations.at(-1)
   const isStudent = user?.role === 'student'
 
   return (
