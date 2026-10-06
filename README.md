@@ -28,3 +28,18 @@ Firebase configuration belongs in `frontend/.env.local` and must not be committe
 
 ## Firestore rules
 `firebase/firestore.rules` contains the prototype security rules. Publish these rules in the Firebase Console before testing student-role access.
+
+
+## Project documentation
+The repository contains the project context and working documentation needed to continue development:
+
+- [Canonical Project Context](docs/PROJECT_CONTEXT.md) — project identity, stack, scope, architecture, data model, ML rules, security and development conventions.
+- [Development Status](docs/DEVELOPMENT_STATUS.md) — current implementation state, recent fixes, verification checklist and acceptance-test sequence.
+- [Product Requirements](prd.md) — requirements and acceptance criteria.
+- [Architecture](architecture.md) — system architecture and data model.
+- [Project Rules](rules.md) — development and technology constraints.
+- [UI/UX Design](design.md) — interface and demonstration guidelines.
+- [Task Tracker](tasks.md) — implementation checklist.
+- [Project Memory](memory.md) — compact persistent project memory.
+
+**Source-of-truth rule:** verified code is authoritative. If documentation becomes outdated, update the documentation to match the implementation.
