@@ -45,14 +45,18 @@ Attendance, marks, predictions and recommendations created through the academic-
 The student workspace uses the authenticated UID to retrieve the student's linked records.
 
 ### Firestore security
-`firebase/firestore.rules` was tightened so:
-- users cannot normally change their own role;
-- students can read only their linked student/academic records;
-- students cannot write academic records;
-- admin/teacher permissions remain appropriate to the prototype;
-- role-aware authorization remains enforced by Firestore rather than only by the UI.
+`firebase/firestore.rules` now enforces the following baseline:
+- signed-in users cannot create their own user profile or assign themselves a role;
+- an existing administrator provisions user profiles; the first administrator must be seeded through a trusted Firebase Console/Admin SDK workflow;
+- users cannot change their own role;
+- students can read only their linked student and academic records;
+- students cannot create or modify attendance, marks, predictions or recommendations;
+- only administrators can modify classes, sections, subjects and teacher assignments;
+- role-aware authorization is enforced by Firestore, not just by client-side navigation.
 
-These rules still require publication and browser testing in the Firebase project.
+Automated Firestore Emulator regression tests live in `frontend/tests/firestore.rules.test.js` and cover role escalation, administrator provisioning, and student record access/write restrictions. The GitHub Actions workflow runs those tests alongside frontend lint and build checks.
+
+These rules still require publication to the actual Firebase project and a manual browser acceptance test. Teacher access to student data is not yet restricted by individual class/subject assignments, so the current rules remain prototype-level rather than production-ready.
 
 ### Recommendation persistence
 When a prediction is saved, the prototype also saves a rule-based recommendation in `recommendations`.
