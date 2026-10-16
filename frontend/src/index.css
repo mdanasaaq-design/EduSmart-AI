@@ -432,3 +432,9 @@ main.min-h-screen.bg-slate-950 .hover\\:text-red-400:hover { color: #9C3E31 !imp
 .analytics-footer { display:flex; justify-content:space-between; gap:16px; margin-top:36px; border-top:1px solid var(--line); padding-top:18px; color:#859087; font-size:9px; }
 .analytics-footer span:first-child { color:var(--forest); font-weight:850; }
 @media (max-width:650px) { .analytics-nav { padding:15px 16px; } .analytics-back { padding:9px 10px; font-size:10px; } .analytics-content { padding:26px 16px 20px; } .analytics-welcome { align-items:flex-start; flex-direction:column; } .analytics-mark { display:none; } .analytics-stats { grid-template-columns:1fr; gap:10px; } .analytics-stat-card { padding:16px; } .analytics-stat-card > strong { margin-top:12px; } .analytics-chart-heading { align-items:flex-start; } .analytics-chart-badge { display:none; } .analytics-chart { height:260px; } .analytics-footer { flex-direction:column; gap:6px; } }
+
+
+.auth-inline-action { border: 0; padding: 0; color: var(--teal); background: transparent; font-size: inherit; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.auth-inline-action:hover:not(:disabled) { color: #285D51; }
+.auth-inline-action:disabled { cursor: not-allowed; opacity: .6; }
+.auth-success { margin-top: 23px; border: 1px solid #A8DCC4; border-radius: 11px; padding: 12px 14px; color: #245A49; background: #EAF8F0; font-size: 12px; line-height: 1.6; }
