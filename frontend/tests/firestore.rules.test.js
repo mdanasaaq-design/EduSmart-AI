@@ -7,7 +7,7 @@ import {
   assertSucceeds,
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing'
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
 
 const projectId = 'demo-edusmart-ai'
 let testEnv
@@ -46,6 +46,16 @@ beforeEach(async () => {
 
 after(async () => {
   await testEnv?.cleanup()
+})
+
+test('a user can self-register only a constrained student profile for their own UID', async () => {
+  const db = testEnv.authenticatedContext('new-student', { email: 'student@example.com' }).firestore()
+  await assertSucceeds(setDoc(doc(db, 'users', 'new-student'), {
+    name: 'New Student',
+    email: 'student@example.com',
+    role: 'student',
+    createdAt: serverTimestamp(),
+  }))
 })
 
 test('a signed-in user cannot create their own role-bearing profile', async () => {
