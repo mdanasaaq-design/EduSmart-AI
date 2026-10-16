@@ -43,6 +43,10 @@ These are prototype rules, not a substitute for a complete production authorizat
 ## Continuous integration
 The `.github/workflows/frontend-ci.yml` workflow runs Firestore Emulator authorization tests, ESLint and a Vite production build on pushes to `main` and pull requests targeting `main`. On 2026-10-16, commit `6ac5a22` passed all 18 rules tests, lint and build. Browser acceptance and live rules deployment remain separate verification steps.
 
+## Model evaluation
+
+A reproducible synthetic holdout evaluation is documented in [ML Evaluation](ml/EVALUATION.md). The 86.25% accuracy result is on formula-generated synthetic labels only and must not be presented as real-world student prediction accuracy.
+
 ## Project documentation
 The repository contains the project context and working documentation needed to continue development:
 
