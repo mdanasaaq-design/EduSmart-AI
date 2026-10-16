@@ -41,7 +41,7 @@ The repository includes Firebase Hosting configuration for the Vite SPA, includi
 These are prototype rules, not a substitute for a complete production authorization review. Teacher access to student data still needs assignment-scoped authorization before production use.
 
 ## Continuous integration
-The `.github/workflows/frontend-ci.yml` workflow runs `npm ci`, ESLint and a Vite production build on pushes to `main` and pull requests targeting `main`.
+The `.github/workflows/frontend-ci.yml` workflow runs Firestore Emulator authorization tests, ESLint and a Vite production build on pushes to `main` and pull requests targeting `main`. On 2026-10-16, commit `6ac5a22` passed all 18 rules tests, lint and build. Browser acceptance and live rules deployment remain separate verification steps.
 
 ## Project documentation
 The repository contains the project context and working documentation needed to continue development:
