@@ -10,7 +10,7 @@ export default function StudentsEnrollments({onBack}){
  const [students,setStudents]=useState([]),[enrollments,setEnrollments]=useState([]),[years,setYears]=useState([]),[classes,setClasses]=useState([]),[sections,setSections]=useState([])
  const [sf,setSf]=useState(emptyStudent),[ef,setEf]=useState(emptyEnrollment),[editing,setEditing]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false)
  const load=async()=>{setLoading(true);setError('');try{const [s,e,y,c,se]=await Promise.all([read('students'),getDocs(collection(db,'enrollments')),read('academicYears'),read('classes'),read('sections')]);setStudents(s);setEnrollments(e.docs.map(x=>({id:x.id,...x.data()})));setYears(y);setClasses(c);setSections(se)}catch(x){setError(x.message)}finally{setLoading(false)}}
- useEffect(()=>{load()},[])
+ useEffect(()=>{void Promise.resolve().then(load)},[])
  const activeYears=useMemo(()=>years.filter(x=>x.status==='Active').length?years.filter(x=>x.status==='Active'):years,[years])
  const filteredClasses=useMemo(()=>classes.filter(x=>!ef.academicYearId||x.academicYearId===ef.academicYearId),[classes,ef.academicYearId])
  const filteredSections=useMemo(()=>sections.filter(x=>!ef.classId||x.classId===ef.classId),[sections,ef.classId])
