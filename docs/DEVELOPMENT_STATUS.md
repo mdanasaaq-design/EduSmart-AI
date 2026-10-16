@@ -132,3 +132,12 @@ Pull `main`, run the frontend locally, and begin the acceptance test above. Reco
 - Added Firestore Emulator tests for cross-class reads, un-enrolled students, and withdrawn enrollment.
 - Legacy random-ID enrollments are not discoverable by the deterministic membership check; recreate/re-key enrollments in the admin UI or migrate their IDs before expecting teacher access. Legacy records without `academicYearId` fail closed for teachers.
 - CI previously confirmed Firestore Rules tests passed, but lint failed on existing effect-based data-loading patterns; the affected admin screens now defer initial loader invocation to a microtask to avoid the synchronous-effect lint rule. Await the latest CI run before considering this complete.
+
+
+### Authentication flows (2026-10-16)
+- Added student self-registration with name, email, password confirmation and a Firestore profile at `users/{auth UID}`.
+- Added Firebase password-reset email flow and clearer login/registration error feedback.
+- Public registration is limited by Firestore Rules to a constrained `student` profile; the app never exposes admin/teacher role selection.
+- The first administrator must still be provisioned through Firebase Console or a trusted Admin SDK workflow.
+- Added a Firestore Emulator regression test for a valid student self-registration profile.
+- Pending verification: latest GitHub Actions run, live Firestore Rules deployment, production hosting rebuild/deployment, and browser tests for register/login/reset/logout.
