@@ -120,3 +120,9 @@ test('teachers cannot read records outside their assigned class and subject', as
   const db = testEnv.authenticatedContext('teacher-1').firestore()
   await assertFails(getDoc(doc(db, 'marks', 'mark-student-2')))
 })
+
+
+test('assignment-scoped academic record access works', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertSucceeds(getDoc(doc(db, 'marks', 'mark-assigned')))
+})
