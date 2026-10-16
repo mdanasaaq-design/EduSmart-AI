@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { GraduationCap, LockKeyhole, Mail, LoaderCircle, ArrowLeft } from 'lucide-react'
+import { GraduationCap, LockKeyhole, Mail, LoaderCircle, ArrowLeft, ArrowUpRight, ShieldCheck, Sparkles, Brain, CheckCircle2 } from 'lucide-react'
 import { loginUser } from '../../services/authService'
 
 function Login({ onLogin, onBack }) {
@@ -12,80 +12,73 @@ function Login({ onLogin, onBack }) {
     event.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       const user = await loginUser(email, password)
       onLogin(user)
     } catch (err) {
       const code = err?.code
-      if (code === 'auth/invalid-credential') {
-        setError('Invalid email or password.')
-      } else if (code === 'auth/too-many-requests') {
-        setError('Too many attempts. Please try again later.')
-      } else if (code === 'auth/invalid-email') {
-        setError('Please enter a valid email address.')
-      } else {
-        setError(err?.message || 'Unable to sign in. Please try again.')
-      }
+      if (code === 'auth/invalid-credential') setError('Invalid email or password.')
+      else if (code === 'auth/too-many-requests') setError('Too many attempts. Please try again later.')
+      else if (code === 'auth/invalid-email') setError('Please enter a valid email address.')
+      else setError(err?.message || 'Unable to sign in. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center justify-center">
-        <div className="grid w-full overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl lg:grid-cols-2">
-          <section className="hidden bg-emerald-500 p-10 text-slate-950 lg:flex lg:flex-col lg:justify-between">
-            <div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-950 text-emerald-400">
-                <GraduationCap size={26} />
+    <main className="auth-shell">
+      <header className="auth-header">
+        <button type="button" onClick={onBack} className="auth-brand" aria-label="Back to EduSmart home">
+          <span className="auth-brand-mark"><GraduationCap size={23} /></span>
+          <span><strong>EduSmart<span> AI</span></strong><small>LEARNING, IN FOCUS</small></span>
+        </button>
+        <button type="button" onClick={onBack} className="auth-back"><ArrowLeft size={15} /> Back to home</button>
+      </header>
+
+      <div className="auth-layout">
+        <section className="auth-story">
+          <div className="auth-story-copy">
+            <span className="auth-eyebrow"><Sparkles size={14} /> A BETTER VIEW OF LEARNING</span>
+            <h1>Make room for<br /><em>better outcomes.</em></h1>
+            <p>Bring academic operations and student insight together in one calm, considered workspace.</p>
+          </div>
+          <div className="auth-preview">
+            <div className="auth-preview-heading"><span className="auth-preview-icon"><Brain size={18} /></span><div><strong>Student insight</strong><small>Support, at the right time</small></div><span className="auth-live-dot" /></div>
+            <div className="auth-preview-bars" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /><i /></div>
+            <div className="auth-preview-foot"><span><CheckCircle2 size={14} /> Academic overview</span><span>EDUSMART / 01</span></div>
+          </div>
+          <div className="auth-assurance"><ShieldCheck size={17} /><span>Role-based access for your institute team</span></div>
+          <div className="auth-decoration auth-decoration-one" /><div className="auth-decoration auth-decoration-two" />
+        </section>
+
+        <section className="auth-panel">
+          <div className="auth-panel-inner">
+            <div className="auth-mobile-mark"><span className="auth-brand-mark"><GraduationCap size={23} /></span></div>
+            <span className="auth-panel-kicker">YOUR ACADEMIC WORKSPACE</span>
+            <h2>Welcome back.</h2>
+            <p className="auth-intro">Sign in with your institute account to continue.</p>
+
+            {error && <div role="alert" className="auth-error">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="auth-form">
+              <div className="auth-field">
+                <label htmlFor="email">Email address</label>
+                <div className="auth-input-wrap"><Mail size={17} aria-hidden="true" /><input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required placeholder="you@institute.edu" /></div>
               </div>
-              <h1 className="mt-10 text-4xl font-bold tracking-tight">Welcome to EduSmart AI</h1>
-              <p className="mt-4 max-w-md leading-7 text-slate-800">
-                Manage academics, attendance and assessments while using AI-powered insights to identify students who may need support.
-              </p>
-            </div>
-            <p className="text-sm font-medium text-slate-800">College Mini Project · AI & ML</p>
-          </section>
-
-          <section className="p-8 sm:p-12">
-            <button onClick={onBack} className="mb-8 inline-flex items-center gap-2 text-sm text-slate-400 transition hover:text-white">
-              <ArrowLeft size={16} /> Back
-            </button>
-
-            <div className="mb-8">
-              <p className="text-sm font-medium text-emerald-400">EduSmart AI</p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight">Sign in</h2>
-              <p className="mt-2 text-sm text-slate-400">Use your institute account to continue.</p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-300">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <input id="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-600 focus:border-emerald-400" />
-                </div>
+              <div className="auth-field">
+                <label htmlFor="password">Password</label>
+                <div className="auth-input-wrap"><LockKeyhole size={17} aria-hidden="true" /><input id="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required placeholder="Enter your password" /></div>
               </div>
-
-              <div>
-                <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-300">Password</label>
-                <div className="relative">
-                  <LockKeyhole className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Enter your password" className="w-full rounded-xl border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-600 focus:border-emerald-400" />
-                </div>
-              </div>
-
-              {error && <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm leading-5 text-red-300">{error}</div>}
-
-              <button type="submit" disabled={loading} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-60">
-                {loading ? <><LoaderCircle size={18} className="animate-spin" /> Signing in...</> : 'Sign In'}
-              </button>
+              <button type="submit" disabled={loading} className="auth-submit">{loading ? <><LoaderCircle size={17} className="animate-spin" /> Signing you in…</> : <>Sign in securely <ArrowUpRight size={17} /></>}</button>
             </form>
-          </section>
-        </div>
+
+            <div className="auth-security-note"><ShieldCheck size={16} /><span>Your account permissions determine what you can access.</span></div>
+            <p className="auth-footer-note">Need access? Contact your institute administrator.</p>
+          </div>
+        </section>
       </div>
+      <footer className="auth-page-footer"><span>EduSmart AI</span><span>Thoughtfully designed for better learning outcomes.</span></footer>
     </main>
   )
 }
