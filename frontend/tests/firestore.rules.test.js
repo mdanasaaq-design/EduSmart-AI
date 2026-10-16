@@ -29,6 +29,8 @@ beforeEach(async () => {
     await setDoc(doc(db, 'users', 'student-2'), { role: 'student', name: 'Other student' })
     await setDoc(doc(db, 'users', 'teacher-1'), { role: 'teacher', name: 'Teacher' })
     await setDoc(doc(db, 'teacherAssignments', 'teacher-1__subject-1__class-1'), { teacherUserId: 'teacher-1', subjectId: 'subject-1', classId: 'class-1' })
+    await setDoc(doc(db, 'enrollments', 'student-2__class-1__year-1'), { studentId: 'student-2', studentUserId: 'student-2', classId: 'class-1', academicYearId: 'year-1', status: 'Active' })
+    await setDoc(doc(db, 'enrollments', 'student-2__class-2__year-1'), { studentId: 'student-2', studentUserId: 'student-2', classId: 'class-2', academicYearId: 'year-1', status: 'Active' })
     await setDoc(doc(db, 'marks', 'mark-student-1'), {
       studentUserId: 'student-1',
       score: 82,
@@ -37,7 +39,8 @@ beforeEach(async () => {
       studentUserId: 'student-2',
       score: 91,
     })
-    await setDoc(doc(db, 'marks', 'mark-assigned'), { studentUserId: 'student-2', classId: 'class-1', subjectId: 'subject-1', score: 88 })
+    await setDoc(doc(db, 'marks', 'mark-assigned'), { studentId: 'student-2', studentUserId: 'student-2', classId: 'class-1', academicYearId: 'year-1', subjectId: 'subject-1', score: 88 })
+    await setDoc(doc(db, 'marks', 'mark-other-class'), { studentId: 'student-2', studentUserId: 'student-2', classId: 'class-2', academicYearId: 'year-1', subjectId: 'subject-1', score: 75 })
   })
 })
 
@@ -125,4 +128,35 @@ test('teachers cannot read records outside their assigned class and subject', as
 test('assignment-scoped academic record access works', async () => {
   const db = testEnv.authenticatedContext('teacher-1').firestore()
   await assertSucceeds(getDoc(doc(db, 'marks', 'mark-assigned')))
+})
+
+
+test('teachers cannot read records for a student outside the assigned class', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertFails(getDoc(doc(db, 'marks', 'mark-other-class')))
+})
+
+test('teachers cannot create academic records without a matching enrollment', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertFails(setDoc(doc(db, 'marks', 'mark-unenrolled-student'), {
+    studentId: 'student-1',
+    studentUserId: 'student-1',
+    classId: 'class-1',
+    academicYearId: 'year-1',
+    subjectId: 'subject-1',
+    score: 99,
+  }))
+})
+
+test('teachers cannot create academic records for withdrawn enrollment', async () => {
+  const db = testEnv.authenticatedContext('admin-1').firestore()
+  await setDoc(doc(db, 'enrollments', 'student-1__class-1__year-1'), {
+    studentId: 'student-1', studentUserId: 'student-1', classId: 'class-1',
+    academicYearId: 'year-1', status: 'Withdrawn',
+  })
+  const teacherDb = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertFails(setDoc(doc(teacherDb, 'marks', 'mark-withdrawn'), {
+    studentId: 'student-1', studentUserId: 'student-1', classId: 'class-1',
+    academicYearId: 'year-1', subjectId: 'subject-1', score: 90,
+  }))
 })
