@@ -17,18 +17,28 @@ Admin creates academic structure → students/classes/sections → teachers/subj
 ## ML model
 The demo model is a Random Forest trained by `ml/train_model.py` on a synthetic dataset so the prototype can run without exposing real student data. Features are attendance, average marks, recent performance trend and missed assessments. The generated model is exported as JSON and evaluated in the React frontend. Replace the synthetic data with an approved anonymized dataset for research evaluation.
 
-## Run
+## Run locally
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Firebase configuration belongs in `frontend/.env.local` and must not be committed.
+Firebase configuration belongs in `frontend/.env.local` and must not be committed. Copy `frontend/.env.example` if present, then fill in the Firebase Web App values for your own Firebase project.
 
-## Firestore rules
-`firebase/firestore.rules` contains the prototype security rules. Publish these rules in the Firebase Console before testing student-role access.
+## Firestore security setup
+`firebase/firestore.rules` contains the prototype security rules. Publish these rules to the Firebase project before testing role-based access.
 
+- A signed-in user cannot create their own `users/{uid}` profile or assign themselves a role.
+- Provision the first administrator through a trusted project-owner workflow (Firebase Console or a trusted Admin SDK environment); the client app must never bootstrap an admin role.
+- Once an administrator exists, user profiles must be provisioned by an administrator.
+- Students can read their linked academic records, but only administrators/teachers can write attendance, marks, predictions and recommendations.
+- Client-side role checks are for navigation only; Firestore rules are the authorization boundary.
+
+These are prototype rules, not a substitute for a complete production authorization review. Teacher access to student data still needs assignment-scoped authorization before production use.
+
+## Continuous integration
+The `.github/workflows/frontend-ci.yml` workflow runs `npm ci`, ESLint and a Vite production build on pushes to `main` and pull requests targeting `main`.
 
 ## Project documentation
 The repository contains the project context and working documentation needed to continue development:
