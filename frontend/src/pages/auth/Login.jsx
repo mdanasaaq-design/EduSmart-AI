@@ -109,7 +109,7 @@ function Login({ onLogin, onBack }) {
 
         <section className="auth-panel">
           <div className="auth-panel-inner">
-            <div className="auth-mobile-mark"><span className="auth-brand-mark"><GraduationCap size={23} /></span></div>
+            <div className="auth-mobile-mark"><img className="auth-brand-mark" src="/edusmart-mark.svg" alt="" aria-hidden="true" /></div>
             <span className="auth-panel-kicker">YOUR ACADEMIC WORKSPACE</span>
             <h2>{registering ? 'Create your account.' : 'Welcome back.'}</h2>
             <p className="auth-intro">
