@@ -10,7 +10,7 @@ export default function RoleDashboard({ user, onBack }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.role !== 'student') { setLoading(false); return }
+    if (user?.role !== 'student') return
     const load = async () => {
       setLoading(true)
       try {
