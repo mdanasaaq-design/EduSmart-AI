@@ -56,7 +56,7 @@ The student workspace uses the authenticated UID to retrieve the student's linke
 
 Automated Firestore Emulator regression tests live in `frontend/tests/firestore.rules.test.js` and cover role escalation, administrator provisioning, and student record access/write restrictions. The GitHub Actions workflow runs those tests alongside frontend lint and build checks.
 
-These rules still require publication to the actual Firebase project and a manual browser acceptance test. Teacher access to student data is not yet restricted by individual class/subject assignments, so the current rules remain prototype-level rather than production-ready.
+These rules still require publication to the actual Firebase project and a manual browser acceptance test. Academic-record reads/writes for teachers are scoped by deterministic teacher assignments and matching enrollments in the rules. Direct teacher reads of student profile/enrollment collections remain restricted because the current data model does not provide a safe general lookup for those documents; the teacher workflow therefore still needs browser-level verification.
 
 ### Recommendation persistence
 When a prediction is saved, the prototype also saves a rule-based recommendation in `recommendations`.
@@ -69,7 +69,7 @@ When a prediction is saved, the prototype also saves a rule-based recommendation
 - Risk classes: Low / Medium / High.
 - Features: attendance, averageMarks, recentTrend, missedAssessments.
 
-**Do not report final evaluation metrics until they are measured and recorded from a defined evaluation run.**
+A deterministic holdout evaluation is now documented in `ml/EVALUATION.md`: 1,200 synthetic records, 80/20 stratified split, 86.25% test accuracy, macro F1 0.83. These metrics describe agreement with formula-generated synthetic labels only; they are not evidence of real-world academic-risk accuracy.
 
 ## Still to verify
 1. `frontend/public/model.json` loads correctly in the browser.
@@ -82,10 +82,10 @@ When a prediction is saved, the prototype also saves a rule-based recommendation
 8. Analytics counts and risk chart.
 9. Student account linkage and student dashboard reads.
 10. Teacher role workflow.
-11. Firestore unauthorized-access cases.
+11. Firestore unauthorized-access cases (18 emulator tests pass).
 12. Empty/loading/error states.
 13. Responsive UI.
-14. Production build.
+14. Production build (CI passes).
 
 ## End-to-end acceptance test
 Use this order after pulling the latest `main`:
@@ -114,7 +114,8 @@ Use this order after pulling the latest `main`:
 Do not mark a task complete because a page renders. Mark it complete only after the relevant data flow and permissions have been verified.
 
 ## Verified CI state (2026-10-16)
-- Commit: `6ac5a22a048500b5ee5da0164734ce4b32f02437` (`fix: preserve registration setup error cause for lint`).
+- Code fix commit: `6ac5a22a048500b5ee5da0164734ce4b32f02437` (`fix: preserve registration setup error cause for lint`).
+- Latest repository head: `e1d0b92d3741f5b9670f5edf37d18233506623e1`; its GitHub Actions run also passed.
 - Firestore Emulator authorization tests: **18 passed, 0 failed**.
 - ESLint: passed.
 - Vite production build: passed.
@@ -124,13 +125,13 @@ Do not mark a task complete because a page renders. Mark it complete only after 
 ## Current next action
 Run the browser acceptance flow against the current build and verify that Firestore rules have been deployed to the live Firebase project. Do not claim the whole application is fully verified based on CI alone.
 
-### Teacher assignment enforcement (in progress)
+### Teacher assignment enforcement (implemented; browser verification pending)
 - Teacher profiles can now store the Firebase Authentication UID in `userId`; assignment creation requires that linkage.
 - New assignment documents use deterministic IDs in the form `<teacher UID>__<subject ID>__<class ID>`, which Firestore Rules check before granting teacher access to attendance, assessments, marks, predictions or recommendations.
 - Academic records and saved risk outputs now include class/subject scope fields. Legacy records without those fields are intentionally not available to teachers under the new rules.
 - Teacher access to student profiles and enrollments is restricted while the data model lacks a safe direct assignment lookup for those documents.
 - Existing random-ID assignments do not grant access under the new rules. Recreate each assignment from the admin UI after adding the teacher's Firebase Auth UID.
-- This change is not yet complete until the Firestore Emulator, lint and production build checks pass and the assignment workflow is manually verified. Firestore rules have not been published to the live Firebase project.
+- The Firestore Emulator tests, lint and production build now pass. The assignment workflow still requires manual browser verification, and Firestore rules have not been confirmed as published to the live Firebase project.
 
 
 ### Teacher enrollment membership validation (2026-10-16)
