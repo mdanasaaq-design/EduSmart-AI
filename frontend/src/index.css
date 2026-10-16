@@ -432,3 +432,10 @@ main.min-h-screen.bg-slate-950 .hover\\:text-red-400:hover { color: #9C3E31 !imp
 .analytics-footer { display:flex; justify-content:space-between; gap:16px; margin-top:36px; border-top:1px solid var(--line); padding-top:18px; color:#859087; font-size:9px; }
 .analytics-footer span:first-child { color:var(--forest); font-weight:850; }
 @media (max-width:650px) { .analytics-nav { padding:15px 16px; } .analytics-back { padding:9px 10px; font-size:10px; } .analytics-content { padding:26px 16px 20px; } .analytics-welcome { align-items:flex-start; flex-direction:column; } .analytics-mark { display:none; } .analytics-stats { grid-template-columns:1fr; gap:10px; } .analytics-stat-card { padding:16px; } .analytics-stat-card > strong { margin-top:12px; } .analytics-chart-heading { align-items:flex-start; } .analytics-chart-badge { display:none; } .analytics-chart { height:260px; } .analytics-footer { flex-direction:column; gap:6px; } }
+
+
+/* Authentication actions added with student registration and password reset. */
+.auth-success { margin-bottom: 16px; border: 1px solid #B9DCCB; border-radius: 12px; padding: 13px 16px; color: #245D4A; background: #EAF7EF; font-size: 12px; line-height: 1.6; }
+.auth-inline-action { display: inline-flex; align-items: center; gap: 5px; border: 0; padding: 0; color: var(--teal); background: transparent; font-size: inherit; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.auth-inline-action:hover { color: var(--forest); }
+.auth-inline-action:disabled { cursor: not-allowed; opacity: .55; }
