@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
-import { db } from './firebase'
+import { db, firebaseConfigReady } from './firebase'
 import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, CheckCircle2, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Sparkles, Users } from 'lucide-react'
 import Login from './pages/auth/Login'
 import Branches from './pages/admin/Branches'
@@ -34,7 +34,7 @@ function App() {
   const login = (nextUser) => { setUser(nextUser); setPage('dashboard') }
   const logout = async () => { await logoutUser(); setUser(null); setPage('home') }
 
-  if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} />
+  if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} firebaseConfigured={firebaseConfigReady} />
   if (page === 'branches') return <Branches onBack={() => setPage('dashboard')} />
   if (page === 'programs') return <Programs onBack={() => setPage('dashboard')} />
   if (page === 'academic-years') return <AcademicYears onBack={() => setPage('dashboard')} />
@@ -46,10 +46,10 @@ function App() {
   if (page === 'analytics') return <Analytics onBack={() => setPage('dashboard')} />
   if (page === 'role') return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
   if (page === 'dashboard') return <Dashboard user={user} onLogout={logout} onNavigate={setPage} />
-  return <Landing onSignIn={() => setPage('login')} />
+  return <Landing onSignIn={() => setPage('login')} firebaseConfigured={firebaseConfigReady} />
 }
 
-function Landing({ onSignIn }) {
+function Landing({ onSignIn, firebaseConfigured }) {
   return (
     <main className="landing-shell min-h-screen overflow-hidden">
       <nav className="landing-nav">
@@ -65,6 +65,7 @@ function Landing({ onSignIn }) {
           <div className="eyebrow"><span className="eyebrow-dot" /><Sparkles size={15} /> THE SMARTER WAY TO SUPPORT STUDENTS</div>
           <h1>Better insight.<br /><span>Brighter outcomes.</span></h1>
           <p className="hero-description">One thoughtful workspace for your academic operations—from everyday attendance to the signals that help every student thrive.</p>
+          {!firebaseConfigured && <p role="alert" className="mt-4 max-w-xl rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">Setup required: Firebase web configuration is missing. Add the six VITE_FIREBASE_* values to frontend/.env.local before signing in.</p>}
           <div className="flex flex-wrap items-center gap-3">
             <button onClick={onSignIn} className="button-primary">Explore your workspace <ArrowUpRight size={17} /></button>
             <div className="flex items-center gap-2 px-2 text-sm text-white/70"><ShieldCheck size={17} className="text-[#89D7B7]" /> Built around role-based access</div>
