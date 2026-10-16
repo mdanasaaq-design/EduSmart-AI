@@ -115,3 +115,11 @@ Do not mark a task complete because a page renders. Mark it complete only after 
 
 ## Current next action
 Pull `main`, run the frontend locally, and begin the acceptance test above. Record failures before making additional feature changes.
+
+### Teacher assignment enforcement (in progress)
+- Teacher profiles can now store the Firebase Authentication UID in `userId`; assignment creation requires that linkage.
+- New assignment documents use deterministic IDs in the form `<teacher UID>__<subject ID>__<class ID>`, which Firestore Rules check before granting teacher access to attendance, assessments, marks, predictions or recommendations.
+- Academic records and saved risk outputs now include class/subject scope fields. Legacy records without those fields are intentionally not available to teachers under the new rules.
+- Teacher access to student profiles and enrollments is restricted while the data model lacks a safe direct assignment lookup for those documents.
+- Existing random-ID assignments do not grant access under the new rules. Recreate each assignment from the admin UI after adding the teacher's Firebase Auth UID.
+- This change is not yet complete until the Firestore Emulator, lint and production build checks pass and the assignment workflow is manually verified. Firestore rules have not been published to the live Firebase project.
