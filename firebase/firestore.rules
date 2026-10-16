@@ -25,23 +25,47 @@ service cloud.firestore {
         && subjectId is string
         && exists(/databases/$(database)/documents/teacherAssignments/$(request.auth.uid + '__' + subjectId + '__' + classId));
     }
+    // Enrollment documents use <student ID>__<class ID>__<academic year ID>.
+    // This deterministic path lets Rules verify class membership without a query.
+    function hasMatchingEnrollment(studentId, classId, academicYearId, studentUserId) {
+      return studentId is string
+        && classId is string
+        && academicYearId is string
+        && exists(/databases/$(database)/documents/enrollments/$(studentId + '__' + classId + '__' + academicYearId))
+        && get(/databases/$(database)/documents/enrollments/$(studentId + '__' + classId + '__' + academicYearId)).data.studentId == studentId
+        && get(/databases/$(database)/documents/enrollments/$(studentId + '__' + classId + '__' + academicYearId)).data.classId == classId
+        && get(/databases/$(database)/documents/enrollments/$(studentId + '__' + classId + '__' + academicYearId)).data.academicYearId == academicYearId
+        && get(/databases/$(database)/documents/enrollments/$(studentId + '__' + classId + '__' + academicYearId)).data.studentUserId == studentUserId
+        && get(/databases/$(database)/documents/enrollments/$(studentId + '__' + classId + '__' + academicYearId)).data.status != 'Withdrawn';
+    }
+    function recordHasMatchingEnrollment(data) {
+      return hasMatchingEnrollment(data.studentId, data.classId, data.academicYearId, data.studentUserId);
+    }
     function canReadAcademicRecord() {
       return isAdmin()
         || ownsStudentRecord()
-        || hasTeachingAssignment(resource.data.classId, resource.data.subjectId);
+        || (hasTeachingAssignment(resource.data.classId, resource.data.subjectId)
+          && recordHasMatchingEnrollment(resource.data));
     }
     function canCreateAcademicRecord() {
       return isAdmin()
-        || hasTeachingAssignment(request.resource.data.classId, request.resource.data.subjectId);
+        || (hasTeachingAssignment(request.resource.data.classId, request.resource.data.subjectId)
+          && recordHasMatchingEnrollment(request.resource.data));
     }
     function canUpdateAcademicRecord() {
       return isAdmin()
         || (hasTeachingAssignment(resource.data.classId, resource.data.subjectId)
+          && recordHasMatchingEnrollment(resource.data)
+          && recordHasMatchingEnrollment(request.resource.data)
           && request.resource.data.classId == resource.data.classId
-          && request.resource.data.subjectId == resource.data.subjectId);
+          && request.resource.data.subjectId == resource.data.subjectId
+          && request.resource.data.studentId == resource.data.studentId
+          && request.resource.data.academicYearId == resource.data.academicYearId);
     }
     function canDeleteAcademicRecord() {
-      return isAdmin() || hasTeachingAssignment(resource.data.classId, resource.data.subjectId);
+      return isAdmin()
+        || (hasTeachingAssignment(resource.data.classId, resource.data.subjectId)
+          && recordHasMatchingEnrollment(resource.data));
     }
 
     match /users/{userId} {
