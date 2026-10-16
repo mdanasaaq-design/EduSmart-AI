@@ -111,3 +111,9 @@ test('unauthenticated users cannot read academic records', async () => {
   const db = testEnv.unauthenticatedContext().firestore()
   await assertFails(getDoc(doc(db, 'marks', 'mark-student-1')))
 })
+
+
+test('teachers cannot read records outside their assigned class and subject', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertFails(getDoc(doc(db, 'marks', 'mark-student-2')))
+})
