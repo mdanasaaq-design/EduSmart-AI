@@ -14,6 +14,10 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
+export const firebaseConfigReady = Object.values(firebaseConfig).every(
+  (value) => typeof value === 'string' && value.trim().length > 0 && !value.startsWith('your_'),
+)
+
 const app = initializeApp(firebaseConfig)
 
 export const auth = getAuth(app)
