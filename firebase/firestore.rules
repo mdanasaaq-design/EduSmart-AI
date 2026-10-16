@@ -5,6 +5,7 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function role() {
       return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
         : '';
     }
@@ -70,8 +71,18 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
-      // Roles are assigned only by an existing administrator.
-      allow create: if isAdmin();
+      // Public registration may create only a basic student profile for the
+      // authenticated UID. Staff roles remain administrator-assigned.
+      allow create: if isAdmin()
+        || (signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasAll(['name', 'email', 'role', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.email == request.auth.token.email
+          && request.resource.data.role == 'student'
+          && request.resource.data.createdAt == request.time);
       allow update: if isAdmin()
         || (signedIn()
           && request.auth.uid == userId
