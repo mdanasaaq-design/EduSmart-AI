@@ -44,8 +44,10 @@ export default function RoleDashboard({ user, onBack }) {
   }, [user])
 
   const avg = items => items.length ? (items.reduce((a, x) => a + Number(x.value || 0), 0) / items.length).toFixed(1) : '—'
-  const latestPrediction = records.predictions.at(-1)
-  const latestRecommendation = records.recommendations.at(-1)
+  // Firestore query results have no guaranteed chronological order unless explicitly ordered.
+  // Sort by the persisted timestamp so the dashboard consistently shows the newest insight.
+  const latestPrediction = [...records.predictions].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))[0]
+  const latestRecommendation = [...records.recommendations].sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))[0]
   const isStudent = user?.role === 'student'
   const displayName = student?.name || user?.name || user?.email || 'there'
 
