@@ -25,7 +25,7 @@ export default function Branches({ onBack }) {
     }
   }
 
-  useEffect(() => { loadBranches() }, [])
+  useEffect(() => { void Promise.resolve().then(loadBranches) }, [])
 
   function openAdd() {
     setEditingId(null)
