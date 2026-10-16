@@ -1,9 +1,9 @@
 # EduSmart AI — Development Status
 
-**Last documented state:** 2026-10-06
+**Last documented state:** 2026-10-16 (CI verification on commit `6ac5a22`)
 
 ## Overall status
-The prototype is in the **implementation + integration verification** phase. Most core modules exist; final completion depends on browser testing, security verification, build validation and fixing any runtime issues discovered during the end-to-end flow.
+The prototype is in the **integration verification** phase. The latest GitHub Actions run on `main` passed Firestore Emulator authorization tests (18/18), ESLint, and the Vite production build. The app still needs a live browser acceptance pass and confirmation that the current Firestore rules are published to the Firebase project.
 
 The earlier internal estimate of roughly **75–80% implementation** is a development estimate only, not an academic project result.
 
@@ -113,8 +113,16 @@ Use this order after pulling the latest `main`:
 ## Important testing rule
 Do not mark a task complete because a page renders. Mark it complete only after the relevant data flow and permissions have been verified.
 
+## Verified CI state (2026-10-16)
+- Commit: `6ac5a22a048500b5ee5da0164734ce4b32f02437` (`fix: preserve registration setup error cause for lint`).
+- Firestore Emulator authorization tests: **18 passed, 0 failed**.
+- ESLint: passed.
+- Vite production build: passed.
+- This verifies CI and the rules against the emulator, not the live Firebase deployment or end-to-end browser behavior.
+- The login logo lint issue and registration error-handling lint issue have been fixed on `main`.
+
 ## Current next action
-Pull `main`, run the frontend locally, and begin the acceptance test above. Record failures before making additional feature changes.
+Run the browser acceptance flow against the current build and verify that Firestore rules have been deployed to the live Firebase project. Do not claim the whole application is fully verified based on CI alone.
 
 ### Teacher assignment enforcement (in progress)
 - Teacher profiles can now store the Firebase Authentication UID in `userId`; assignment creation requires that linkage.
