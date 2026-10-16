@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  GraduationCap, LockKeyhole, Mail, LoaderCircle, ArrowLeft, ArrowUpRight,
+  LockKeyhole, Mail, LoaderCircle, ArrowLeft, ArrowUpRight,
   ShieldCheck, Sparkles, Brain, CheckCircle2, UserRound, KeyRound,
 } from 'lucide-react'
 import { loginUser, registerStudent, resetPassword } from '../../services/authService'
@@ -85,7 +85,7 @@ function Login({ onLogin, onBack }) {
     <main className="auth-shell">
       <header className="auth-header">
         <button type="button" onClick={onBack} className="auth-brand" aria-label="Back to EduSmart home">
-          <span className="auth-brand-mark"><GraduationCap size={23} /></span>
+          <img className="auth-brand-mark" src="/edusmart-mark.svg" alt="" aria-hidden="true" />
           <span><strong>EduSmart<span> AI</span></strong><small>LEARNING, IN FOCUS</small></span>
         </button>
         <button type="button" onClick={onBack} className="auth-back"><ArrowLeft size={15} /> Back to home</button>
