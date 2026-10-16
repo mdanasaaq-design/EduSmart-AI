@@ -123,3 +123,12 @@ Pull `main`, run the frontend locally, and begin the acceptance test above. Reco
 - Teacher access to student profiles and enrollments is restricted while the data model lacks a safe direct assignment lookup for those documents.
 - Existing random-ID assignments do not grant access under the new rules. Recreate each assignment from the admin UI after adding the teacher's Firebase Auth UID.
 - This change is not yet complete until the Firestore Emulator, lint and production build checks pass and the assignment workflow is manually verified. Firestore rules have not been published to the live Firebase project.
+
+
+### Teacher enrollment membership validation (2026-10-16)
+- Enrollment documents created through the admin UI now use deterministic IDs: `<student ID>__<class ID>__<academic year ID>`.
+- Teacher access to academic records now requires both the teacher's subject/class assignment and a matching enrollment for the record's student, class, and academic year. The enrollment's linked student UID must match the record's `studentUserId`; withdrawn enrollments do not authorize teacher access.
+- Academic record and prediction/recommendation writes now include `academicYearId` and `sectionId` from the selected enrollment.
+- Added Firestore Emulator tests for cross-class reads, un-enrolled students, and withdrawn enrollment.
+- Legacy random-ID enrollments are not discoverable by the deterministic membership check; recreate/re-key enrollments in the admin UI or migrate their IDs before expecting teacher access. Legacy records without `academicYearId` fail closed for teachers.
+- CI previously confirmed Firestore Rules tests passed, but lint failed on existing effect-based data-loading patterns; the affected admin screens now defer initial loader invocation to a microtask to avoid the synchronous-effect lint rule. Await the latest CI run before considering this complete.
