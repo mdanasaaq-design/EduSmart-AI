@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Lint and production build
+    name: Security tests, lint and production build
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -31,8 +31,20 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install locked dependencies
+      - name: Set up Java for the Firestore emulator
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install locked frontend dependencies
         run: npm ci
+
+      - name: Install temporary Firestore test tooling
+        run: npm install --no-save --package-lock=false @firebase/rules-unit-testing firebase-tools
+
+      - name: Test Firestore authorization rules
+        run: npx firebase emulators:exec --config ../firebase.json --only firestore --project demo-edusmart-ai "node --test tests/firestore.rules.test.js"
 
       - name: Run ESLint
         run: npm run lint
