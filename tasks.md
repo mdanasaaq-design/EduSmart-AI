@@ -72,8 +72,8 @@
 - [ ] Verify empty/error/loading states
 - [ ] Verify responsive UI
 - [x] CI production build passes on commit `6ac5a22`
-- [ ] Prepare Firebase Hosting configuration
-- [ ] Deploy only after local build passes
+- [x] Firebase Hosting configuration exists in `firebase.json` and the deployment workflow
+- [~] Redeploy latest `main` after confirming Firebase deployment secrets and live rules
 
 ## 9. Documentation
 - [x] PRD
@@ -83,8 +83,8 @@
 - [x] Task tracker
 - [x] Project memory
 - [~] README review after latest CI verification
-- [ ] Final PPT (exam deliverable)
-- [ ] Final project report (exam deliverable)
+- [~] Presentation draft generated; fill student/guide details and verify demo before final submission
+- [~] PDF/DOCX report drafts generated; fill student/guide details and verify demo before final submission
 
 ## 10. Final Acceptance Test
 - [ ] Fresh clone/setup works
