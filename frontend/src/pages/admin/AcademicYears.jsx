@@ -20,7 +20,7 @@ export default function AcademicYears({ onBack }) {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { loadYears() }, [])
+  useEffect(() => { void Promise.resolve().then(loadYears) }, [])
 
   function handleChange(event) { setForm((current) => ({ ...current, [event.target.name]: event.target.value })) }
   function resetForm() { setForm(initialForm); setEditingId(null) }
