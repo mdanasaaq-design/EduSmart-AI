@@ -6,14 +6,24 @@ import { db } from '../firebase'
 export default function RoleDashboard({ user, onBack }) {
   const [records, setRecords] = useState({ marks: [], attendance: [], predictions: [], recommendations: [] })
   const [student, setStudent] = useState(null)
+  const [assignments, setAssignments] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.role !== 'student') return
+    if (!user || !['student', 'teacher'].includes(user.role)) {
+      setLoading(false)
+      return
+    }
     const load = async () => {
       setLoading(true)
       try {
+        if (user.role === 'teacher') {
+          const assignmentSnap = await getDocs(query(collection(db, 'teacherAssignments'), where('teacherUserId', '==', user.uid)))
+          setAssignments(assignmentSnap.docs.map(x => ({ id: x.id, ...x.data() })))
+          setError('')
+          return
+        }
         const studentSnap = await getDocs(query(collection(db, 'students'), where('userId', '==', user.uid)))
         if (studentSnap.empty) {
           setStudent(null)
@@ -87,7 +97,7 @@ export default function RoleDashboard({ user, onBack }) {
             </div>
           </>
         ) : (
-          <article className="role-card role-teacher-card"><span className="role-card-icon"><ClipboardCheck size={21} /></span><h2>Your teaching workspace</h2><p>Use Attendance & Marks to record student performance and generate AI-assisted risk predictions. Review results in Analytics to help identify where additional support may be useful.</p><div className="role-teacher-note"><ShieldCheck size={17} /> Student information is available according to your account permissions.</div></article>
+          <article className="role-card role-teacher-card"><span className="role-card-icon"><ClipboardCheck size={21} /></span><h2>Your teaching workspace</h2><p>Here are the classes and subjects assigned to your account. Use these assignments to confirm your teaching scope with the institute administrator.</p><div className="role-teacher-note"><ShieldCheck size={17} /> Only assignments linked to your signed-in account are shown.</div><div className="mt-5 space-y-3">{assignments.length ? assignments.map(item => <div key={item.id} className="rounded-xl border border-slate-700 bg-slate-900/70 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-white">{item.subjectName || 'Subject'}</h3><p className="mt-1 text-sm text-slate-400">{item.className || 'Class'}{item.sectionName ? ' · ' + item.sectionName : ''}</p></div><span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">Assigned</span></div></div>) : <p className="rounded-xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">No teaching assignments are linked to this account yet. Ask your administrator to add your Firebase Auth UID to your teacher profile and create an assignment.</p>}</div></article>
         )}
         <footer className="role-footer"><span>EduSmart AI</span><span>Thoughtfully designed for better learning outcomes.</span></footer>
       </section>
