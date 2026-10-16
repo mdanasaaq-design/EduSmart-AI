@@ -78,3 +78,36 @@ test('a student cannot create or modify academic marks', async () => {
   }))
   await assertFails(updateDoc(doc(db, 'marks', 'mark-student-1'), { score: 100 }))
 })
+
+test('a user cannot create a profile for another account', async () => {
+  const db = testEnv.authenticatedContext('attacker').firestore()
+  await assertFails(setDoc(doc(db, 'users', 'victim'), {
+    role: 'admin',
+    name: 'Injected administrator',
+  }))
+})
+
+test('a student cannot write attendance, predictions, or recommendations', async () => {
+  const db = testEnv.authenticatedContext('student-1').firestore()
+  const ownedRecord = { studentUserId: 'student-1', value: 100 }
+
+  await assertFails(setDoc(doc(db, 'attendance', 'student-created-attendance'), ownedRecord))
+  await assertFails(setDoc(doc(db, 'predictions', 'student-created-prediction'), ownedRecord))
+  await assertFails(setDoc(doc(db, 'recommendations', 'student-created-recommendation'), ownedRecord))
+})
+
+test('a non-admin cannot create or modify academic structure', async () => {
+  const db = testEnv.authenticatedContext('student-1').firestore()
+
+  await assertFails(setDoc(doc(db, 'classes', 'unauthorized-class'), { name: 'Injected class' }))
+  await assertFails(setDoc(doc(db, 'teacherAssignments', 'unauthorized-assignment'), {
+    teacherId: 'attacker',
+    subjectId: 'subject-1',
+    classId: 'class-1',
+  }))
+})
+
+test('unauthenticated users cannot read academic records', async () => {
+  const db = testEnv.unauthenticatedContext().firestore()
+  await assertFails(getDoc(doc(db, 'marks', 'mark-student-1')))
+})
