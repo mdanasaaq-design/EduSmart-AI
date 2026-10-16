@@ -26,6 +26,9 @@ npm run dev
 
 Firebase configuration belongs in `frontend/.env.local` and must not be committed. Copy `frontend/.env.example` if present, then fill in the Firebase Web App values for your own Firebase project.
 
+## Firebase Hosting deployment
+The repository includes Firebase Hosting configuration for the Vite SPA, including a fallback rewrite to `index.html`, and a manual GitHub Actions production deployment workflow. Follow [Firebase Hosting Deployment](docs/FIREBASE_DEPLOYMENT.md) to create the Firebase project configuration, add repository secrets, and deploy.
+
 ## Firestore security setup
 `firebase/firestore.rules` contains the prototype security rules. Publish these rules to the Firebase project before testing role-based access.
 
