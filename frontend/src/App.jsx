@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChart3, Brain, Building2, CalendarDays, GraduationCap, LayoutDashboard, LogOut, School, Users, ClipboardCheck, Link2 } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, CheckCircle2, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Sparkles, Users } from 'lucide-react'
 import Login from './pages/auth/Login'
 import Branches from './pages/admin/Branches'
 import Programs from './pages/admin/Programs'
@@ -12,21 +12,129 @@ import AcademicRecords from './pages/AcademicRecords'
 import Analytics from './pages/Analytics'
 import RoleDashboard from './pages/RoleDashboard'
 import { logoutUser } from './services/authService'
-const modules=[
-{title:'Branches',description:'Manage institute branches and locations.',icon:Building2,page:'branches'},
-{title:'Programs',description:'Manage school, junior college and degree programs.',icon:GraduationCap,page:'programs'},
-{title:'Academic Years',description:'Set up academic years and sessions.',icon:CalendarDays,page:'academic-years'},
-{title:'Classes & Sections',description:'Organize classes, sections and academic structure.',icon:LayoutDashboard,page:'classes-sections'},
-{title:'Students & Enrollments',description:'Manage student profiles and academic-year enrollment.',icon:Users,page:'students'},
-{title:'Teachers',description:'Manage teacher profiles.',icon:Users,page:'teachers'},
-{title:'Subjects',description:'Create subjects and codes.',icon:School,page:'subjects'},
-{title:'Teacher Assignments',description:'Connect teachers, subjects and classes.',icon:Link2,page:'assignments'},
-{title:'Attendance & Marks',description:'Record performance and generate AI risk insight.',icon:ClipboardCheck,page:'records'},
-{title:'Analytics',description:'View institute metrics and risk distribution.',icon:BarChart3,page:'analytics'}]
-function App(){const[page,setPage]=useState('home'),[user,setUser]=useState(null);const login=u=>{setUser(u);setPage('dashboard')};const logout=async()=>{await logoutUser();setUser(null);setPage('home')};if(page==='login')return <Login onLogin={login} onBack={()=>setPage('home')}/>;if(page==='branches')return <Branches onBack={()=>setPage('dashboard')}/>;if(page==='programs')return <Programs onBack={()=>setPage('dashboard')}/>;if(page==='academic-years')return <AcademicYears onBack={()=>setPage('dashboard')}/>;if(page==='classes-sections')return <ClassesSections onBack={()=>setPage('dashboard')}/>;if(page==='students')return <StudentsEnrollments onBack={()=>setPage('dashboard')}/>;if(page==='assignments')return <Assignments onBack={()=>setPage('dashboard')}/>;if(['teachers','subjects'].includes(page))return <AdminManagement type={page} onBack={()=>setPage('dashboard')}/>;if(page==='records')return <AcademicRecords user={user} onBack={()=>setPage('dashboard')}/>;if(page==='analytics')return <Analytics onBack={()=>setPage('dashboard')}/>;if(page==='role')return <RoleDashboard user={user} onBack={()=>setPage('dashboard')}/>;if(page==='dashboard')return <Dashboard user={user} onLogout={logout} onNavigate={setPage}/>;return <Landing onSignIn={()=>setPage('login')}/>}
-function Landing({onSignIn}){return <main className="min-h-screen bg-slate-950 text-white"><nav className="mx-auto flex max-w-7xl justify-between px-6 py-5"><Brand/><button onClick={onSignIn} className="rounded-lg border border-slate-700 px-4 py-2 text-sm">Sign In</button></nav><section className="mx-auto max-w-7xl px-6 py-20"><div className="max-w-4xl"><div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-400/10 px-3 py-2 text-sm text-emerald-300"><Brain size={16}/>AI-powered academic insights</div><h1 className="text-5xl font-bold leading-tight sm:text-6xl">Smarter institute management. <span className="text-emerald-400">Better student outcomes.</span></h1><p className="mt-6 text-lg leading-8 text-slate-400">Manage academic structure, students, teachers, attendance, marks, analytics and student risk prediction in one working prototype.</p><button onClick={onSignIn} className="mt-8 rounded-xl bg-emerald-500 px-5 py-3 font-semibold text-slate-950">Open Dashboard</button></div></section></main>}
-function Dashboard({user,onLogout,onNavigate}){const role=user?.role||'user';const admin=role==='admin';return <main className="min-h-screen bg-slate-950 text-white"><nav className="border-b border-slate-800 bg-slate-900/80 px-6 py-4"><div className="mx-auto flex max-w-7xl items-center justify-between"><Brand/><div className="flex items-center gap-4"><div className="hidden text-right sm:block"><p className="text-sm">{user?.name||user?.email}</p><p className="text-xs text-emerald-400">{role}</p></div><button onClick={onLogout} className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm"><LogOut size={16}/>Logout</button></div></div></nav><section className="mx-auto max-w-7xl px-6 py-8"><p className="text-sm text-emerald-400">{role} dashboard</p><h1 className="mt-2 text-3xl font-bold">Welcome, {user?.name||'User'}.</h1><p className="mt-2 text-slate-400">{admin?'Manage institute data and academic performance.':'Open your academic workspace to view or record performance.'}</p>{admin?<><div className="my-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><Stat label="Students"/><Stat label="Teachers"/><Stat label="Programs"/><Stat label="AI Predictions"/></div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{modules.map(m=><Module key={m.title} {...m} onClick={()=>onNavigate(m.page)}/>)}</div></>:<div className="mt-8 max-w-md"><Module title="Academic Workspace" description="Open the role-specific academic dashboard." icon={ClipboardCheck} onClick={()=>onNavigate('role')}/></div>}</section></main>}
-function Stat({label}){return <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><p className="text-sm text-slate-400">{label}</p><p className="mt-2 text-3xl font-bold">—</p></div>}
-function Module({title,description,icon:Icon,onClick}){return <button onClick={onClick} className="group rounded-2xl border border-slate-800 bg-slate-900 p-5 text-left hover:border-emerald-400/40"><div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-slate-800 text-emerald-400"><Icon size={21}/></div><h3 className="font-semibold">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-500">{description}</p><p className="mt-4 text-xs text-emerald-400">Open →</p></button>}
-function Brand(){return <div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-slate-950"><GraduationCap size={23}/></div><div><p className="text-lg font-bold">EduSmart AI</p><p className="text-xs text-slate-400">Institute Management System</p></div></div>}
+
+const modules = [
+  { title: 'Branches', description: 'Manage institute locations and campuses.', icon: Building2, page: 'branches', category: 'INSTITUTE' },
+  { title: 'Programs', description: 'Organize programs and qualifications.', icon: GraduationCap, page: 'programs', category: 'INSTITUTE' },
+  { title: 'Academic Years', description: 'Keep sessions and academic calendars in sync.', icon: CalendarDays, page: 'academic-years', category: 'ACADEMICS' },
+  { title: 'Classes & Sections', description: 'Build a clear structure for every cohort.', icon: LayoutDashboard, page: 'classes-sections', category: 'ACADEMICS' },
+  { title: 'Students & Enrollments', description: 'Manage student records and class enrollment.', icon: Users, page: 'students', category: 'PEOPLE' },
+  { title: 'Teachers', description: 'Maintain teacher profiles and details.', icon: Users, page: 'teachers', category: 'PEOPLE' },
+  { title: 'Subjects', description: 'Keep subjects and course codes organized.', icon: School, page: 'subjects', category: 'ACADEMICS' },
+  { title: 'Teacher Assignments', description: 'Connect teachers with classes and subjects.', icon: Link2, page: 'assignments', category: 'PEOPLE' },
+  { title: 'Attendance & Marks', description: 'Record performance and generate risk insights.', icon: ClipboardCheck, page: 'records', category: 'INSIGHTS' },
+  { title: 'Analytics', description: 'Explore institute metrics and risk patterns.', icon: BarChart3, page: 'analytics', category: 'INSIGHTS' },
+]
+
+function App() {
+  const [page, setPage] = useState('home')
+  const [user, setUser] = useState(null)
+  const login = (nextUser) => { setUser(nextUser); setPage('dashboard') }
+  const logout = async () => { await logoutUser(); setUser(null); setPage('home') }
+
+  if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} />
+  if (page === 'branches') return <Branches onBack={() => setPage('dashboard')} />
+  if (page === 'programs') return <Programs onBack={() => setPage('dashboard')} />
+  if (page === 'academic-years') return <AcademicYears onBack={() => setPage('dashboard')} />
+  if (page === 'classes-sections') return <ClassesSections onBack={() => setPage('dashboard')} />
+  if (page === 'students') return <StudentsEnrollments onBack={() => setPage('dashboard')} />
+  if (page === 'assignments') return <Assignments onBack={() => setPage('dashboard')} />
+  if (['teachers', 'subjects'].includes(page)) return <AdminManagement type={page} onBack={() => setPage('dashboard')} />
+  if (page === 'records') return <AcademicRecords user={user} onBack={() => setPage('dashboard')} />
+  if (page === 'analytics') return <Analytics onBack={() => setPage('dashboard')} />
+  if (page === 'role') return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
+  if (page === 'dashboard') return <Dashboard user={user} onLogout={logout} onNavigate={setPage} />
+  return <Landing onSignIn={() => setPage('login')} />
+}
+
+function Landing({ onSignIn }) {
+  return (
+    <main className="landing-shell min-h-screen overflow-hidden">
+      <nav className="landing-nav">
+        <Brand />
+        <div className="flex items-center gap-3">
+          <span className="hidden text-sm text-white/65 sm:inline">A clearer view of every learner</span>
+          <button onClick={onSignIn} className="button-light">Sign in <ArrowUpRight size={16} /></button>
+        </div>
+      </nav>
+
+      <section className="hero-wrap">
+        <div className="hero-copy">
+          <div className="eyebrow"><span className="eyebrow-dot" /><Sparkles size={15} /> THE SMARTER WAY TO SUPPORT STUDENTS</div>
+          <h1>Better insight.<br /><span>Brighter outcomes.</span></h1>
+          <p className="hero-description">One thoughtful workspace for your academic operations—from everyday attendance to the signals that help every student thrive.</p>
+          <div className="flex flex-wrap items-center gap-3">
+            <button onClick={onSignIn} className="button-primary">Explore your workspace <ArrowUpRight size={17} /></button>
+            <div className="flex items-center gap-2 px-2 text-sm text-white/70"><ShieldCheck size={17} className="text-[#89D7B7]" /> Built around role-based access</div>
+          </div>
+          <div className="hero-proof">
+            <div className="proof-item"><CheckCircle2 size={16} /><span>Academic records in one place</span></div>
+            <div className="proof-item"><CheckCircle2 size={16} /><span>AI-assisted risk signals</span></div>
+          </div>
+        </div>
+
+        <div className="hero-art" aria-label="Illustration of an academic analytics dashboard">
+          <div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" />
+          <div className="preview-card">
+            <div className="preview-top"><div><span className="preview-kicker">ACADEMIC OVERVIEW</span><h2>Good morning.</h2></div><div className="preview-avatar">ES</div></div>
+            <div className="preview-metrics">
+              <div className="preview-metric"><span>Attendance</span><strong>94.8%</strong><div className="metric-line"><i style={{ width: '94.8%' }} /></div></div>
+              <div className="preview-metric"><span>On-track learners</span><strong>82%</strong><div className="metric-line"><i style={{ width: '82%' }} /></div></div>
+            </div>
+            <div className="preview-chart"><div className="chart-heading"><span>Learning progress</span><span>THIS TERM</span></div><div className="chart-bars">{[36, 52, 44, 68, 57, 78, 66, 90, 74, 96, 80, 100].map((height, index) => <i key={index} style={{ height: height + '%' }} />)}</div><div className="chart-labels"><span>Week 01</span><span>Week 06</span><span>Week 12</span></div></div>
+            <div className="preview-footer"><span className="footer-pulse" /> Insights that make a difference <span className="footer-spark"><Sparkles size={15} /></span></div>
+          </div>
+          <div className="floating-note"><div className="note-icon"><Brain size={18} /></div><div><strong>Early insight</strong><span>Spot support needs sooner</span></div></div>
+          <div className="floating-stamp"><span>DESIGNED FOR</span><strong>Every learner.</strong></div>
+        </div>
+      </section>
+
+      <section className="landing-bottom">
+        <div className="bottom-intro"><span>ONE CONNECTED WORKSPACE</span><p>Less admin noise.<br /><strong>More room to teach.</strong></p></div>
+        <div className="feature-list">
+          <div className="feature-item"><div className="feature-icon"><School size={19} /></div><div><strong>Academic operations</strong><span>Classes, subjects and enrollment</span></div></div>
+          <div className="feature-item"><div className="feature-icon"><BarChart3 size={19} /></div><div><strong>Meaningful analytics</strong><span>Performance you can act on</span></div></div>
+          <div className="feature-item"><div className="feature-icon"><Brain size={19} /></div><div><strong>AI-assisted insights</strong><span>Earlier signals, thoughtful support</span></div></div>
+        </div>
+      </section>
+      <footer className="landing-footer"><Brand /><span>Thoughtfully designed for better learning outcomes.</span></footer>
+    </main>
+  )
+}
+
+function Dashboard({ user, onLogout, onNavigate }) {
+  const role = user?.role || 'user'
+  const admin = role === 'admin'
+  const grouped = ['INSTITUTE', 'ACADEMICS', 'PEOPLE', 'INSIGHTS'].map((category) => ({ category, items: modules.filter((module) => module.category === category) }))
+  return (
+    <main className="app-shell min-h-screen">
+      <nav className="app-topbar"><div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-4 lg:px-9"><Brand /><div className="flex items-center gap-4"><div className="hidden text-right sm:block"><p className="text-sm font-semibold text-[#1A312C]">{user?.name || user?.email}</p><p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[.15em] text-[#428475]">{role}</p></div><div className="user-avatar">{(user?.name || user?.email || 'U').slice(0, 1).toUpperCase()}</div><button onClick={onLogout} className="button-outline"><LogOut size={15} /> <span className="hidden sm:inline">Sign out</span></button></div></div></nav>
+      <section className="mx-auto max-w-[1400px] px-5 py-8 lg:px-9 lg:py-11">
+        <div className="dashboard-welcome">
+          <div><div className="dashboard-kicker"><span className="eyebrow-dot" /> YOUR ACADEMIC WORKSPACE</div><h1>Welcome back, {user?.name?.split(' ')[0] || 'there'}.</h1><p>{admin ? 'Your institute, at a glance. Choose an area to get started.' : 'Your academic workspace is ready when you are.'}</p></div>
+          <div className="welcome-mark"><GraduationCap size={32} /><span>EDUSMART / 01</span></div>
+        </div>
+        {admin ? <>
+          <div className="dashboard-stats"><Stat label="Students" detail="Student records" icon={Users} /><Stat label="Teachers" detail="Teaching team" icon={School} /><Stat label="Programs" detail="Academic programs" icon={GraduationCap} /><Stat label="AI predictions" detail="Risk insights" icon={Brain} /></div>
+          <div className="section-heading"><div><span>YOUR TOOLKIT</span><h2>Everything in its place.</h2></div><p>Choose a workspace to manage your institute.</p></div>
+          <div className="dashboard-groups">{grouped.map((group) => <section className="module-group" key={group.category}><div className="group-heading"><span>{group.category}</span><i /></div><div className="module-grid">{group.items.map((module) => <Module key={module.title} {...module} onClick={() => onNavigate(module.page)} />)}</div></section>)}</div>
+        </> : <div className="mt-8 max-w-lg"><Module title="Academic Workspace" description="Open your role-specific academic dashboard." icon={ClipboardCheck} category="YOUR SPACE" onClick={() => onNavigate('role')} /></div>}
+      </section>
+      <footer className="dashboard-footer"><span>EduSmart AI</span><span>Every learner deserves the chance to thrive.</span></footer>
+    </main>
+  )
+}
+
+function Stat({ label, detail, icon: Icon }) {
+  return <div className="stat-card"><div className="stat-icon"><Icon size={19} /></div><div><p>{label}</p><strong>—</strong><span>{detail}</span></div><ArrowUpRight size={16} className="stat-arrow" /></div>
+}
+
+function Module({ title, description, icon: Icon, category, onClick }) {
+  return <button onClick={onClick} className="module-card"><div className="module-card-top"><div className="module-icon"><Icon size={20} /></div><ArrowUpRight size={17} className="module-arrow" /></div><span className="module-category">{category}</span><h3>{title}</h3><p>{description}</p><span className="module-open">Open workspace <span>→</span></span></button>
+}
+
+function Brand() {
+  return <div className="brand-lockup"><div className="brand-symbol"><GraduationCap size={23} strokeWidth={2.1} /></div><div><p className="brand-name">EduSmart<span> AI</span></p><p className="brand-caption">LEARNING, IN FOCUS</p></div></div>
+}
+
 export default App
