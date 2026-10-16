@@ -160,3 +160,28 @@ test('teachers cannot create academic records for withdrawn enrollment', async (
     academicYearId: 'year-1', subjectId: 'subject-1', score: 90,
   }))
 })
+
+
+test('teachers can create academic records for enrolled students in assigned classes', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertSucceeds(setDoc(doc(db, 'marks', 'mark-new-assigned'), {
+    studentId: 'student-2',
+    studentUserId: 'student-2',
+    classId: 'class-1',
+    academicYearId: 'year-1',
+    subjectId: 'subject-1',
+    score: 93,
+  }))
+})
+
+test('teacher record student identity must match the enrollment', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  await assertFails(setDoc(doc(db, 'marks', 'mark-wrong-student-uid'), {
+    studentId: 'student-2',
+    studentUserId: 'student-1',
+    classId: 'class-1',
+    academicYearId: 'year-1',
+    subjectId: 'subject-1',
+    score: 93,
+  }))
+})
