@@ -37,7 +37,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .text-slate-500, .text-slate-600 { color: #738178 !important; }
 .text-emerald-400, .text-emerald-300 { color: var(--teal) !important; }
 .bg-emerald-500 { background-color: var(--teal) !important; }
-.hover\\:bg-emerald-400:hover { background-color: #367364 !important; }
+.hover\:bg-emerald-400:hover { background-color: #367364 !important; }
 .text-slate-950 { color: var(--ivory) !important; }
 .ring-emerald-400 { --tw-ring-color: var(--mint) !important; }
 
@@ -168,7 +168,7 @@ input, select, textarea { color: var(--forest); }
 input::placeholder { color: #94A097; }
 .bg-slate-950 input, .bg-slate-950 select, .bg-slate-950 textarea { background-color: #FFFEFA !important; }
 .bg-slate-800.text-emerald-300 { color: var(--teal) !important; }
-.hover\\:text-white:hover { color: var(--forest) !important; }
+.hover\:text-white:hover { color: var(--forest) !important; }
 
 @media (max-width: 1050px) {
   .hero-wrap { grid-template-columns: minmax(0,1fr) minmax(350px,.9fr); gap: 24px; }
