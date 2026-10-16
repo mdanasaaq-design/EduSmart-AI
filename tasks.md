@@ -24,7 +24,7 @@
 - [x] Role-aware navigation
 - [x] Logout
 - [x] Initial admin account
-- [~] Verify complete student/teacher role flow
+- [~] Verify complete student/teacher role flow in the live browser
 
 ## 3. Admin Module
 - [x] Branches
@@ -50,9 +50,9 @@
 - [x] Create synthetic training data
 - [x] Train Random Forest model
 - [x] Export compact model
-- [~] Verify frontend model.json
+- [~] Verify frontend model.json loads in the browser
 - [~] Verify browser inference
-- [ ] Record actual evaluation metrics for the report
+- [x] Record reproducible holdout metrics on synthetic demo data (86.25% accuracy; see `ml/EVALUATION.md`)
 
 ## 6. Analytics
 - [~] Prediction counts
@@ -60,10 +60,10 @@
 - [~] Browser verification
 
 ## 7. Security
-- [~] Publish and verify Firestore rules
-- [ ] Verify student read permissions
-- [ ] Prevent non-admin role changes
-- [ ] Test unauthorized access cases
+- [~] Publish and verify Firestore rules in the live Firebase project
+- [x] Emulator tests verify students can read only their linked academic records
+- [x] Emulator tests verify users cannot self-assign or change roles
+- [x] 18 Firestore Emulator authorization tests pass
 
 ## 8. Final Integration
 - [ ] Complete Admin → Teacher → Student demonstration flow
@@ -71,7 +71,7 @@
 - [ ] Fix Firestore permission errors
 - [ ] Verify empty/error/loading states
 - [ ] Verify responsive UI
-- [ ] Run production build
+- [x] CI production build passes on commit `6ac5a22`
 - [ ] Prepare Firebase Hosting configuration
 - [ ] Deploy only after local build passes
 
@@ -82,9 +82,9 @@
 - [x] UI/UX design document
 - [x] Task tracker
 - [x] Project memory
-- [ ] Final README review
-- [ ] Final PPT
-- [ ] Final project report
+- [~] README review after latest CI verification
+- [ ] Final PPT (exam deliverable)
+- [ ] Final project report (exam deliverable)
 
 ## 10. Final Acceptance Test
 - [ ] Fresh clone/setup works
@@ -97,5 +97,5 @@
 - [ ] Factors/recommendations are shown
 - [ ] Analytics works
 - [ ] Student/teacher role access works
-- [ ] Firestore rules block unauthorized operations
-- [ ] Production build succeeds
+- [x] Firestore Emulator tests block the tested unauthorized operations
+- [x] CI production build succeeds
