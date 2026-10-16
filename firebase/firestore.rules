@@ -15,11 +15,38 @@ service cloud.firestore {
       return isStudent() && resource.data.studentUserId == request.auth.uid;
     }
 
+    // Assignment documents use the deterministic ID:
+    // <teacher auth UID>__<subject document ID>__<class document ID>.
+    // Legacy/random-ID assignments do not grant access; recreate them through
+    // the admin assignment screen after linking the teacher's Auth UID.
+    function hasTeachingAssignment(classId, subjectId) {
+      return isTeacher()
+        && classId is string
+        && subjectId is string
+        && exists(/databases/$(database)/documents/teacherAssignments/$(request.auth.uid + '__' + subjectId + '__' + classId));
+    }
+    function canReadAcademicRecord() {
+      return isAdmin()
+        || ownsStudentRecord()
+        || hasTeachingAssignment(resource.data.classId, resource.data.subjectId);
+    }
+    function canCreateAcademicRecord() {
+      return isAdmin()
+        || hasTeachingAssignment(request.resource.data.classId, request.resource.data.subjectId);
+    }
+    function canUpdateAcademicRecord() {
+      return isAdmin()
+        || (hasTeachingAssignment(resource.data.classId, resource.data.subjectId)
+          && request.resource.data.classId == resource.data.classId
+          && request.resource.data.subjectId == resource.data.subjectId);
+    }
+    function canDeleteAcademicRecord() {
+      return isAdmin() || hasTeachingAssignment(resource.data.classId, resource.data.subjectId);
+    }
+
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
-
-      // Roles are assigned only by an existing administrator. A newly
-      // authenticated user must not be able to grant themselves any role.
+      // Roles are assigned only by an existing administrator.
       allow create: if isAdmin();
       allow update: if isAdmin()
         || (signedIn()
@@ -33,7 +60,6 @@ service cloud.firestore {
     match /programs/{id} { allow read, write: if isAdmin(); }
     match /academicYears/{id} { allow read, write: if isAdmin(); }
 
-    // Teachers can access the academic structure, but only admins maintain it.
     match /classes/{id} {
       allow read: if isAdmin() || isTeacher();
       allow write: if isAdmin();
@@ -43,15 +69,17 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Student profiles contain personal information. Teachers should work from
+    // assigned academic records rather than browse every student's profile.
     match /students/{id} {
-      allow read: if isAdmin() || isTeacher()
+      allow read: if isAdmin()
         || (isStudent() && resource.data.userId == request.auth.uid);
-      allow write: if isAdmin() || isTeacher();
+      allow write: if isAdmin();
     }
 
     match /teachers/{id} {
-      allow read: if isAdmin() || (isTeacher() && id == request.auth.uid);
-      allow write: if isAdmin() || (isTeacher() && id == request.auth.uid);
+      allow read: if isAdmin() || (isTeacher() && resource.data.userId == request.auth.uid);
+      allow write: if isAdmin();
     }
 
     match /subjects/{id} {
@@ -60,39 +88,55 @@ service cloud.firestore {
     }
 
     match /enrollments/{id} {
-      allow read: if isAdmin() || isTeacher()
+      allow read: if isAdmin()
         || (isStudent() && resource.data.studentUserId == request.auth.uid);
-      allow write: if isAdmin() || isTeacher();
+      allow write: if isAdmin();
     }
 
     match /teacherAssignments/{id} {
-      allow read: if isAdmin() || isTeacher();
+      allow read: if isAdmin()
+        || (isTeacher() && resource.data.teacherUserId == request.auth.uid);
+      allow write: if isAdmin();
+    }
+
+    match /teacherClassAccess/{id} {
+      allow read: if isAdmin() || (isTeacher() && resource.data.teacherUserId == request.auth.uid);
       allow write: if isAdmin();
     }
 
     match /attendance/{id} {
-      allow read: if isAdmin() || isTeacher() || ownsStudentRecord();
-      allow write: if isAdmin() || isTeacher();
+      allow read: if canReadAcademicRecord();
+      allow create: if canCreateAcademicRecord();
+      allow update: if canUpdateAcademicRecord();
+      allow delete: if canDeleteAcademicRecord();
     }
 
     match /assessments/{id} {
-      allow read: if isAdmin() || isTeacher();
-      allow write: if isAdmin() || isTeacher();
+      allow read: if canReadAcademicRecord();
+      allow create: if canCreateAcademicRecord();
+      allow update: if canUpdateAcademicRecord();
+      allow delete: if canDeleteAcademicRecord();
     }
 
     match /marks/{id} {
-      allow read: if isAdmin() || isTeacher() || ownsStudentRecord();
-      allow write: if isAdmin() || isTeacher();
+      allow read: if canReadAcademicRecord();
+      allow create: if canCreateAcademicRecord();
+      allow update: if canUpdateAcademicRecord();
+      allow delete: if canDeleteAcademicRecord();
     }
 
     match /predictions/{id} {
-      allow read: if isAdmin() || isTeacher() || ownsStudentRecord();
-      allow write: if isAdmin() || isTeacher();
+      allow read: if canReadAcademicRecord();
+      allow create: if canCreateAcademicRecord();
+      allow update: if canUpdateAcademicRecord();
+      allow delete: if canDeleteAcademicRecord();
     }
 
     match /recommendations/{id} {
-      allow read: if isAdmin() || isTeacher() || ownsStudentRecord();
-      allow write: if isAdmin() || isTeacher();
+      allow read: if canReadAcademicRecord();
+      allow create: if canCreateAcademicRecord();
+      allow update: if canUpdateAcademicRecord();
+      allow delete: if canDeleteAcademicRecord();
     }
   }
 }
