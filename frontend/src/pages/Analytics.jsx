@@ -1,7 +1,51 @@
-import { useEffect,useState } from 'react'
-import { collection,getDocs } from 'firebase/firestore'
-import { ArrowLeft,BarChart3,Brain,Users } from 'lucide-react'
-import { Bar,BarChart,CartesianGrid,ResponsiveContainer,Tooltip,XAxis,YAxis } from 'recharts'
+import { useEffect, useState } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { ArrowLeft, BarChart3, Brain, Users, Sparkles, GraduationCap } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { db } from '../firebase'
-export default function Analytics({onBack}){const[data,setData]=useState([]),[counts,setCounts]=useState({students:0,teachers:0,predictions:0}),[error,setError]=useState('');useEffect(()=>{Promise.all(['students','teachers','predictions'].map(c=>getDocs(collection(db,c)))).then(([s,t,p])=>{const rows=p.docs.map(x=>x.data());setCounts({students:s.size,teachers:t.size,predictions:p.size});setData(['Low','Medium','High'].map(r=>({risk:r,count:rows.filter(x=>x.riskLevel===r).length}))) }).catch(e=>setError(e.message))},[]);return <main className="min-h-screen bg-slate-950 text-white"><nav className="border-b border-slate-800 bg-slate-900 p-5"><div className="mx-auto flex max-w-7xl justify-between"><div><h1 className="font-bold">Analytics</h1><p className="text-xs text-slate-500">Institute and AI risk overview</p></div><button onClick={onBack} className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2"><ArrowLeft size={16}/>Dashboard</button></div></nav><section className="mx-auto max-w-7xl p-6">{error&&<p className="mb-5 rounded-lg bg-red-500/10 p-3 text-sm text-red-300">{error}</p>}<div className="grid gap-4 sm:grid-cols-3"><Card icon={<Users/>} label="Students" value={counts.students}/><Card icon={<Users/>} label="Teachers" value={counts.teachers}/><Card icon={<Brain/>} label="Predictions" value={counts.predictions}/></div><div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6"><div className="flex items-center gap-2"><BarChart3 className="text-emerald-400"/><h2 className="font-semibold">Risk distribution</h2></div><div className="mt-6 h-80"><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><CartesianGrid strokeDasharray="3 3" stroke="#334155"/><XAxis dataKey="risk" stroke="#94a3b8"/><YAxis allowDecimals={false} stroke="#94a3b8"/><Tooltip/><Bar dataKey="count" fill="#34d399" radius={[6,6,0,0]}/></BarChart></ResponsiveContainer></div></div></section></main>}
-function Card({icon,label,value}){return <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5"><div className="flex items-center gap-3 text-emerald-400">{icon}<span className="text-sm text-slate-400">{label}</span></div><p className="mt-3 text-3xl font-bold">{value}</p></div>}
+
+export default function Analytics({ onBack }) {
+  const [data, setData] = useState([])
+  const [counts, setCounts] = useState({ students: 0, teachers: 0, predictions: 0 })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all(['students', 'teachers', 'predictions'].map(name => getDocs(collection(db, name))))
+      .then(([students, teachers, predictions]) => {
+        const rows = predictions.docs.map(item => item.data())
+        setCounts({ students: students.size, teachers: teachers.size, predictions: predictions.size })
+        setData(['Low', 'Medium', 'High'].map(risk => ({ risk, count: rows.filter(item => item.riskLevel === risk).length })))
+      })
+      .catch(err => setError(err.message || 'Unable to load institute analytics.'))
+      .finally(() => setLoading(false))
+  }, [])
+
+  return (
+    <main className="analytics-shell min-h-screen bg-slate-950 text-white">
+      <nav className="analytics-nav">
+        <div className="analytics-brand"><span><BarChart3 size={20} /></span><div><strong>Institute analytics</strong><small>INSIGHTS & PERFORMANCE</small></div></div>
+        <button onClick={onBack} className="analytics-back"><ArrowLeft size={16} /> Dashboard home</button>
+      </nav>
+      <section className="analytics-content">
+        <div className="analytics-welcome"><div><span className="analytics-eyebrow"><Sparkles size={13} /> DATA-LED OVERVIEW</span><h1>See the bigger picture.</h1><p>A high-level view of your institute records and the academic risk signals saved so far.</p></div><div className="analytics-mark"><GraduationCap size={26} /><span>EDUSMART / INSIGHTS</span></div></div>
+        {error && <div role="alert" className="analytics-error">{error}</div>}
+        <div className="analytics-stats">
+          <Card icon={<Users size={19} />} label="Students" value={counts.students} detail="Student profiles" />
+          <Card icon={<GraduationCap size={19} />} label="Teachers" value={counts.teachers} detail="Teaching team" />
+          <Card icon={<Brain size={19} />} label="AI predictions" value={counts.predictions} detail="Saved risk insights" />
+        </div>
+        <article className="analytics-chart-card">
+          <div className="analytics-chart-heading"><div className="analytics-chart-icon"><BarChart3 size={19} /></div><div><h2>Risk distribution</h2><p>Count of saved predictions by risk level</p></div><span className="analytics-chart-badge">MODEL OUTPUT</span></div>
+          {loading ? <div className="analytics-chart-loading">Loading your institute data…</div> : <div className="analytics-chart"><ResponsiveContainer width="100%" height="100%"><BarChart data={data} margin={{ top: 12, right: 10, left: -16, bottom: 4 }}><CartesianGrid strokeDasharray="3 3" stroke="#E3E8DF" vertical={false} /><XAxis dataKey="risk" axisLine={false} tickLine={false} tick={{ fill: '#6D7B73', fontSize: 12 }} /><YAxis allowDecimals={false} axisLine={false} tickLine={false} tick={{ fill: '#6D7B73', fontSize: 11 }} /><Tooltip contentStyle={{ border: '1px solid rgba(26,49,44,.12)', borderRadius: 12, background: '#FFFCF5', color: '#1A312C', fontSize: 12 }} cursor={{ fill: 'rgba(137,215,183,.15)' }} /><Bar dataKey="count" name="Predictions" fill="#428475" radius={[7, 7, 0, 0]} maxBarSize={76} /></BarChart></ResponsiveContainer></div>}
+          <div className="analytics-chart-note"><ShieldNote /> <span>Risk levels are model-generated indicators to support review, not definitive assessments of a student.</span></div>
+        </article>
+        <footer className="analytics-footer"><span>EduSmart AI</span><span>Clearer data. More thoughtful support.</span></footer>
+      </section>
+    </main>
+  )
+}
+function Card({ icon, label, value, detail }) {
+  return <article className="analytics-stat-card"><div className="analytics-stat-top"><span className="analytics-stat-icon">{icon}</span><span>{label}</span></div><strong>{value}</strong><p>{detail}</p></article>
+}
+function ShieldNote() { return <span className="analytics-note-icon"><Brain size={16} /></span> }
