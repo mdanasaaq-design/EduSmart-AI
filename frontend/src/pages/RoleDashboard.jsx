@@ -73,7 +73,7 @@ export default function RoleDashboard({ user, onBack }) {
           <div className="role-date-card"><span>YOUR ROLE</span><strong>{isStudent ? 'Student' : 'Teacher'}</strong><span className="role-date-sub"><ShieldCheck size={14} /> Secure workspace</span></div>
         </div>
         {error && <div role="alert" className="role-alert">{error}</div>}
-        {loading && isStudent ? <div className="role-loading"><span className="role-loader" /> Preparing your academic overview…</div> : isStudent ? (
+        {loading ? <div className="role-loading"><span className="role-loader" /> Preparing your academic overview…</div> : isStudent ? (
           <>
             <div className="role-stat-grid">
               <Stat label="Average marks" value={avg(records.marks) === '—' ? '—' : avg(records.marks) + '%'} icon={<GraduationCap size={19} />} note="Across recorded assessments" />
