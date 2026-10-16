@@ -1,3 +1,4 @@
+/* global process */
 import { after, before, beforeEach, test } from 'node:test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
