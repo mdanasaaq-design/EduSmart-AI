@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import { db } from './firebase'
 import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, CheckCircle2, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Sparkles, Users } from 'lucide-react'
 import Login from './pages/auth/Login'
 import Branches from './pages/admin/Branches'
@@ -105,7 +107,24 @@ function Landing({ onSignIn }) {
 function Dashboard({ user, onLogout, onNavigate }) {
   const role = user?.role || 'user'
   const admin = role === 'admin'
+  const [stats, setStats] = useState({ students: null, teachers: null, programs: null, predictions: null })
+  const [statsError, setStatsError] = useState('')
   const grouped = ['INSTITUTE', 'ACADEMICS', 'PEOPLE', 'INSIGHTS'].map((category) => ({ category, items: modules.filter((module) => module.category === category) }))
+
+  useEffect(() => {
+    if (!admin) return
+    let cancelled = false
+    Promise.all(['students', 'teachers', 'programs', 'predictions'].map((name) => getDocs(collection(db, name))))
+      .then(([students, teachers, programs, predictions]) => {
+        if (cancelled) return
+        setStats({ students: students.size, teachers: teachers.size, programs: programs.size, predictions: predictions.size })
+        setStatsError('')
+      })
+      .catch(() => {
+        if (!cancelled) setStatsError('Institute totals could not be loaded. Check administrator access to Firestore.')
+      })
+    return () => { cancelled = true }
+  }, [admin])
   return (
     <main className="app-shell min-h-screen">
       <nav className="app-topbar"><div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-5 py-4 lg:px-9"><Brand /><div className="flex items-center gap-4"><div className="hidden text-right sm:block"><p className="text-sm font-semibold text-[#1A312C]">{user?.name || user?.email}</p><p className="mt-0.5 text-[11px] font-semibold uppercase tracking-[.15em] text-[#428475]">{role}</p></div><div className="user-avatar">{(user?.name || user?.email || 'U').slice(0, 1).toUpperCase()}</div><button onClick={onLogout} className="button-outline"><LogOut size={15} /> <span className="hidden sm:inline">Sign out</span></button></div></div></nav>
@@ -115,7 +134,8 @@ function Dashboard({ user, onLogout, onNavigate }) {
           <div className="welcome-mark"><GraduationCap size={32} /><span>EDUSMART / 01</span></div>
         </div>
         {admin ? <>
-          <div className="dashboard-stats"><Stat label="Students" detail="Student records" icon={Users} /><Stat label="Teachers" detail="Teaching team" icon={School} /><Stat label="Programs" detail="Academic programs" icon={GraduationCap} /><Stat label="AI predictions" detail="Risk insights" icon={Brain} /></div>
+          <div className="dashboard-stats"><Stat label="Students" value={stats.students ?? '—'} detail="Student records" icon={Users} /><Stat label="Teachers" value={stats.teachers ?? '—'} detail="Teaching team" icon={School} /><Stat label="Programs" value={stats.programs ?? '—'} detail="Academic programs" icon={GraduationCap} /><Stat label="AI predictions" value={stats.predictions ?? '—'} detail="Risk insights" icon={Brain} /></div>
+          {statsError && <p role="status" className="mt-3 text-sm text-amber-800">{statsError}</p>}
           <div className="section-heading"><div><span>YOUR TOOLKIT</span><h2>Everything in its place.</h2></div><p>Choose a workspace to manage your institute.</p></div>
           <div className="dashboard-groups">{grouped.map((group) => <section className="module-group" key={group.category}><div className="group-heading"><span>{group.category}</span><i /></div><div className="module-grid">{group.items.map((module) => <Module key={module.title} {...module} onClick={() => onNavigate(module.page)} />)}</div></section>)}</div>
         </> : <div className="mt-8 max-w-lg"><Module title="Academic Workspace" description="Open your role-specific academic dashboard." icon={ClipboardCheck} category="YOUR SPACE" onClick={() => onNavigate('role')} /></div>}
@@ -125,8 +145,8 @@ function Dashboard({ user, onLogout, onNavigate }) {
   )
 }
 
-function Stat({ label, detail, icon: Icon }) {
-  return <div className="stat-card"><div className="stat-icon"><Icon size={19} /></div><div><p>{label}</p><strong>—</strong><span>{detail}</span></div><ArrowUpRight size={16} className="stat-arrow" /></div>
+function Stat({ label, value, detail, icon: Icon }) {
+  return <div className="stat-card"><div className="stat-icon"><Icon size={19} /></div><div><p>{label}</p><strong>{value}</strong><span>{detail}</span></div><ArrowUpRight size={16} className="stat-arrow" /></div>
 }
 
 function Module({ title, description, icon: Icon, category, onClick }) {
