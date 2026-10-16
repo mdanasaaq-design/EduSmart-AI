@@ -37,6 +37,7 @@ beforeEach(async () => {
       studentUserId: 'student-2',
       score: 91,
     })
+    await setDoc(doc(db, 'marks', 'mark-assigned'), { studentUserId: 'student-2', classId: 'class-1', subjectId: 'subject-1', score: 88 })
   })
 })
 
