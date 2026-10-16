@@ -1,30 +1,85 @@
 import { useState } from 'react'
-import { GraduationCap, LockKeyhole, Mail, LoaderCircle, ArrowLeft, ArrowUpRight, ShieldCheck, Sparkles, Brain, CheckCircle2 } from 'lucide-react'
-import { loginUser } from '../../services/authService'
+import {
+  GraduationCap, LockKeyhole, Mail, LoaderCircle, ArrowLeft, ArrowUpRight,
+  ShieldCheck, Sparkles, Brain, CheckCircle2, UserRound, KeyRound,
+} from 'lucide-react'
+import { loginUser, registerStudent, resetPassword } from '../../services/authService'
 
 function Login({ onLogin, onBack }) {
+  const [mode, setMode] = useState('login')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
   const [loading, setLoading] = useState(false)
+
+  function switchMode(nextMode) {
+    setMode(nextMode)
+    setError('')
+    setNotice('')
+  }
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
+    setNotice('')
+
+    if (mode === 'register' && password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
+    }
+
     setLoading(true)
     try {
-      const user = await loginUser(email, password)
+      const user = mode === 'register'
+        ? await registerStudent({ name, email, password })
+        : await loginUser(email, password)
       onLogin(user)
     } catch (err) {
       const code = err?.code
-      if (code === 'auth/invalid-credential') setError('Invalid email or password.')
-      else if (code === 'auth/too-many-requests') setError('Too many attempts. Please try again later.')
-      else if (code === 'auth/invalid-email') setError('Please enter a valid email address.')
-      else setError(err?.message || 'Unable to sign in. Please try again.')
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        setError('Invalid email or password.')
+      } else if (code === 'auth/email-already-in-use') {
+        setError('An account already exists with this email. Sign in instead or reset your password.')
+      } else if (code === 'auth/weak-password') {
+        setError('Choose a password with at least 6 characters.')
+      } else if (code === 'auth/too-many-requests') {
+        setError('Too many attempts. Please try again later.')
+      } else if (code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.')
+      } else if (code === 'auth/network-request-failed') {
+        setError('Network error. Check your connection and try again.')
+      } else {
+        setError(err?.message || 'Unable to continue. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
   }
+
+  async function handlePasswordReset() {
+    setError('')
+    setNotice('')
+    if (!email.trim()) {
+      setError('Enter your email address first.')
+      return
+    }
+    setLoading(true)
+    try {
+      await resetPassword(email)
+      setNotice('If an account exists for that email, a password-reset email has been sent.')
+    } catch (err) {
+      if (err?.code === 'auth/invalid-email') setError('Please enter a valid email address.')
+      else if (err?.code === 'auth/too-many-requests') setError('Too many attempts. Please try again later.')
+      else setError('Unable to send a reset email right now. Check the address and try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const registering = mode === 'register'
 
   return (
     <main className="auth-shell">
@@ -56,25 +111,58 @@ function Login({ onLogin, onBack }) {
           <div className="auth-panel-inner">
             <div className="auth-mobile-mark"><span className="auth-brand-mark"><GraduationCap size={23} /></span></div>
             <span className="auth-panel-kicker">YOUR ACADEMIC WORKSPACE</span>
-            <h2>Welcome back.</h2>
-            <p className="auth-intro">Sign in with your institute account to continue.</p>
+            <h2>{registering ? 'Create your account.' : 'Welcome back.'}</h2>
+            <p className="auth-intro">
+              {registering
+                ? 'Create a student account to access your academic workspace.'
+                : 'Sign in with your institute account to continue.'}
+            </p>
 
             {error && <div role="alert" className="auth-error">{error}</div>}
+            {notice && <div role="status" className="auth-success">{notice}</div>}
 
             <form onSubmit={handleSubmit} className="auth-form">
+              {registering && (
+                <div className="auth-field">
+                  <label htmlFor="full-name">Full name</label>
+                  <div className="auth-input-wrap"><UserRound size={17} aria-hidden="true" /><input id="full-name" type="text" autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} required maxLength={100} placeholder="Your full name" /></div>
+                </div>
+              )}
               <div className="auth-field">
                 <label htmlFor="email">Email address</label>
                 <div className="auth-input-wrap"><Mail size={17} aria-hidden="true" /><input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required placeholder="you@institute.edu" /></div>
               </div>
               <div className="auth-field">
                 <label htmlFor="password">Password</label>
-                <div className="auth-input-wrap"><LockKeyhole size={17} aria-hidden="true" /><input id="password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required placeholder="Enter your password" /></div>
+                <div className="auth-input-wrap"><LockKeyhole size={17} aria-hidden="true" /><input id="password" type="password" autoComplete={registering ? 'new-password' : 'current-password'} value={password} onChange={(event) => setPassword(event.target.value)} required minLength={registering ? 6 : undefined} placeholder={registering ? 'At least 6 characters' : 'Enter your password'} /></div>
               </div>
-              <button type="submit" disabled={loading} className="auth-submit">{loading ? <><LoaderCircle size={17} className="animate-spin" /> Signing you in…</> : <>Sign in securely <ArrowUpRight size={17} /></>}</button>
+              {registering && (
+                <div className="auth-field">
+                  <label htmlFor="confirm-password">Confirm password</label>
+                  <div className="auth-input-wrap"><KeyRound size={17} aria-hidden="true" /><input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={6} placeholder="Re-enter your password" /></div>
+                </div>
+              )}
+              <button type="submit" disabled={loading} className="auth-submit">
+                {loading
+                  ? <><LoaderCircle size={17} className="animate-spin" /> Please wait…</>
+                  : registering
+                    ? <>Create student account <ArrowUpRight size={17} /></>
+                    : <>Sign in securely <ArrowUpRight size={17} /></>}
+              </button>
             </form>
 
-            <div className="auth-security-note"><ShieldCheck size={16} /><span>Your account permissions determine what you can access.</span></div>
-            <p className="auth-footer-note">Need access? Contact your institute administrator.</p>
+            {!registering && (
+              <button type="button" className="auth-inline-action" onClick={handlePasswordReset} disabled={loading}>
+                Forgot your password?
+              </button>
+            )}
+            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'New accounts are students. An administrator assigns staff roles.' : 'Your account permissions determine what you can access.'}</span></div>
+            <p className="auth-footer-note">
+              {registering ? 'Already have an account? ' : 'New to EduSmart AI? '}
+              <button type="button" className="auth-inline-action" onClick={() => switchMode(registering ? 'login' : 'register')} disabled={loading}>
+                {registering ? 'Sign in' : 'Create a student account'}
+              </button>
+            </p>
           </div>
         </section>
       </div>
