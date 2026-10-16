@@ -29,7 +29,7 @@ export default function Programs({ onBack }) {
     }
   }
 
-  useEffect(() => { loadData() }, [])
+  useEffect(() => { void Promise.resolve().then(loadData) }, [])
 
   function handleChange(event) {
     const { name, value } = event.target
