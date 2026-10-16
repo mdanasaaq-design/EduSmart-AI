@@ -27,6 +27,8 @@ beforeEach(async () => {
     await setDoc(doc(db, 'users', 'admin-1'), { role: 'admin', name: 'Admin' })
     await setDoc(doc(db, 'users', 'student-1'), { role: 'student', name: 'Student' })
     await setDoc(doc(db, 'users', 'student-2'), { role: 'student', name: 'Other student' })
+    await setDoc(doc(db, 'users', 'teacher-1'), { role: 'teacher', name: 'Teacher' })
+    await setDoc(doc(db, 'teacherAssignments', 'teacher-1__subject-1__class-1'), { teacherUserId: 'teacher-1', subjectId: 'subject-1', classId: 'class-1' })
     await setDoc(doc(db, 'marks', 'mark-student-1'), {
       studentUserId: 'student-1',
       score: 82,
