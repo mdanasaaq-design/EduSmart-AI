@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">EduSmart AI mark</title>
+  <rect width="64" height="64" rx="17" fill="#1A312C"/>
+  <path d="M12 23.5c7.2-2.8 13.8-1.8 20 3.2v23c-6.2-5-12.8-6-20-3.2v-23Z" fill="#F7F7EF"/>
+  <path d="M52 23.5c-7.2-2.8-13.8-1.8-20 3.2v23c6.2-5 12.8-6 20-3.2v-23Z" fill="#BCEBD5"/>
+  <path d="M32 26.7v23" stroke="#42A88B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M44.5 10.5v9M40 15h9" stroke="#89D7B7" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="51.5" cy="9.5" r="2" fill="#F5C879"/>
+</svg>
