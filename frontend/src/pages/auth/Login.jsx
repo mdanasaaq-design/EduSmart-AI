@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { loginUser, registerStudent, resetPassword } from '../../services/authService'
 
-function Login({ onLogin, onBack }) {
+function Login({ onLogin, onBack, firebaseConfigured = true }) {
   const [mode, setMode] = useState('login')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -118,6 +118,7 @@ function Login({ onLogin, onBack }) {
                 : 'Sign in with your institute account to continue.'}
             </p>
 
+            {!firebaseConfigured && <div role="alert" className="auth-error">Firebase is not configured yet. Add the six VITE_FIREBASE_* values to frontend/.env.local, then restart the development server.</div>}
             {error && <div role="alert" className="auth-error">{error}</div>}
             {notice && <div role="status" className="auth-success">{notice}</div>}
 
