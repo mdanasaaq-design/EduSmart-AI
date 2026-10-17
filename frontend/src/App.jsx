@@ -26,7 +26,7 @@ const modules = [
   { title: 'Teachers', description: 'Maintain teacher profiles and details.', icon: Users, page: 'teachers', category: 'PEOPLE' },
   { title: 'Subjects', description: 'Keep subjects and course codes organized.', icon: School, page: 'subjects', category: 'ACADEMICS' },
   { title: 'Teacher Assignments', description: 'Connect teachers with classes and subjects.', icon: Link2, page: 'assignments', category: 'PEOPLE' },
-  { title: 'User Access & Roles', description: 'Assign institution admin, teacher and student workspace roles.', icon: ShieldCheck, page: 'user-access', category: 'PEOPLE' },
+  { title: 'User Access & Roles', description: 'Create teacher/student accounts and manage their workspace access.', icon: ShieldCheck, page: 'user-access', category: 'PEOPLE' },
   { title: 'Attendance & Marks', description: 'Record performance and generate risk insights.', icon: ClipboardCheck, page: 'records', category: 'INSIGHTS' },
   { title: 'Analytics', description: 'Explore institute metrics and risk patterns.', icon: BarChart3, page: 'analytics', category: 'INSIGHTS' },
 ]
