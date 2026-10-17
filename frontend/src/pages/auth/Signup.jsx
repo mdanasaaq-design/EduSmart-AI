@@ -9,7 +9,7 @@ const registerInstitutionAdmin = httpsCallable(functions, 'registerInstitutionAd
 export default function Signup({ onComplete, onBack, firebaseConfigured = true }) {
   const [form, setForm] = useState({
     collegeName: '', collegeAddress: '', phone: '', name: '', email: '',
-    password: '', confirmPassword: '', setupCode: '',
+    password: '', confirmPassword: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -28,13 +28,12 @@ export default function Signup({ onComplete, onBack, firebaseConfigured = true }
         name: form.name.trim(),
         email: form.email.trim().toLowerCase(),
         password: form.password,
-        setupCode: form.setupCode,
       })
       const user = await loginUser(form.email, form.password)
       onComplete(user)
     } catch (err) {
       const code = err?.code || ''
-      if (code.includes('permission-denied')) setError('The institution setup code is invalid or not authorized.')
+      if (code.includes('permission-denied')) setError('Administrator registration is not permitted because an administrator already exists or setup is unavailable.')
       else if (code.includes('failed-precondition')) setError(err.message || 'Institution setup is already complete. Sign in instead.')
       else if (code.includes('already-exists')) setError('An account already uses this email. Please sign in or reset its password.')
       else setError(err?.message || 'Could not complete institution setup. Confirm Firebase Functions are deployed and try again.')
@@ -66,7 +65,7 @@ export default function Signup({ onComplete, onBack, firebaseConfigured = true }
           <div className="auth-panel-inner">
             <span className="auth-panel-kicker">FIRST-TIME SETUP</span>
             <h2>Register your college.</h2>
-            <p className="auth-intro">Create your institution profile and initial administrator login. Have the private setup code provided by the project owner ready.</p>
+            <p className="auth-intro">Create your institution profile and administrator login. This one-time setup is available only before an administrator is registered.</p>
             {error && <div role="alert" className="auth-error">{error}</div>}
             {!firebaseConfigured && <div role="alert" className="auth-error">Firebase configuration is missing. Configure the six VITE_FIREBASE_* values and rebuild.</div>}
             <form onSubmit={submit} className="auth-form">
@@ -79,8 +78,7 @@ export default function Signup({ onComplete, onBack, firebaseConfigured = true }
               {field('email','Admin email address','you@college.edu',Mail,{type:'email',autoComplete:'email'})}
               {field('password','Create password','At least 8 characters',LockKeyhole,{type:'password',autoComplete:'new-password',minLength:8,maxLength:128})}
               {field('confirmPassword','Confirm password','Re-enter your password',LockKeyhole,{type:'password',autoComplete:'new-password',minLength:8,maxLength:128})}
-              {field('setupCode','Private institution setup code','Enter setup code',ShieldCheck,{type:'password',autoComplete:'off'})}
-              <button type="submit" disabled={loading || !firebaseConfigured} className="auth-submit">{loading ? <><LoaderCircle size={17} className="animate-spin"/> Setting up institution…</> : <>Create institution & admin <ArrowUpRight size={17}/></>}</button>
+              <button type="submit" disabled={loading || !firebaseConfigured} className="auth-submit">{loading ? <><LoaderCircle size={17} className="animate-spin"/> Setting up institution…</> : <>Create Admin account <ArrowUpRight size={17}/></>}</button>
             </form>
             <p className="auth-footer-note">Already registered? <button type="button" className="auth-inline-action" onClick={onBack}>Sign in</button></p>
           </div>
