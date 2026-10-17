@@ -20,7 +20,7 @@ The current demonstration project is `edusmart-ai-c4692`, with Hosting URL [http
 2. Enable Email/Password under Authentication → Sign-in method.
 3. Create Firestore and review `firebase/firestore.rules` before publishing.
 4. Add the Hosting domains to Authentication → Settings → Authorized domains if required.
-5. Ensure the Cloud Functions required by the account workflow are deployed to the expected region (`us-central1`).
+5. Ensure the Cloud Functions required by the account workflow are deployed to the expected region (`us-central1`). Functions are configured for the Node.js 22 runtime.
 
 ## Frontend environment
 
@@ -53,11 +53,11 @@ firebase deploy --only hosting --project edusmart-ai-c4692
 
 ## Deploy functions and rules when required
 
-Review the code and rules first, then deploy explicitly:
+Review the code, rules, and index definitions first, then deploy explicitly:
 
 ```powershell
 firebase deploy --only functions --project edusmart-ai-c4692
-firebase deploy --only firestore:rules --project edusmart-ai-c4692
+firebase deploy --only firestore:rules,firestore:indexes --project edusmart-ai-c4692
 ```
 
 Functions deployment can require additional project billing and IAM configuration. Do not assume it succeeded merely because Hosting deployment succeeded. If the deployment fails, retain the complete error output for diagnosis.
@@ -79,4 +79,4 @@ If using the repository workflow, configure the required frontend `VITE_FIREBASE
 - [ ] Role-based data access matches Firestore rules.
 - [ ] Core academic workflow is tested end-to-end.
 
-Deleting a Firestore user profile does not delete its Firebase Authentication account. Avoid clearing collections to troubleshoot account conflicts; inspect Authentication and Firestore state separately.
+Deleting a Firestore user profile does not delete its Firebase Authentication account. If the original admin still has the server-issued `role=admin` and `institutionId=primary` claims, the updated sign-in flow calls `restoreAdminProfile` to safely recreate only that same UID's missing admin profile. If the institution document was also deleted, the function creates a placeholder institution record for the admin to review. This recovery requires the function to be deployed. Avoid clearing collections to troubleshoot account conflicts; inspect Authentication and Firestore state separately.
