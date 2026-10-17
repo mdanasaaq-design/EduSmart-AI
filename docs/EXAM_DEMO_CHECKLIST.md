@@ -24,12 +24,12 @@ If Git refuses to pull because of local modifications, stop and inspect the diff
 - [ ] Confirm the selected Firebase project is the intended project (`edusmart-ai-c4692` for the current demo).
 - [ ] Confirm Email/Password Authentication is enabled.
 - [ ] Confirm frontend Firebase settings match the registered Web App.
-- [ ] Confirm Cloud Functions used by account provisioning are deployed.
-- [ ] Review and confirm the current Firestore rules are deployed.
+- [ ] Confirm `registerInstitutionAdmin`, `restoreAdminProfile`, and `createManagedUser` are deployed.
+- [ ] Review and confirm the current Firestore rules and composite indexes are deployed.
 - [ ] Use synthetic/demo academic records.
 - [ ] For the live demo, confirm Hosting reflects the intended source commit; GitHub changes are not automatically live unless deployment ran successfully.
 
-Hosting, Functions and Firestore rules are separate deploy targets. A Hosting success message does not verify Functions or rules.
+Hosting, Functions, Firestore rules, and Firestore indexes are separate deploy targets. A Hosting success message does not verify Functions or rules.
 
 ## 3. Landing page and account setup
 
@@ -62,6 +62,7 @@ Do not repeatedly submit setup if an Auth account already exists. Deleting Fires
 - [ ] Create a student account.
 - [ ] Confirm the managed account's password setup flow is usable.
 - [ ] Sign in with each role through the shared Sign In page.
+- [ ] Verify teacher can open Attendance & Marks and sees only assigned classes/students.
 - [ ] Confirm each account receives the correct workspace.
 - [ ] Confirm a normal user cannot self-assign admin/teacher role.
 
