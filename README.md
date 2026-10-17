@@ -1,62 +1,87 @@
 # EduSmart AI
 
-AI-powered educational institute management system — college mini project prototype.
+**AI-Powered Educational Institute Management System with Student Academic Risk Prediction**
 
-## Stack
-- React + Vite
-- Tailwind CSS
-- Recharts
-- Firebase Authentication
+EduSmart AI is a college mini-project prototype that brings institute administration, academic records, and a demonstrative student academic-risk model into one React web application.
+
+- **Repository:** [mdanasaaq-design/EduSmart-AI](https://github.com/mdanasaaq-design/EduSmart-AI)
+- **Firebase project:** `edusmart-ai-c4692`
+- **Hosting URL:** [https://edusmart-ai-c4692.web.app](https://edusmart-ai-c4692.web.app)
+- **Status:** implementation and integration verification; do not assume every live workflow is verified.
+
+## Technology stack
+
+- React, Vite, Tailwind CSS, Recharts, Lucide React
+- Firebase Authentication (email/password)
 - Cloud Firestore
-- Python + Pandas/NumPy + Scikit-learn
-- GitHub
+- Firebase Hosting
+- Firebase Cloud Functions for trusted account provisioning
+- Python, Pandas, NumPy, Scikit-learn for model training
+- Git and GitHub
 
-## Prototype flow
-Admin creates academic structure → students/classes/sections → teachers/subjects → teacher assignments → attendance and marks → Random Forest risk prediction → recommendations → analytics.
+## Account and role workflow
 
-## ML model
-The demo model is a Random Forest trained by `ml/train_model.py` on a synthetic dataset so the prototype can run without exposing real student data. Features are attendance, average marks, recent performance trend and missed assessments. The generated model is exported as JSON and evaluated in the React frontend. Replace the synthetic data with an approved anonymized dataset for research evaluation.
+1. The landing page offers **Create Admin** and **Sign In** in the top-right navigation.
+2. **Create Admin** is intended for one-time institution setup. It collects institution and administrator details, calls the trusted `registerInstitutionAdmin` Cloud Function, and then signs in the new administrator.
+3. The administrator uses the shared **Sign In** screen and receives the workspace permitted by the trusted Firestore profile role.
+4. From **User Access & Roles**, an administrator can provision teacher and student accounts. Public users must not be able to assign themselves admin or teacher privileges.
+5. Teachers and students sign in through the same sign-in entry point. Their available screens and data depend on their role and linked records.
+
+The account workflow depends on deployed Cloud Functions, Firebase Authentication configuration, and matching Firestore profiles/rules. Deleting Firestore documents does **not** delete Firebase Authentication accounts. Do not repeatedly clear collections to troubleshoot account setup.
+
+## Core demonstration flow
+
+Manage institute structure → manage students and enrollments → manage teachers and subjects → assign teachers → record attendance and marks → calculate features → generate academic-risk prediction → inspect factors and recommendations → review analytics → sign in as a linked student.
+
+## Machine-learning prototype
+
+The demo Random Forest is trained by `ml/train_model.py` on a synthetic dataset. Inputs include attendance, average marks, recent performance trend, and missed assessments. The compact exported model is loaded by the frontend for browser inference.
+
+The documented 86.25% holdout accuracy is measured against formula-generated synthetic labels only. It is **not** evidence of real-world student-risk accuracy, fairness, or calibration. See [ML Evaluation](ml/EVALUATION.md).
 
 ## Run locally
+
+Requirements: a supported Node.js version, npm, and access to a Firebase project.
+
 ```bash
 cd frontend
 npm ci
-npm run dev
 ```
 
-Firebase configuration belongs in `frontend/.env.local` and must not be committed. Copy `frontend/.env.example` if present, then fill in the Firebase Web App values for your own Firebase project.
+Create `frontend/.env.local` with the six Firebase Web App settings (see `frontend/.env.example` if present). Never commit this file.
 
-## Firebase Hosting deployment
-The repository includes Firebase Hosting configuration for the Vite SPA, including a fallback rewrite to `index.html`, and a manual GitHub Actions production deployment workflow. Follow [Firebase Hosting Deployment](docs/FIREBASE_DEPLOYMENT.md) to create the Firebase project configuration, add repository secrets, and deploy.
+```bash
+npm run dev
+npm run build
+npm run lint
+```
 
-## Firestore security setup
-`firebase/firestore.rules` contains the prototype security rules. Publish these rules to the Firebase project before testing role-based access.
+## Firebase deployment
 
-- A signed-in user cannot create their own `users/{uid}` profile or assign themselves a role.
-- Provision the first administrator through a trusted project-owner workflow (Firebase Console or a trusted Admin SDK environment); the client app must never bootstrap an admin role.
-- Once an administrator exists, user profiles must be provisioned by an administrator.
-- Students can read their linked academic records, but only administrators/teachers can write attendance, marks, predictions and recommendations.
-- Client-side role checks are for navigation only; Firestore rules are the authorization boundary.
+See [Firebase Deployment](docs/FIREBASE_DEPLOYMENT.md). Hosting serves the built SPA from `frontend/dist`. Build after pulling the intended commit; deploying an old local build will not publish newer GitHub source. If the frontend calls Cloud Functions, deploy the functions separately as documented.
 
-These are prototype rules, not a substitute for a complete production authorization review. Teacher access to student data still needs assignment-scoped authorization before production use.
+Current target: `edusmart-ai-c4692`, region `us-central1`. Confirm the target project before every deployment.
 
-## Continuous integration
-The `.github/workflows/frontend-ci.yml` workflow runs Firestore Emulator authorization tests, ESLint and a Vite production build on pushes to `main` and pull requests targeting `main`. On 2026-10-16, commit `6ac5a22` passed all 18 rules tests, lint and build. Browser acceptance and live rules deployment remain separate verification steps.
+## Security notes
 
-## Model evaluation
+- Firestore Security Rules, not hidden buttons or client-side role checks, are the authorization boundary.
+- Normal users must not create or edit their own role.
+- Trusted Cloud Functions use the Admin SDK to provision administrator and managed-user profiles.
+- Never commit `.env.local`, service-account JSON, or other credentials.
+- Teacher/student record access must remain constrained by linked identity and academic assignment/enrollment data.
+- These are prototype controls; complete production security review is still required.
 
-A reproducible synthetic holdout evaluation is documented in [ML Evaluation](ml/EVALUATION.md). The 86.25% accuracy result is on formula-generated synthetic labels only and must not be presented as real-world student prediction accuracy.
+## Documentation index
 
-## Project documentation
-The repository contains the project context and working documentation needed to continue development:
+- [Canonical Project Context](docs/PROJECT_CONTEXT.md)
+- [Development Status and Verification](docs/DEVELOPMENT_STATUS.md)
+- [Firebase Deployment](docs/FIREBASE_DEPLOYMENT.md)
+- [Product Requirements](prd.md)
+- [Architecture](architecture.md)
+- [Project Rules](rules.md)
+- [UI/UX Design](design.md)
+- [Task Tracker](tasks.md)
+- [Project Memory](memory.md)
+- [Synthetic ML Evaluation](ml/EVALUATION.md)
 
-- [Canonical Project Context](docs/PROJECT_CONTEXT.md) — project identity, stack, scope, architecture, data model, ML rules, security and development conventions.
-- [Development Status](docs/DEVELOPMENT_STATUS.md) — current implementation state, recent fixes, verification checklist and acceptance-test sequence.
-- [Product Requirements](prd.md) — requirements and acceptance criteria.
-- [Architecture](architecture.md) — system architecture and data model.
-- [Project Rules](rules.md) — development and technology constraints.
-- [UI/UX Design](design.md) — interface and demonstration guidelines.
-- [Task Tracker](tasks.md) — implementation checklist.
-- [Project Memory](memory.md) — compact persistent project memory.
-
-**Source-of-truth rule:** verified code is authoritative. If documentation becomes outdated, update the documentation to match the implementation.
+**Source-of-truth rule:** code and verified test output take precedence over outdated documentation. Mark a workflow verified only after running its acceptance test.
