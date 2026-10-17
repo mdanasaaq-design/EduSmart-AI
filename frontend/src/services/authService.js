@@ -1,3 +1,11 @@
+import {
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
+import { auth, db } from '../firebase'
+
 const allowedRoles = ['admin', 'teacher', 'student']
 
 export async function loginUser(email, password) {
