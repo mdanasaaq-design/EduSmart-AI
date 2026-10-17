@@ -1,61 +1,59 @@
 # EduSmart AI — Project Rules
 
-## 1. Scope Rule
-Build only what is required for the academic mini-project prototype. Do not add business/SaaS features unless explicitly requested.
+## 1. Scope
+Build only what is needed for the academic mini-project prototype. Do not add commercial SaaS features or unrelated infrastructure without explicit approval.
 
-## 2. Technology Rule
-Use the approved stack:
+## 2. Approved technology
 - React + Vite
-- Tailwind CSS
-- Recharts
-- Lucide React
-- Firebase Auth
-- Cloud Firestore
-- Firebase Hosting
-- Python + Scikit-learn for ML
-- GitHub
+- Tailwind CSS, Recharts, Lucide React
+- Firebase Authentication, Cloud Firestore, Firebase Hosting
+- Firebase Cloud Functions for trusted account provisioning
+- Python, Pandas, NumPy, Scikit-learn for model training
+- Git and GitHub
 
-Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT authentication, or unnecessary FastAPI infrastructure.
+Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary FastAPI, or microservices.
 
-## 3. Git Rule
-- Work directly on `main` unless a branch is explicitly requested.
-- Fetch the current file SHA before updating an existing GitHub file.
+## 3. Git and editing
+- Work directly on `main` unless asked to use a branch.
+- Fetch the latest file SHA before updating an existing GitHub file.
 - Keep commits focused and descriptive.
-- Never commit `.env.local` or Firebase secrets.
-- Pull before local testing when repository changes were made remotely.
+- Preserve local changes; do not recommend destructive resets to solve ordinary merge conflicts.
+- Never commit `.env.local`, service-account JSON, or credentials.
+- Pull the intended remote source before building and deploying.
 
-## 4. Development Rule
-- GPT handles implementation, architecture, debugging, and code decisions.
-- Claude is primarily used for the PPT and project report/research synthesis.
-- Implement the simplest working solution first.
-- Test each major workflow in the browser before adding unnecessary polish.
+## 4. Account and role security
+- Landing page order: **Create Admin**, then **Sign In**.
+- First-admin creation must be enforced by trusted server-side code; never trust a client-supplied role.
+- Admin provisions teacher/student accounts through trusted logic.
+- Shared sign-in uses the Firestore user profile to select the workspace.
+- Do not allow public self-promotion to admin or teacher.
+- Firestore rules—not hidden UI controls—must enforce data access.
+- Deleting Firestore records does not delete Firebase Authentication accounts. Inspect both before troubleshooting.
 
-## 5. Firebase Rule
+## 5. Firebase
 - Use Firestore as the primary application database.
-- Use Firebase Authentication for login.
-- Enforce authorization with Firestore Security Rules.
-- Do not rely only on hidden UI buttons for security.
-- Keep test data clearly identifiable as demo data.
+- Confirm project ID, web configuration, function region, Authentication provider and deployed rules agree.
+- Hosting, Cloud Functions and Firestore rules are separate deployment targets.
+- Review rules and deployment logs; never claim deployment based on a successful frontend build alone.
 
-## 6. ML Rule
-- Never invent accuracy, precision, recall, F1, or other metrics.
-- Clearly identify synthetic-data training/validation.
-- Use actual measured metrics if the report includes evaluation results.
-- Keep prediction factors interpretable.
-- Recommendations must be rule-based unless a separate recommendation model is actually implemented.
+## 6. ML
+- Never invent accuracy, precision, recall, F1 or other metrics.
+- Clearly identify synthetic training and evaluation data.
+- Treat model output as advisory.
+- Do not describe rule-based recommendations as output from a separate AI model.
+- Interpret input features as indicators, not proven causes.
 
-## 7. UI Rule
-- Keep navigation understandable for a student project evaluator.
-- Prefer reusable components over duplicated UI.
-- Show loading, empty, success, and error states where practical.
-- Keep forms simple and readable.
-- Do not optimize for enterprise-scale UX.
+## 7. UI and data
+- Prefer clear navigation, readable forms and reusable components.
+- Provide loading, empty, success, validation and error feedback where practical.
+- Use enrollment as the source of a student's academic-year/class/section association.
+- Scope student access to linked records and teacher access to valid assignments/enrollments.
 
-## 8. Data Rule
-Use consistent document relationships. Enrollment is the source for a student's academic-year/class/section association rather than hardcoding one permanent class.
+## 8. Documentation
+- Describe current implementation, not intended behavior alone.
+- Mark pending browser/deployment verification explicitly.
+- Do not fabricate test results, screenshots, paper references, or project metrics.
+- Keep README, architecture, PRD, status, task tracker and memory consistent.
 
-## 9. Documentation Rule
-Project documentation must describe what is actually implemented. Planned features must be labeled as planned; prototype limitations must be stated honestly.
-
-## 10. Completion Rule
-A feature is not considered complete merely because its code exists. It must be buildable, runnable, connected to the intended data flow, and browser-tested where applicable.
+## 9. Completion
+A feature is complete only when it builds, runs, persists the expected data, enforces permissions and passes its relevant browser acceptance test.
