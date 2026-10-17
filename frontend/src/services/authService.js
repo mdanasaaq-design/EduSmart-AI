@@ -13,7 +13,7 @@ const allowedRoles = ['admin', 'teacher', 'student']
 
 export async function registerStudent({ name, email, password, invitationCode = '' }) {
   const cleanName = name.trim()
-  const cleanEmail = email.trim()
+  const cleanEmail = email.trim().toLowerCase()
   if (!cleanName) throw new Error('Please enter your full name.')
 
   const credential = await createUserWithEmailAndPassword(auth, cleanEmail, password)
@@ -68,7 +68,7 @@ export async function registerStudent({ name, email, password, invitationCode = 
 }
 
 export async function loginUser(email, password, expectedRole) {
-  const credential = await signInWithEmailAndPassword(auth, email.trim(), password)
+  const credential = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password)
   const userSnapshot = await getDoc(doc(db, 'users', credential.user.uid))
 
   if (!userSnapshot.exists()) {
