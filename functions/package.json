@@ -1,0 +1,13 @@
+{
+  "name": "edusmart-ai-functions",
+  "private": true,
+  "description": "Trusted backend functions for EduSmart AI",
+  "main": "index.js",
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.4.0",
+    "firebase-functions": "^6.4.0"
+  }
+}
