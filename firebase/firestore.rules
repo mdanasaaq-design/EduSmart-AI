@@ -127,7 +127,10 @@ service cloud.firestore {
     // assigned academic records rather than browse every student's profile.
     match /students/{id} {
       allow read: if isAdmin()
-        || (isStudent() && resource.data.userId == request.auth.uid);
+        || (isStudent() && resource.data.userId == request.auth.uid)
+        || (isTeacher()
+          && resource.data.currentClassId is string
+          && exists(/databases/$(database)/documents/teacherClassAccess/$(request.auth.uid + '__' + resource.data.currentClassId)));
       allow write: if isAdmin();
     }
 
@@ -143,7 +146,10 @@ service cloud.firestore {
 
     match /enrollments/{id} {
       allow read: if isAdmin()
-        || (isStudent() && resource.data.studentUserId == request.auth.uid);
+        || (isStudent() && resource.data.studentUserId == request.auth.uid)
+        || (isTeacher()
+          && resource.data.classId is string
+          && exists(/databases/$(database)/documents/teacherClassAccess/$(request.auth.uid + '__' + resource.data.classId)));
       allow write: if isAdmin();
     }
 
