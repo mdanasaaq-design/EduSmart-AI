@@ -115,7 +115,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
             <h2>{registering ? 'Create your account.' : 'Welcome back.'}</h2>
             <p className="auth-intro">
               {registering
-                ? 'Create a student account or use an invitation from your institution.'
+                ? 'Register with your details, or use an invitation from your institution.'
                 : 'Sign in with your registered email and password. Your workspace opens automatically.'}
             </p>
 
@@ -147,7 +147,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
                   <div className="auth-field">
                     <label htmlFor="invitation-code">Institution invitation code <span className="font-normal opacity-70">(optional)</span></label>
                     <div className="auth-input-wrap"><ShieldCheck size={17} aria-hidden="true" /><input id="invitation-code" type="text" autoComplete="off" value={invitationCode} onChange={(event) => setInvitationCode(event.target.value.trim())} placeholder="Paste the code from your institute" /></div>
-                    <p className="mt-1 text-xs text-slate-500">No code creates a student account. A valid invitation can register a teacher or student.</p>
+                    <p className="mt-1 text-xs text-slate-500">Have an institution invitation? Enter its code to activate your assigned workspace.</p>
                   </div>
                 </>
               )}
@@ -165,7 +165,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
                 Forgot your password?
               </button>
             )}
-            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'Without an invitation, registration creates a student account. Institution invitations are email-bound and role-specific.' : 'Your account is securely matched to its assigned workspace after sign-in.'}</span></div>
+            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'Institution invitations are tied to the invited email address and assigned workspace.' : 'Your account is securely matched to its assigned workspace after sign-in.'}</span></div>
             <p className="auth-footer-note">
               {registering ? 'Already have an account? ' : 'New to EduSmart AI? '}
               <button type="button" className="auth-inline-action" onClick={() => switchMode(registering ? 'login' : 'register')} disabled={loading}>
