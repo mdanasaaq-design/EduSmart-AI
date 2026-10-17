@@ -2,22 +2,13 @@ const { initializeApp } = require('firebase-admin/app')
 const { getAuth } = require('firebase-admin/auth')
 const { FieldValue, getFirestore } = require('firebase-admin/firestore')
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
-const { defineSecret } = require('firebase-functions/params')
-
-const adminSetupCode = defineSecret('ADMIN_SETUP_CODE')
-
 initializeApp()
 
 const db = getFirestore()
 const auth = getAuth()
 
 
-exports.registerInstitutionAdmin = onCall({ region: 'us-central1', secrets: [adminSetupCode] }, async (request) => {
-  const setupCode = typeof request.data?.setupCode === 'string' ? request.data.setupCode : ''
-  if (!setupCode || setupCode !== adminSetupCode.value()) {
-    throw new HttpsError('permission-denied', 'The institution setup code is invalid.')
-  }
-
+exports.registerInstitutionAdmin = onCall({ region: 'us-central1' }, async (request) => {
   const name = typeof request.data?.name === 'string' ? request.data.name.trim() : ''
   const email = typeof request.data?.email === 'string' ? request.data.email.trim().toLowerCase() : ''
   const password = typeof request.data?.password === 'string' ? request.data.password : ''
@@ -41,6 +32,16 @@ exports.registerInstitutionAdmin = onCall({ region: 'us-central1', secrets: [adm
   const setupRef = db.collection('institutions').doc('primary')
   let createdUser
   try {
+    // A durable custom claim prevents re-opening public admin registration if
+    // someone clears Firestore collections after the first administrator signs up.
+    let pageToken
+    do {
+      const page = await auth.listUsers(1000, pageToken)
+      if (page.users.some((account) => account.customClaims?.role === 'admin')) {
+        throw new HttpsError('failed-precondition', 'An administrator account already exists. Please sign in instead.')
+      }
+      pageToken = page.pageToken
+    } while (pageToken)
     await db.runTransaction(async (transaction) => {
       const setupSnapshot = await transaction.get(setupRef)
       if (setupSnapshot.exists && setupSnapshot.data()?.setupCompleted === true) {
@@ -53,6 +54,7 @@ exports.registerInstitutionAdmin = onCall({ region: 'us-central1', secrets: [adm
     })
 
     createdUser = await auth.createUser({ email, password, displayName: name, emailVerified: false, disabled: false })
+    await auth.setCustomUserClaims(createdUser.uid, { role: 'admin', institutionId: 'primary' })
     await db.runTransaction(async (transaction) => {
       const setupSnapshot = await transaction.get(setupRef)
       if (setupSnapshot.exists && setupSnapshot.data()?.setupCompleted === true) {
