@@ -12,6 +12,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [invitationCode, setInvitationCode] = useState('')
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [loading, setLoading] = useState(false)
@@ -36,7 +37,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
     setLoading(true)
     try {
       const user = mode === 'register'
-        ? await registerStudent({ name, email, password })
+        ? await registerStudent({ name, email, password, invitationCode })
         : await loginUser(email, password, selectedRole)
       onLogin(user)
     } catch (err) {
@@ -116,7 +117,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
             <h2>{registering ? 'Create your account.' : 'Welcome back.'}</h2>
             <p className="auth-intro">
               {registering
-                ? 'Create a student account to access your academic workspace.'
+                ? 'Create a student account or use an invitation from your institution.'
                 : 'Choose your workspace, then sign in with your registered institute account.'}
             </p>
 
@@ -154,16 +155,23 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
                 <div className="auth-input-wrap"><LockKeyhole size={17} aria-hidden="true" /><input id="password" type="password" autoComplete={registering ? 'new-password' : 'current-password'} value={password} onChange={(event) => setPassword(event.target.value)} required minLength={registering ? 6 : undefined} placeholder={registering ? 'At least 6 characters' : 'Enter your password'} /></div>
               </div>
               {registering && (
-                <div className="auth-field">
-                  <label htmlFor="confirm-password">Confirm password</label>
-                  <div className="auth-input-wrap"><KeyRound size={17} aria-hidden="true" /><input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={6} placeholder="Re-enter your password" /></div>
-                </div>
+                <>
+                  <div className="auth-field">
+                    <label htmlFor="confirm-password">Confirm password</label>
+                    <div className="auth-input-wrap"><KeyRound size={17} aria-hidden="true" /><input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={6} placeholder="Re-enter your password" /></div>
+                  </div>
+                  <div className="auth-field">
+                    <label htmlFor="invitation-code">Institution invitation code <span className="font-normal opacity-70">(optional)</span></label>
+                    <div className="auth-input-wrap"><ShieldCheck size={17} aria-hidden="true" /><input id="invitation-code" type="text" autoComplete="off" value={invitationCode} onChange={(event) => setInvitationCode(event.target.value.trim())} placeholder="Paste the code from your institute" /></div>
+                    <p className="mt-1 text-xs text-slate-500">No code creates a student account. A valid invitation can register a teacher or student.</p>
+                  </div>
+                </>
               )}
               <button type="submit" disabled={loading || !firebaseConfigured} className="auth-submit">
                 {loading
                   ? <><LoaderCircle size={17} className="animate-spin" /> Please wait…</>
                   : registering
-                    ? <>Create student account <ArrowUpRight size={17} /></>
+                    ? <>Create account <ArrowUpRight size={17} /></>
                     : <>Sign in securely <ArrowUpRight size={17} /></>}
               </button>
             </form>
@@ -173,7 +181,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
                 Forgot your password?
               </button>
             )}
-            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'New accounts are students. An administrator assigns staff roles.' : 'Your saved account role must match the workspace selected above. Choosing a role never grants permissions.'}</span></div>
+            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'Without an invitation, registration creates a student account. Institution invitations are email-bound and role-specific.' : 'Your saved account role must match the workspace selected above. Choosing a role never grants permissions.'}</span></div>
             <p className="auth-footer-note">
               {registering ? 'Already have an account? ' : 'New to EduSmart AI? '}
               <button type="button" className="auth-inline-action" onClick={() => switchMode(registering ? 'login' : 'register')} disabled={loading}>
