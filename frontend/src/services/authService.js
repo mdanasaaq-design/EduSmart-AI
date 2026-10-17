@@ -6,12 +6,12 @@ import {
   signOut,
   updateProfile,
 } from 'firebase/auth'
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
+import { deleteDoc, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
 
 const allowedRoles = ['admin', 'teacher', 'student']
 
-export async function registerStudent({ name, email, password }) {
+export async function registerStudent({ name, email, password, invitationCode = '' }) {
   const cleanName = name.trim()
   const cleanEmail = email.trim()
   if (!cleanName) throw new Error('Please enter your full name.')
@@ -20,17 +20,40 @@ export async function registerStudent({ name, email, password }) {
 
   try {
     await updateProfile(credential.user, { displayName: cleanName })
-    await setDoc(doc(db, 'users', credential.user.uid), {
+    let role = 'student'
+    const cleanInvitationCode = invitationCode.trim()
+    let invitationRef = null
+
+    if (cleanInvitationCode) {
+      invitationRef = doc(db, 'roleInvitations', cleanInvitationCode)
+      const invitationSnapshot = await getDoc(invitationRef)
+      if (!invitationSnapshot.exists()) {
+        throw new Error('That institution invitation code is invalid or has already been used.')
+      }
+      const invitation = invitationSnapshot.data()
+      if (String(invitation.email || '').toLowerCase() !== String(credential.user.email || '').toLowerCase()) {
+        throw new Error('This invitation belongs to a different email address. Register using the invited email.')
+      }
+      if (!['teacher', 'student'].includes(invitation.role) || invitation.status !== 'pending') {
+        throw new Error('This invitation is not valid for account registration. Contact your institution administrator.')
+      }
+      role = invitation.role
+    }
+
+    const profile = {
       name: cleanName,
       email: credential.user.email,
-      role: 'student',
+      role,
       createdAt: serverTimestamp(),
-    })
+    }
+    if (cleanInvitationCode) profile.invitationId = cleanInvitationCode
+    await setDoc(doc(db, 'users', credential.user.uid), profile)
+    if (invitationRef) await deleteDoc(invitationRef).catch(() => {})
     return {
       uid: credential.user.uid,
       email: credential.user.email,
       name: cleanName,
-      role: 'student',
+      role,
     }
   } catch (error) {
     // Avoid leaving an unprofiled account when setup fails. If cleanup is
