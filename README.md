@@ -23,11 +23,11 @@ EduSmart AI is a college mini-project prototype that brings institute administra
 
 1. The landing page offers **Create Admin** and **Sign In** in the top-right navigation.
 2. **Create Admin** is intended for one-time institution setup. It collects institution and administrator details, calls the trusted `registerInstitutionAdmin` Cloud Function, and then signs in the new administrator.
-3. The administrator uses the shared **Sign In** screen and receives the workspace permitted by the trusted Firestore profile role.
+3. If a Firestore admin profile was accidentally deleted but the original account retains its server-issued admin custom claim, the shared sign-in flow calls the restricted `restoreAdminProfile` function to restore that same UID's profile. The administrator then receives the workspace permitted by the trusted Firestore profile role.
 4. From **User Access & Roles**, an administrator can provision teacher and student accounts. Public users must not be able to assign themselves admin or teacher privileges.
 5. Teachers and students sign in through the same sign-in entry point. Their available screens and data depend on their role and linked records.
 
-The account workflow depends on deployed Cloud Functions, Firebase Authentication configuration, and matching Firestore profiles/rules. Deleting Firestore documents does **not** delete Firebase Authentication accounts. Do not repeatedly clear collections to troubleshoot account setup.
+Teacher academic-record access is scoped by assignment-specific queries and `teacherClassAccess/{uid}__{classId}` documents; student profiles receive `currentClassId` when an enrollment is saved. The account and academic workflows depend on deployed Cloud Functions, Firebase Authentication configuration, Firestore rules, and the composite indexes in `firebase/firestore.indexes.json`. Deleting Firestore documents does **not** delete Firebase Authentication accounts. Do not repeatedly clear collections to troubleshoot account setup.
 
 ## Core demonstration flow
 
