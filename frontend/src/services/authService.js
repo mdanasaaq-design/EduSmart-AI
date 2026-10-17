@@ -4,7 +4,7 @@ import {
   signOut,
 } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase'
+import app, { auth, db } from '../firebase'
 
 const allowedRoles = ['admin', 'teacher', 'student']
 
@@ -17,7 +17,7 @@ export async function loginUser(email, password) {
     const userSnapshot = await getDoc(profileRef)
     if (!userSnapshot.exists()) {
       await signOut(auth)
-      const projectId = db.app.options.projectId || 'unknown Firebase project'
+      const projectId = app.options.projectId || 'unknown Firebase project'
       console.error('EduSmart profile lookup returned no document', {
         projectId,
         expectedPath: `users/${credential.user.uid}`,
