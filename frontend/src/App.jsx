@@ -149,7 +149,7 @@ function Dashboard({ user, onLogout, onNavigate }) {
           {statsError && <p role="status" className="mt-3 text-sm text-amber-800">{statsError}</p>}
           <div className="section-heading"><div><span>YOUR TOOLKIT</span><h2>Everything in its place.</h2></div><p>Choose a workspace to manage your institute.</p></div>
           <div className="dashboard-groups">{grouped.map((group) => <section className="module-group" key={group.category}><div className="group-heading"><span>{group.category}</span><i /></div><div className="module-grid">{group.items.map((module) => <Module key={module.title} {...module} onClick={() => onNavigate(module.page)} />)}</div></section>)}</div>
-        </> : <div className="mt-8 max-w-lg"><Module title="Academic Workspace" description="Open your role-specific academic dashboard." icon={ClipboardCheck} category="YOUR SPACE" onClick={() => onNavigate('role')} /></div>}
+        </> : <div className="mt-8 grid max-w-3xl gap-4 sm:grid-cols-2"><Module title={role === 'teacher' ? 'Teaching Workspace' : 'My Academic Workspace'} description={role === 'teacher' ? 'Review your assigned classes and subjects.' : 'View your own attendance, marks and academic insights.'} icon={ClipboardCheck} category="YOUR SPACE" onClick={() => onNavigate('role')} />{role === 'teacher' && <Module title="Attendance & Marks" description="Record attendance and marks for your assigned classes and generate a risk insight." icon={Brain} category="ACADEMIC RECORDS" onClick={() => onNavigate('records')} />}</div>}
       </section>
       <footer className="dashboard-footer"><span>EduSmart AI</span><span>Every learner deserves the chance to thrive.</span></footer>
     </main>
