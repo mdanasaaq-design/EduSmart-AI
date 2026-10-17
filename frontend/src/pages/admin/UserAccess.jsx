@@ -40,7 +40,15 @@ export default function UserAccess({ user, onBack }) {
     }
   }, [])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    let cancelled = false
+    const scheduleLoad = async () => {
+      await Promise.resolve()
+      if (!cancelled) await load()
+    }
+    void scheduleLoad()
+    return () => { cancelled = true }
+  }, [load])
 
   const createAccount = async (event) => {
     event.preventDefault()
