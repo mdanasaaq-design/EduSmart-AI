@@ -37,6 +37,10 @@ function App() {
   const logout = async () => { await logoutUser(); setUser(null); setPage('home') }
 
   if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} firebaseConfigured={firebaseConfigReady} />
+  const adminOnlyPages = ['branches', 'programs', 'academic-years', 'classes-sections', 'students', 'assignments', 'teachers', 'subjects', 'user-access', 'analytics']
+  if (adminOnlyPages.includes(page) && user?.role !== 'admin') {
+    return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
+  }
   if (page === 'branches') return <Branches onBack={() => setPage('dashboard')} />
   if (page === 'programs') return <Programs onBack={() => setPage('dashboard')} />
   if (page === 'academic-years') return <AcademicYears onBack={() => setPage('dashboard')} />
