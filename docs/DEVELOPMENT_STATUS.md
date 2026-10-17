@@ -1,152 +1,102 @@
 # EduSmart AI — Development Status
 
-**Last documented state:** 2026-10-16 (CI verification on commit `6ac5a22`)
+**Status updated:** 2026-10-17  
+**Repository:** `mdanasaaq-design/EduSmart-AI`, branch `main`  
+**Firebase project:** `edusmart-ai-c4692`
 
 ## Overall status
-The prototype is in the **integration verification** phase. The latest GitHub Actions run on `main` passed Firestore Emulator authorization tests (18/18), ESLint, and the Vite production build. The app still needs a live browser acceptance pass and confirmation that the current Firestore rules are published to the Firebase project.
 
-The earlier internal estimate of roughly **75–80% implementation** is a development estimate only, not an academic project result.
+The project is in **integration and live acceptance verification**, not final sign-off. The latest documented CI results and the local Hosting deployment are distinct from browser verification. Do not describe the full system as complete until the required acceptance flow has been exercised.
 
-## Completed foundation
-- React + Vite frontend
-- Tailwind CSS
-- Recharts
-- Lucide React
-- Firebase SDK
-- Firebase Authentication
-- Cloud Firestore
-- GitHub repository/version control
-- environment variable template
-- core documentation set
+## Implemented areas
 
-## Implemented modules
-- Login/logout and role-aware navigation
-- Branches
-- Programs
-- Academic Years
-- Classes & Sections
-- Students & Enrollments
-- Teachers
-- Subjects
-- Teacher Assignments
-- Attendance & Marks
-- Random Forest browser inference
-- Prediction persistence
-- Rule-based recommendations
-- Analytics
-- Teacher/Student role workspace
+- React + Vite frontend and role-aware navigation
+- Firebase email/password authentication
+- Institution/admin setup callable in `functions/index.js`
+- Managed teacher/student provisioning callable
+- Branches, programs, academic years, classes and sections
+- Student/enrollment management
+- Teacher, subject and assignment screens
+- Attendance and marks workflow
+- Browser-side Random Forest inference
+- Prediction persistence and rule-based recommendations
+- Analytics and role workspaces
+- Firestore rules and emulator tests
+- Firebase Hosting configuration and deployment workflow
 
-## Recent integration fixes
-### Student identity linkage
-Student profiles now support a `userId` field containing the Firebase Auth UID.
+Implementation status means source exists; it does not imply every path has passed browser acceptance.
 
-Attendance, marks, predictions and recommendations created through the academic-record workflow carry `studentUserId`.
+## Account workflow: required behavior
 
-The student workspace uses the authenticated UID to retrieve the student's linked records.
+1. Landing page top-right actions: **Create Admin**, then **Sign In**.
+2. Create Admin invokes `registerInstitutionAdmin` for one-time institution setup.
+3. The first administrator signs in and enters the admin workspace.
+4. Admin provisions teacher/student accounts through the managed-user callable.
+5. All roles use shared Sign In and receive access based on their Firestore profile.
+6. Public clients must not self-assign admin or teacher roles.
 
-### Firestore security
-`firebase/firestore.rules` now enforces the following baseline:
-- signed-in users cannot create their own user profile or assign themselves a role;
-- an existing administrator provisions user profiles; the first administrator must be seeded through a trusted Firebase Console/Admin SDK workflow;
-- users cannot change their own role;
-- students can read only their linked student and academic records;
-- students cannot create or modify attendance, marks, predictions or recommendations;
-- only administrators can modify classes, sections, subjects and teacher assignments;
-- role-aware authorization is enforced by Firestore, not just by client-side navigation.
+The frontend in GitHub `main` contains both landing-page actions. However, on 2026-10-17 the local `git pull --ff-only origin main` was aborted because `frontend/src/services/authService.js` had a local modification. A subsequent local build and Firebase Hosting deployment succeeded from that checkout. **This does not verify that the latest GitHub frontend was deployed or that the live button is visible.** Resolve the Git synchronization issue without discarding the local change, pull, rebuild, and redeploy before asserting source parity.
 
-Automated Firestore Emulator regression tests live in `frontend/tests/firestore.rules.test.js` and cover role escalation, administrator provisioning, and student record access/write restrictions. The GitHub Actions workflow runs those tests alongside frontend lint and build checks.
+## Deployment status
 
-These rules still require publication to the actual Firebase project and a manual browser acceptance test. Academic-record reads/writes for teachers are scoped by deterministic teacher assignments and matching enrollments in the rules. Direct teacher reads of student profile/enrollment collections remain restricted because the current data model does not provide a safe general lookup for those documents; the teacher workflow therefore still needs browser-level verification.
+- [x] Local Vite production build completed on 2026-10-17.
+- [x] Firebase Hosting release completed on 2026-10-17 for the local build.
+- [ ] Confirm the local checkout matches the intended latest `main` commit.
+- [ ] Confirm live landing page shows Create Admin then Sign In in a fresh/incognito session.
+- [ ] Confirm the `registerInstitutionAdmin` callable is deployed and callable from the web app.
+- [ ] Confirm the managed-user callable is deployed and works.
+- [ ] Confirm Firestore rules deployed to the live project match the reviewed repository rules.
+- [ ] Run complete role-based browser acceptance.
 
-### Recommendation persistence
-When a prediction is saved, the prototype also saves a rule-based recommendation in `recommendations`.
+Hosting deploy does not deploy Cloud Functions or Firestore rules.
 
 ## ML status
-- Synthetic training dataset exists.
-- Random Forest model exists.
-- Compact exported model exists.
-- Frontend inference path uses `/model.json`.
-- Risk classes: Low / Medium / High.
-- Features: attendance, averageMarks, recentTrend, missedAssessments.
 
-A deterministic holdout evaluation is now documented in `ml/EVALUATION.md`: 1,200 synthetic records, 80/20 stratified split, 86.25% test accuracy, macro F1 0.83. These metrics describe agreement with formula-generated synthetic labels only; they are not evidence of real-world academic-risk accuracy.
+- Synthetic dataset and Random Forest training/export workflow exist.
+- Frontend loads the compact model from `/model.json`.
+- Features: attendance, average marks, recent trend, missed assessments.
+- Evaluation is recorded in `ml/EVALUATION.md`: 86.25% accuracy on formula-generated synthetic labels. This is not real-world academic-risk accuracy or evidence of fairness/calibration.
+- Recommendations are rule-based.
 
-## Still to verify
-1. `frontend/public/model.json` loads correctly in the browser.
-2. Students & Enrollments CRUD and enrollment creation.
-3. Teachers and Subjects CRUD.
-4. Teacher assignment creation/deletion.
-5. Attendance and marks persistence.
-6. Prediction generation and persistence.
-7. Recommendation persistence/display.
-8. Analytics counts and risk chart.
-9. Student account linkage and student dashboard reads.
-10. Teacher role workflow.
-11. Firestore unauthorized-access cases (18 emulator tests pass).
-12. Empty/loading/error states.
-13. Responsive UI.
-14. Production build (CI passes).
+## Automated verification previously recorded
 
-## End-to-end acceptance test
-Use this order after pulling the latest `main`:
+The repository previously documented 18 passing Firestore Emulator authorization tests and passing lint/build on CI for earlier commits. Those results do not prove the current live Firebase project is correctly deployed. Re-run/inspect CI for the current head before reporting current test status.
 
-1. Admin login.
-2. Create a branch.
-3. Create a program linked to the branch.
-4. Create active academic year.
-5. Create class and section.
-6. Create a student and provide the Firebase Auth UID if a student account exists.
-7. Create enrollment.
-8. Create teacher.
-9. Create subject.
-10. Assign teacher + subject + class.
-11. Open Attendance & Marks.
-12. Enter several attendance/mark records for the student.
-13. Generate/save prediction.
-14. Confirm prediction and recommendation exist.
-15. Open Analytics and confirm saved prediction is counted.
-16. Log in with the linked student account.
-17. Confirm the student sees only their own records, prediction and recommendation.
-18. Test an unauthorized action.
-19. Run a production build.
+## High-priority acceptance checklist
 
-## Important testing rule
-Do not mark a task complete because a page renders. Mark it complete only after the relevant data flow and permissions have been verified.
+### A. Deployment and onboarding
+- [ ] Resolve local Git pull conflict while preserving `authService.js`.
+- [ ] Pull intended `main` source and verify Create Admin in `frontend/src/App.jsx`.
+- [ ] Run `npm ci`, `npm run lint`, `npm run build`.
+- [ ] Deploy Hosting from the updated build.
+- [ ] Deploy Cloud Functions and Firestore rules after reviewing changes and permissions.
+- [ ] Verify Create Admin form, one-time setup guard, success redirect, and useful error messages.
+- [ ] Verify Sign In for the administrator.
 
-## Verified CI state (2026-10-16)
-- Code fix commit: `6ac5a22a048500b5ee5da0164734ce4b32f02437` (`fix: preserve registration setup error cause for lint`).
-- Latest repository head: `e1d0b92d3741f5b9670f5edf37d18233506623e1`; its GitHub Actions run also passed.
-- Firestore Emulator authorization tests: **18 passed, 0 failed**.
-- ESLint: passed.
-- Vite production build: passed.
-- This verifies CI and the rules against the emulator, not the live Firebase deployment or end-to-end browser behavior.
-- The login logo lint issue and registration error-handling lint issue have been fixed on `main`.
+### B. Managed roles
+- [ ] Admin can create a teacher account.
+- [ ] Admin can create a student account.
+- [ ] Password setup and first sign-in work.
+- [ ] Role cannot be self-assigned or escalated.
+- [ ] Missing/mismatched Firestore profile errors are understandable.
 
-## Current next action
-Run the browser acceptance flow against the current build and verify that Firestore rules have been deployed to the live Firebase project. Do not claim the whole application is fully verified based on CI alone.
+### C. Academic flow
+- [ ] Create branch, program, academic year, class and section.
+- [ ] Create student and enrollment.
+- [ ] Create teacher and subject.
+- [ ] Link teacher to Firebase Auth UID and create assignment.
+- [ ] Record attendance and marks.
+- [ ] Generate and save prediction and recommendation.
+- [ ] Verify analytics reads persisted predictions.
+- [ ] Verify linked student sees only their own records.
+- [ ] Verify teacher access is restricted by assignments and active enrollment.
 
-### Teacher assignment enforcement (implemented; browser verification pending)
-- Teacher profiles can now store the Firebase Authentication UID in `userId`; assignment creation requires that linkage.
-- New assignment documents use deterministic IDs in the form `<teacher UID>__<subject ID>__<class ID>`, which Firestore Rules check before granting teacher access to attendance, assessments, marks, predictions or recommendations.
-- Academic records and saved risk outputs now include class/subject scope fields. Legacy records without those fields are intentionally not available to teachers under the new rules.
-- Teacher access to student profiles and enrollments is restricted while the data model lacks a safe direct assignment lookup for those documents.
-- Existing random-ID assignments do not grant access under the new rules. Recreate each assignment from the admin UI after adding the teacher's Firebase Auth UID.
-- The Firestore Emulator tests, lint and production build now pass. The assignment workflow still requires manual browser verification, and Firestore rules have not been confirmed as published to the live Firebase project.
+### D. Quality
+- [ ] Test loading, empty, validation and permission-error states.
+- [ ] Test responsive layout and direct-route refresh.
+- [ ] Confirm Firestore rules are deployed and test unauthorized access.
+- [ ] Confirm fresh clone/setup instructions work.
 
+## Important data note
 
-### Teacher enrollment membership validation (2026-10-16)
-- Enrollment documents created through the admin UI now use deterministic IDs: `<student ID>__<class ID>__<academic year ID>`.
-- Teacher access to academic records now requires both the teacher's subject/class assignment and a matching enrollment for the record's student, class, and academic year. The enrollment's linked student UID must match the record's `studentUserId`; withdrawn enrollments do not authorize teacher access.
-- Academic record and prediction/recommendation writes now include `academicYearId` and `sectionId` from the selected enrollment.
-- Added Firestore Emulator tests for cross-class reads, un-enrolled students, and withdrawn enrollment.
-- Legacy random-ID enrollments are not discoverable by the deterministic membership check; recreate/re-key enrollments in the admin UI or migrate their IDs before expecting teacher access. Legacy records without `academicYearId` fail closed for teachers.
-- CI previously confirmed Firestore Rules tests passed, but lint failed on existing effect-based data-loading patterns; the affected admin screens now defer initial loader invocation to a microtask to avoid the synchronous-effect lint rule. Await the latest CI run before considering this complete.
-
-
-### Authentication flows (2026-10-16)
-- Added student self-registration with name, email, password confirmation and a Firestore profile at `users/{auth UID}`.
-- Added Firebase password-reset email flow and clearer login/registration error feedback.
-- Public registration is limited by Firestore Rules to a constrained `student` profile; the app never exposes admin/teacher role selection.
-- The first administrator must still be provisioned through Firebase Console or a trusted Admin SDK workflow.
-- Added a Firestore Emulator regression test for a valid student self-registration profile.
-- Pending verification: latest GitHub Actions run, live Firestore Rules deployment, production hosting rebuild/deployment, and browser tests for register/login/reset/logout.
+Deleting Firestore collections does not delete Firebase Authentication users. Check both systems separately; do not repeatedly delete data as a generic troubleshooting measure.
