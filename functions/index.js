@@ -84,6 +84,63 @@ exports.registerInstitutionAdmin = onCall({ region: 'us-central1' }, async (requ
   }
 })
 
+// Restore an administrator profile only when Firebase Authentication carries
+// the server-issued first-admin claim. This recovers from accidental Firestore
+// document deletion without opening public administrator registration.
+exports.restoreAdminProfile = onCall({ region: 'us-central1' }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Sign in with the original administrator account first.')
+  }
+  if (request.auth.token.role !== 'admin' || request.auth.token.institutionId !== 'primary') {
+    throw new HttpsError('permission-denied', 'Only the original institution administrator can restore a missing administrator profile.')
+  }
+
+  const uid = request.auth.uid
+  const email = typeof request.auth.token.email === 'string' ? request.auth.token.email : ''
+  const name = typeof request.auth.token.name === 'string' && request.auth.token.name.trim()
+    ? request.auth.token.name.trim()
+    : (email.split('@')[0] || 'Institution Administrator')
+  const userRef = db.collection('users').doc(uid)
+  const institutionRef = db.collection('institutions').doc('primary')
+
+  await db.runTransaction(async (transaction) => {
+    const userSnapshot = await transaction.get(userRef)
+    const institutionSnapshot = await transaction.get(institutionRef)
+
+    if (userSnapshot.exists) {
+      if (userSnapshot.data()?.role !== 'admin') {
+        throw new HttpsError('permission-denied', 'An existing profile has a different role; no changes were made.')
+      }
+      return
+    }
+
+    transaction.set(userRef, {
+      name,
+      email,
+      role: 'admin',
+      status: 'active',
+      institutionId: 'primary',
+      restoredAt: FieldValue.serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
+    })
+
+    if (!institutionSnapshot.exists) {
+      transaction.set(institutionRef, {
+        name: 'Institution profile needs completion',
+        address: '',
+        phone: '',
+        email,
+        adminUid: uid,
+        setupCompleted: true,
+        restoredFromAdminClaim: true,
+        createdAt: FieldValue.serverTimestamp(),
+      })
+    }
+  })
+
+  return { uid, email, role: 'admin', restored: true }
+})
+
 exports.createManagedUser = onCall({ region: 'us-central1' }, async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Sign in with your administrator account first.')
