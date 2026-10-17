@@ -43,7 +43,8 @@ Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary 
 2. Create Admin collects institution and first-admin details.
 3. Callable Cloud Function `registerInstitutionAdmin` performs one-time setup using trusted server-side Firebase Admin SDK operations.
 4. On success, the client signs in the administrator and opens the admin workspace.
-5. The admin provisions teacher/student accounts through the trusted managed-user callable.
+5. If the admin's Firestore profile was accidentally deleted, the original admin can sign in and use `restoreAdminProfile`, which is authorized only by their existing server-issued admin custom claim.
+6. The admin provisions teacher/student accounts through the trusted managed-user callable.
 6. All roles use shared Sign In. The role in the Firestore `users/{uid}` profile determines the workspace.
 
 Public client code must not be able to self-assign admin/teacher roles. Existing Firebase Authentication accounts remain even if Firestore profiles/collections are deleted. Treat Auth and Firestore as separate stores during troubleshooting.
@@ -72,7 +73,7 @@ Relationship: Student → Enrollment → Academic Year / Class / Section. Studen
 - Authentication establishes identity; Firestore rules enforce data authorization.
 - Role changes and trusted provisioning must occur through trusted server-side code.
 - Students can read only linked records.
-- Teacher access must be scoped to valid assignments and enrollments.
+- Teacher access must be scoped to valid assignments and enrollments using `teacherClassAccess/{teacherUid}__{classId}` records and the student's current class linkage.
 - Never commit `frontend/.env.local`, service-account keys, or private credentials.
 - Treat rules as prototype controls requiring review before real student data is used.
 
