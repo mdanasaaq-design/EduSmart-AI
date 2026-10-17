@@ -1,89 +1,87 @@
 # EduSmart AI — Product Requirements Document
 
-## 1. Product Overview
-EduSmart AI is a college mini-project prototype for educational institute management with an academic-risk prediction feature. It combines role-based institute management, attendance, assessment marks, analytics, and a machine-learning prediction workflow.
+## 1. Product overview
 
-This is a working academic prototype, not a production ERP or commercial SaaS platform.
+EduSmart AI is a college mini-project prototype for educational institute management with a student academic-risk prediction feature. It combines role-aware institute administration, attendance and marks, academic indicators, predictions, recommendations and analytics.
 
-## 2. Problem Statement
-Educational data is often maintained across disconnected records. Teachers and administrators need a simple way to manage academic information and identify students who may require additional academic support.
+It is an academic prototype, not a production ERP or commercial SaaS platform.
 
-## 3. Objective
-Build a usable web prototype that:
-- manages basic academic institute structure;
-- supports Admin, Teacher, and Student roles;
-- records attendance and assessment marks;
-- calculates simple performance indicators;
-- predicts Low, Medium, or High academic risk;
-- explains the prediction using measurable factors;
-- provides rule-based recommendations.
+## 2. Problem statement
 
-## 4. Target Users
+Academic information can be scattered across separate records. Administrators need a simple way to organize institute data, teachers need controlled access to assigned academic workflows, and students need a clear view of their own performance. A prototype risk indicator can help demonstrate how available academic signals might be summarized for follow-up.
+
+## 3. Objectives
+
+- Manage basic institute structure and academic records.
+- Support Admin, Teacher and Student roles.
+- Provide a controlled first-administrator setup process.
+- Let administrators provision teacher and student accounts.
+- Record attendance and assessment marks.
+- Calculate performance indicators and predict Low/Medium/High risk.
+- Present measurable indicators and rule-based recommendations.
+- Summarize persisted predictions in analytics.
+
+## 4. Users and capabilities
+
 ### Admin
-Manages branches, programs, academic years, classes, sections, students, teachers, subjects, and teacher assignments.
+Manages branches, programs, academic years, classes, sections, students, enrollments, teachers, subjects, teacher assignments, user access, attendance/marks, and analytics.
 
 ### Teacher
-Works with assigned academic data, records attendance and marks, and views student performance/risk information.
+Works with permitted assigned academic data, records attendance and marks, and reviews relevant student performance/risk information.
 
 ### Student
-Views their academic profile, attendance, marks, prediction, risk factors, and recommendations.
+Views their own linked profile, attendance, marks, risk prediction, indicators and recommendations.
 
-## 5. Core Functional Requirements
-1. Firebase Email/Password authentication.
-2. Role-based access for Admin, Teacher, and Student.
-3. Branch CRUD.
-4. Program CRUD.
-5. Academic year CRUD.
-6. Class and section CRUD.
-7. Student and enrollment management.
-8. Teacher management.
-9. Subject management.
-10. Teacher-subject-class assignments.
-11. Attendance recording.
-12. Assessment/marks recording.
-13. Performance calculations.
-14. ML-based risk prediction.
-15. Risk factors and recommendations.
-16. Analytics dashboard.
-17. Firebase/Firestore persistence.
-18. Git/GitHub version control.
+## 5. Functional requirements
 
-## 6. Core ML Workflow
-Input features:
-- attendance percentage;
-- average marks;
-- recent performance trend;
-- missed assessments.
+1. Landing page displays **Create Admin** and **Sign In**, in that order.
+2. Create Admin collects institution and first-administrator details.
+3. A trusted callable function enforces one-time admin setup and writes the initial profile/institution record.
+4. Shared Sign In authenticates all roles and routes using the trusted Firestore user profile.
+5. Admin can provision teacher and student accounts through trusted server-side logic.
+6. Users cannot assign themselves privileged roles.
+7. Branch, program, academic year, class and section management.
+8. Student, enrollment, teacher, subject and assignment management.
+9. Attendance and assessment-mark entry with validation.
+10. Academic feature calculation.
+11. Random Forest inference for Low/Medium/High risk.
+12. Persist predictions and rule-based recommendations.
+13. Analytics summarizes saved academic/prediction data.
+14. Firestore rules constrain access by role, linked identity, assignment and enrollment.
+15. Local build and deployment can be reproduced from repository documentation.
 
-Output:
-- Low;
-- Medium;
-- High.
+## 6. ML workflow
 
-The prototype uses a Random Forest classifier. The current demonstration model is trained on synthetic data because real institutional student data is unavailable. No fabricated real-world accuracy claim may be included in the project report.
+Inputs: attendance percentage, average marks, recent performance trend and missed assessments. Outputs: Low, Medium or High.
 
-## 7. Non-Functional Requirements
-- Simple and responsive web UI.
-- Clear navigation.
-- Maintainable React code.
+The demo Random Forest is trained on synthetic data. Synthetic evaluation metrics must not be represented as real-world accuracy. Model output is advisory and not the sole basis for consequential student decisions.
+
+## 7. Non-functional requirements
+
+- Clear and responsive interface.
+- Maintainable React modules.
 - Firebase-backed persistence.
-- Basic role-aware security through Firestore rules.
-- Reproducible GitHub project structure.
-- Prototype-level reliability suitable for academic demonstration.
+- Trusted account provisioning and Firestore authorization.
+- Clear validation, loading, empty and error states.
+- Reproducible setup and deployment.
+- Honest documentation of prototype limitations.
 
-## 8. Out of Scope
-- Parent portal.
-- Mobile application.
-- Fees/payment management.
-- Payroll.
-- Notifications/SMS/WhatsApp integration.
-- Chat or real-time communication.
-- Commercial SaaS billing.
-- Microservice architecture.
-- Production-grade distributed ML infrastructure.
+## 8. Out of scope
 
-## 9. Primary Demonstration Flow
-Admin creates academic structure → creates student/teacher/subject → assigns teacher → teacher records attendance and marks → system calculates indicators → ML predicts risk → factors and recommendations are displayed → analytics summarizes risk distribution → student can view their academic information.
+Parent portal, mobile application, fees/payments, payroll, SMS/WhatsApp, chat, SaaS billing, microservices, and production-scale ML infrastructure.
 
-## 10. Acceptance Criteria
-The prototype is considered functionally complete when the above demonstration flow works from the browser, data persists in Firestore, authentication and role restrictions work, predictions are generated from the model, analytics renders saved predictions, and the main project can be reproduced from the GitHub repository.
+## 9. Primary demonstration flow
+
+Open landing page → Create Admin for initial setup → admin dashboard → create academic structure → create student/enrollment and teacher/subject → assign teacher → record attendance/marks → generate prediction → inspect factors/recommendation → analytics → sign in as a linked student.
+
+## 10. Acceptance criteria
+
+- Landing page exposes both required navigation actions.
+- One-time admin setup succeeds only when setup is available.
+- Administrator can sign in and provision teacher/student accounts.
+- Authentication profile and Firestore role remain consistent.
+- Data persists and authorization is enforced by Firestore rules.
+- Core academic workflow produces a saved prediction and recommendation.
+- Analytics displays persisted records.
+- Student/teacher access is correctly scoped.
+- Production build succeeds and the deployed frontend/functions/rules are separately verified.
