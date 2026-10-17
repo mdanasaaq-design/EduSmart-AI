@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { loginUser, resetPassword } from '../../services/authService'
 
-function Login({ onLogin, onBack, firebaseConfigured = true }) {
+function Login({ onLogin, onBack, onSignUp, firebaseConfigured = true }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -113,7 +113,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
 
             <button type="button" className="auth-inline-action" onClick={handlePasswordReset} disabled={loading || !firebaseConfigured}>Forgot your password?</button>
             <div className="auth-security-note"><ShieldCheck size={16} /><span>One sign-in page. Your verified account profile determines your access and dashboard.</span></div>
-            <p className="auth-footer-note">Need access? Contact your institution administrator to have an account created.</p>
+            <p className="auth-footer-note">New institution? <button type="button" className="auth-inline-action" onClick={onSignUp}>Sign up and register your college</button></p>
           </div>
         </section>
       </div>
