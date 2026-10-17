@@ -5,7 +5,6 @@ import { ArrowLeft, ShieldCheck, Users, RefreshCw, Save, Copy, UserPlus, Link2 }
 import { db, functions } from '../../firebase'
 
 const roles = [
-  { value: 'admin', label: 'Institution Admin', description: 'Institute-wide management and settings' },
   { value: 'teacher', label: 'Teacher', description: 'Assigned classes, subjects and academic records' },
   { value: 'student', label: 'Student', description: 'Personal academic records and learning insights' },
 ]
