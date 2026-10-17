@@ -19,7 +19,7 @@ exports.registerInstitutionAdmin = onCall({ region: 'us-central1' }, async (requ
   if (name.length < 2 || name.length > 100 || collegeName.length < 2 || collegeName.length > 160) {
     throw new HttpsError('invalid-argument', 'Enter a valid administrator name and institution name.')
   }
-  if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || email.length > 254) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
     throw new HttpsError('invalid-argument', 'Enter a valid email address.')
   }
   if (password.length < 8 || password.length > 128) {
