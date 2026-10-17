@@ -113,7 +113,7 @@ function Login({ onLogin, onBack, onSignUp, firebaseConfigured = true }) {
 
             <button type="button" className="auth-inline-action" onClick={handlePasswordReset} disabled={loading || !firebaseConfigured}>Forgot your password?</button>
             <div className="auth-security-note"><ShieldCheck size={16} /><span>One sign-in page. Your verified account profile determines your access and dashboard.</span></div>
-            <p className="auth-footer-note">Institution administrator? <button type="button" className="auth-inline-action" onClick={onSignUp}>Register a college (admin only)</button></p>
+            <p className="auth-footer-note">Institution administrator? <button type="button" className="auth-inline-action" onClick={onSignUp}>Create Admin account</button></p>
           </div>
         </section>
       </div>
