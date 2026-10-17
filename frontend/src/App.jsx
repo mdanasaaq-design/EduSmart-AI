@@ -3,6 +3,7 @@ import { collection, getDocs } from 'firebase/firestore'
 import { db, firebaseConfigReady } from './firebase'
 import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, CheckCircle2, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Sparkles, Users } from 'lucide-react'
 import Login from './pages/auth/Login'
+import Signup from './pages/auth/Signup'
 import Branches from './pages/admin/Branches'
 import Programs from './pages/admin/Programs'
 import AcademicYears from './pages/admin/AcademicYears'
@@ -36,7 +37,8 @@ function App() {
   const login = (nextUser) => { setUser(nextUser); setPage('dashboard') }
   const logout = async () => { await logoutUser(); setUser(null); setPage('home') }
 
-  if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} firebaseConfigured={firebaseConfigReady} />
+  if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} />
+  if (page === 'signup') return <Signup onComplete={login} onBack={() => setPage('login')} firebaseConfigured={firebaseConfigReady} />
   const adminOnlyPages = ['branches', 'programs', 'academic-years', 'classes-sections', 'students', 'assignments', 'teachers', 'subjects', 'user-access', 'analytics']
   if (adminOnlyPages.includes(page) && user?.role !== 'admin') {
     return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
@@ -53,10 +55,10 @@ function App() {
   if (page === 'analytics') return <Analytics onBack={() => setPage('dashboard')} />
   if (page === 'role') return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
   if (page === 'dashboard') return <Dashboard user={user} onLogout={logout} onNavigate={setPage} />
-  return <Landing onSignIn={() => setPage('login')} firebaseConfigured={firebaseConfigReady} />
+  return <Landing onSignIn={() => setPage('login')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} />
 }
 
-function Landing({ onSignIn, firebaseConfigured }) {
+function Landing({ onSignIn, onSignUp, firebaseConfigured }) {
   return (
     <main className="landing-shell min-h-screen overflow-hidden">
       <nav className="landing-nav">
@@ -64,6 +66,7 @@ function Landing({ onSignIn, firebaseConfigured }) {
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-white/65 sm:inline">A clearer view of every learner</span>
           <button onClick={onSignIn} className="button-light">Sign in <ArrowUpRight size={16} /></button>
+          <button onClick={onSignUp} className="button-light">Sign up</button>
         </div>
       </nav>
 
