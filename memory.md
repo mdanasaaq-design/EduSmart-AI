@@ -21,6 +21,7 @@ Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary 
 ## Required account flow
 - Landing page top-right actions: **Create Admin**, then **Sign In**.
 - Create Admin is one-time institution setup using callable `registerInstitutionAdmin`.
+- If the original administrator retains server-issued `role=admin` and `institutionId=primary` claims but the Firestore profile is missing, sign-in calls `restoreAdminProfile` to recover that same UID securely.
 - Admin can provision teacher/student accounts using the trusted managed-user callable.
 - All roles use shared Sign In; the Firestore user profile controls the workspace.
 - Public users must not select their own role or self-promote.
@@ -42,7 +43,7 @@ Random Forest classifier; features: `attendance`, `averageMarks`, `recentTrend`,
 - Local development has previously had an uncommitted `frontend/src/services/authService.js` change that blocked `git pull --ff-only`.
 - A local Vite production build and Firebase Hosting release completed on 2026-10-17, but the build was made before the failed pull. Therefore that deployment does not establish that latest `main` source is live or that the button is visible.
 - Hosting deployment does not deploy Cloud Functions or Firestore rules.
-- Live Create Admin, managed-user, teacher/student, and end-to-end academic workflows still require explicit browser verification.
+- Latest source includes admin-profile recovery, teacher-scoped attendance/marks/prediction queries, Firestore class-access rules, Node.js 22 Functions runtime, and Firestore composite indexes. These changes still require local build/lint, deployment, and live browser verification.
 
 ## Development rules
 - Inspect the current repository state before editing.
