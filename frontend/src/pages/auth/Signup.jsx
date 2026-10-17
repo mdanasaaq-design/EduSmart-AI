@@ -36,7 +36,9 @@ export default function Signup({ onComplete, onBack, firebaseConfigured = true }
       if (code.includes('permission-denied')) setError('Administrator registration is not permitted because an administrator already exists or setup is unavailable.')
       else if (code.includes('failed-precondition')) setError(err.message || 'Institution setup is already complete. Sign in instead.')
       else if (code.includes('already-exists')) setError('An account already uses this email. Please sign in or reset its password.')
-      else setError(err?.message || 'Could not complete institution setup. Confirm Firebase Functions are deployed and try again.')
+      else if (code.includes('internal') || code.includes('unavailable') || code.includes('not-found') || /internal\s*\[?0\]?/i.test(err?.message || '')) {
+        setError('Institution setup service is not available yet. The registration form loaded, but its secure Firebase backend may not be deployed. Deploy the registerInstitutionAdmin Cloud Function on the Firebase Blaze plan, then try again. No account was confirmed as created.')
+      } else setError(err?.message || 'Could not complete institution setup. Confirm Firebase Functions are deployed and try again.')
     } finally {
       setLoading(false)
     }
