@@ -185,7 +185,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
             <p className="auth-footer-note">
               {registering ? 'Already have an account? ' : 'New to EduSmart AI? '}
               <button type="button" className="auth-inline-action" onClick={() => switchMode(registering ? 'login' : 'register')} disabled={loading}>
-                {registering ? 'Sign in' : 'Create a student account'}
+                {registering ? 'Sign in' : 'Create an account'}
               </button>
             </p>
           </div>
