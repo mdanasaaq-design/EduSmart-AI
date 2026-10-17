@@ -1,47 +1,82 @@
-# Firebase Hosting Deployment
+# Firebase Deployment and Verification
 
-This repository is configured to host the Vite single-page app from `frontend/dist`. Firebase Hosting rewrites all paths to `/index.html`, so the client-side app continues to load on direct navigation and refresh.
+This repository hosts the Vite single-page application from `frontend/dist`. Firebase Hosting rewrites client routes to `/index.html`. Hosting, Cloud Functions, and Firestore rules are separate deployment targets; deploying one does not publish the others.
+
+## Target project
+
+The current demonstration project is `edusmart-ai-c4692`, with Hosting URL [https://edusmart-ai-c4692.web.app](https://edusmart-ai-c4692.web.app). Confirm this is the intended project before deploying.
+
+## Prerequisites
+
+- Node.js/npm supported by the repository's Vite version
+- Firebase CLI installed and authenticated
+- Access to the Firebase project
+- Correct frontend Firebase Web App configuration
+- Billing/plan and IAM permissions required by the configured Cloud Functions
 
 ## One-time Firebase setup
 
-1. Create or select a Firebase project in the [Firebase Console](https://console.firebase.google.com/).
-2. In **Project settings → General → Your apps**, register a Web app and copy its Firebase configuration values.
-3. Enable **Authentication** providers used by the app in **Authentication → Sign-in method**.
-4. In **Firestore Database**, create the database and publish the repository's `firebase/firestore.rules` rules after reviewing them for your use case. The CI workflow currently tests these rules but does not publish them.
-5. In **Authentication → Settings → Authorized domains**, add the Firebase Hosting domain after the first deployment (for example, `<project-id>.web.app` and `<project-id>.firebaseapp.com`, as applicable).
+1. In Firebase Console, select the target project and register a Web App.
+2. Enable Email/Password under Authentication → Sign-in method.
+3. Create Firestore and review `firebase/firestore.rules` before publishing.
+4. Add the Hosting domains to Authentication → Settings → Authorized domains if required.
+5. Ensure the Cloud Functions required by the account workflow are deployed to the expected region (`us-central1`).
 
-## Configure GitHub Actions
+## Frontend environment
 
-In GitHub, open **Settings → Secrets and variables → Actions → New repository secret** and add these secrets:
+Create `frontend/.env.local` locally with the six values below, copied exactly from the registered Firebase Web App:
 
-| Secret name | Value |
-| --- | --- |
-| `VITE_FIREBASE_API_KEY` | Web app API key from Firebase project settings |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Usually `<project-id>.firebaseapp.com` |
-| `VITE_FIREBASE_PROJECT_ID` | Exact Firebase project ID |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Storage bucket shown in Firebase config |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Sender ID from Firebase config |
-| `VITE_FIREBASE_APP_ID` | Web app ID from Firebase config |
-| `FIREBASE_SERVICE_ACCOUNT_EDUSMART_AI` | Full JSON content of a service-account key for the target project |
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
 
-Create the service account in **Google Cloud Console → IAM & Admin → Service Accounts** for the same project. Grant only the permissions needed to deploy Firebase Hosting (typically Firebase Hosting Admin, plus any required service-account usage permission). Create a JSON key and paste the entire JSON into the GitHub secret. Never commit the JSON key, paste it into chat, or expose it in client-side variables. If your organization prohibits service-account keys, replace this workflow's authentication with your approved keyless Workload Identity Federation setup.
+Do not commit `.env.local`, service-account JSON, or private credentials. Firebase web configuration is client-visible; authorization must be enforced by Firestore rules and trusted server-side code.
 
-The `VITE_FIREBASE_*` values are included in the browser bundle at build time. They are Firebase client configuration, not authorization secrets; protect user data with Firestore Security Rules and Authentication, not by hiding the web API key.
+## Local build and Hosting deployment
 
-## Deploy
+From the repository root in PowerShell:
 
-1. Confirm all seven repository secrets above are set.
-2. Open **Actions → Deploy Firebase Hosting → Run workflow** on the `main` branch.
-3. Wait for **Build and deploy production site** to finish. The Firebase action output includes the live hosting URL.
-4. Open the URL and verify the landing page, login, direct-route refresh behavior, and Firebase sign-in.
-
-The workflow is manual by design so a commit cannot accidentally publish before credentials and project settings are configured. After the first successful deployment, you can change its trigger to deploy on pushes to `main` if desired.
-
-## Local build
-
-From `frontend/`, create `.env.local` with the six `VITE_FIREBASE_*` values and run:
-
-```bash
+```powershell
+cd frontend
 npm ci
+npm run lint
 npm run build
+cd ..
+firebase use edusmart-ai-c4692
+firebase deploy --only hosting --project edusmart-ai-c4692
 ```
+
+**Important:** Build only after the intended source commit is present locally. A successful build/deploy of an older local checkout does not publish newer GitHub changes. Verify `git log -1 --oneline` and confirm the expected source (including the landing-page actions) before building.
+
+## Deploy functions and rules when required
+
+Review the code and rules first, then deploy explicitly:
+
+```powershell
+firebase deploy --only functions --project edusmart-ai-c4692
+firebase deploy --only firestore:rules --project edusmart-ai-c4692
+```
+
+Functions deployment can require additional project billing and IAM configuration. Do not assume it succeeded merely because Hosting deployment succeeded. If the deployment fails, retain the complete error output for diagnosis.
+
+## GitHub Actions
+
+If using the repository workflow, configure the required frontend `VITE_FIREBASE_*` secrets and the deployment identity secret described in the workflow. Grant the service account only the permissions required for deployment. Never commit or share its JSON key. A successful workflow verifies only the steps that ran; inspect its log to confirm which targets were deployed.
+
+## Post-deployment acceptance checklist
+
+- [ ] Landing page loads at the intended Hosting URL.
+- [ ] Top-right actions appear in order: **Create Admin**, **Sign In**.
+- [ ] Hard refresh/incognito still shows the updated page.
+- [ ] Create Admin form submits and the callable returns success for first-time setup.
+- [ ] Administrator is authenticated and a matching `users/{uid}` profile exists.
+- [ ] Sign In works for the administrator.
+- [ ] Admin can provision teacher and student accounts.
+- [ ] Managed accounts can complete password setup and sign in.
+- [ ] Role-based data access matches Firestore rules.
+- [ ] Core academic workflow is tested end-to-end.
+
+Deleting a Firestore user profile does not delete its Firebase Authentication account. Avoid clearing collections to troubleshoot account conflicts; inspect Authentication and Firestore state separately.
