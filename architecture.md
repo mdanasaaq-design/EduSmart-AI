@@ -36,12 +36,13 @@ This flow requires the deployed function, correct Firebase client configuration,
 
 ### Managed users
 
-The administrator provisions teacher and student accounts through the managed-user flow. The callable `createManagedUser` verifies the caller's administrator profile, restricts assignable roles to teacher/student, creates the account/profile, and returns the password setup link. The shared sign-in page routes users based on the role stored in the trusted Firestore profile.
+The administrator provisions teacher and student accounts through the managed-user flow. The callable `createManagedUser` verifies the caller's administrator profile, restricts assignable roles to teacher/student, creates the account/profile, and returns the password setup link. If the Firestore admin profile is missing but the original Authentication account retains the server-issued `role=admin` and `institutionId=primary` claims, `restoreAdminProfile` can recreate only that same UID's profile. The shared sign-in page then routes users based on the role stored in the trusted Firestore profile.
 
 ### Authorization
 
 - Firebase Authentication establishes identity.
 - `users/{uid}` stores the application profile and role.
+- `teacherClassAccess/{teacherUid}__{classId}` is a denormalized scope record used by Firestore rules to allow teachers to read only student/enrollment records for assigned classes.
 - Custom claims are set by trusted server-side code; they are not user-editable.
 - Firestore Security Rules protect data operations.
 - Client-side role checks are navigation controls only, not the security boundary.
@@ -72,7 +73,7 @@ EduSmart-AI/
 - `students`, `teachers`, `subjects`, `enrollments`, `teacherAssignments`
 - `attendance`, `assessments`, `marks`, `predictions`, `recommendations`
 
-Academic relationship: Student → Enrollment → Academic Year / Class / Section. Student-linked academic records carry identity and scope fields used by rules to restrict access.
+Academic relationship: Student → Enrollment → Academic Year / Class / Section. Saving an enrollment also stores the student's current class/section/year IDs for teacher-scoped student queries. Student-linked academic records carry identity and scope fields used by rules to restrict access. Composite indexes for marks and attendance queries are defined in `firebase/firestore.indexes.json`.
 
 ## 6. Academic-record and ML flow
 
