@@ -1,76 +1,54 @@
 # EduSmart AI — Project Memory
 
-## Project Identity
-- Project name: EduSmart AI
-- Type: College mini-project / working prototype
-- Repository: mdanasaaq-design/EduSmart-AI
-- Default branch: main
-- Primary development environment: VS Code
+## Identity
+- Project: EduSmart AI
+- Full title: AI-Powered Educational Institute Management System with Student Academic Risk Prediction
+- Type: college mini-project / working prototype
+- Repository: `mdanasaaq-design/EduSmart-AI`
+- Default branch: `main`
+- Firebase project: `edusmart-ai-c4692`
+- Hosting URL: `https://edusmart-ai-c4692.web.app`
 
 ## Purpose
-Build a practical educational institute management prototype with an academic-risk prediction feature.
+Manage institute structure, student/teacher records, attendance and marks, then demonstrate academic-risk prediction and recommendations.
 
-## Approved Stack
-React, Vite, Tailwind CSS, Recharts, Lucide React, Firebase Authentication, Cloud Firestore, Firebase Hosting, Python, Pandas, NumPy, Scikit-learn, Git, GitHub.
+## Approved stack
+React, Vite, Tailwind CSS, Recharts, Lucide React, Firebase Authentication, Cloud Firestore, Firebase Hosting, Firebase Cloud Functions, Python, Pandas, NumPy, Scikit-learn, Git, GitHub.
 
-## Explicitly Not Used
-Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary FastAPI/backend infrastructure.
+## Explicit exclusions
+Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary FastAPI/backend infrastructure, microservices, or out-of-scope commercial features unless the project owner changes scope.
 
-## Working Method
-GPT is the main implementation/development assistant for architecture, coding, debugging, and integration. Claude is primarily used for the presentation and project report, including research-paper synthesis.
+## Required account flow
+- Landing page top-right actions: **Create Admin**, then **Sign In**.
+- Create Admin is one-time institution setup using callable `registerInstitutionAdmin`.
+- Admin can provision teacher/student accounts using the trusted managed-user callable.
+- All roles use shared Sign In; the Firestore user profile controls the workspace.
+- Public users must not select their own role or self-promote.
+- Deleting Firestore profiles does not delete Firebase Authentication accounts. Never clear data as a generic troubleshooting step.
 
-## Current Data Model
-users
-institutions
-branches
-programs
-academicYears
-classes
-sections
-students
-teachers
-subjects
-enrollments
-teacherAssignments
-attendance
-assessments
-marks
-predictions
-recommendations
+## Core roles
+- **Admin:** institute structure, people, assignments, academic records, analytics, user provisioning.
+- **Teacher:** assigned academic data and permitted attendance/marks workflows.
+- **Student:** own profile, attendance, marks, risk and recommendations.
 
-## Current Role Model
-- admin
-- teacher
-- student
+## Main collections
+`users`, `institutions`, `branches`, `programs`, `academicYears`, `classes`, `sections`, `students`, `teachers`, `subjects`, `enrollments`, `teacherAssignments`, `attendance`, `assessments`, `marks`, `predictions`, `recommendations`.
 
-## Current ML Model
-Random Forest classifier with:
-- attendance
-- averageMarks
-- recentTrend
-- missedAssessments
+## ML model
+Random Forest classifier; features: `attendance`, `averageMarks`, `recentTrend`, `missedAssessments`. Training/evaluation data are synthetic. Metrics must never be presented as real-world model performance. Recommendations are rule-based.
 
-The demonstration model is trained using synthetic data and exported for frontend inference. It must not be presented as a validated real-world academic-risk model.
+## Known status and constraints
+- GitHub `main` source has the Create Admin and Sign In navigation actions.
+- Local development has previously had an uncommitted `frontend/src/services/authService.js` change that blocked `git pull --ff-only`.
+- A local Vite production build and Firebase Hosting release completed on 2026-10-17, but the build was made before the failed pull. Therefore that deployment does not establish that latest `main` source is live or that the button is visible.
+- Hosting deployment does not deploy Cloud Functions or Firestore rules.
+- Live Create Admin, managed-user, teacher/student, and end-to-end academic workflows still require explicit browser verification.
 
-## Current Prototype Flow
-Admin setup → academic structure → people/subjects → teacher assignment → attendance/marks → feature calculation → prediction → factors/recommendations → analytics → student view.
-
-## Important Constraints
-- Keep the project at mini-project scope.
-- Prefer simple working code.
-- Do not add features just because they are technically possible.
-- Do not fabricate data or metrics.
-- Keep documentation synchronized with implementation.
-- Test workflows in the browser.
-
-## Known Verification Areas
-- Students & Enrollments needs browser verification.
-- Teachers & Subjects needs browser verification.
-- Teacher Assignments needs browser verification.
-- Academic Records needs browser verification.
-- frontend/public/model.json must contain a valid exported model.
-- Firestore rules must support legitimate student reads without allowing unauthorized writes.
-- Student identity linkage must be consistent between authentication, student documents, and academic records.
-
-## Completion Definition
-The project is finished when the complete core workflow works locally, security rules are verified, the production build succeeds, and documentation reflects the actual implementation and limitations.
+## Development rules
+- Inspect the current repository state before editing.
+- Work directly on `main` unless asked otherwise.
+- Fetch the latest file SHA before updating a GitHub file.
+- Preserve local changes; never recommend destructive resets or indiscriminate data deletion.
+- Keep commits focused and descriptive.
+- Report changed files, tests, and remaining limitations honestly.
+- Treat verified code and test output as authoritative over stale documentation.
