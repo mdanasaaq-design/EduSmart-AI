@@ -1,93 +1,84 @@
 # EduSmart AI — UI/UX Design
 
-## 1. Design Goal
-Create a clean academic-management interface that is easy to demonstrate in a college project evaluation.
+## 1. Design objective
 
-## 2. Design Principles
-- Simple over decorative.
-- Consistent spacing and typography.
-- Clear hierarchy.
-- Responsive layout.
-- Minimal form complexity.
-- Strong visibility of important academic metrics.
-- Consistent loading and error feedback.
+Provide a professional, consistent academic-management interface that can be understood and demonstrated quickly. Prioritize clarity, trustworthy status feedback, readable academic data, and predictable role-based navigation over decorative effects.
 
-## 3. Application Areas
-### Authentication
-A focused login screen with:
-- email;
-- password;
-- login action;
-- validation/error feedback.
+## 2. Visual system
 
-### Admin Dashboard
-Dashboard cards provide access to:
-- Branches
-- Programs
-- Academic Years
-- Classes & Sections
-- Students & Enrollments
-- Teachers
-- Subjects
-- Teacher Assignments
-- Attendance & Marks
-- Analytics
+The approved palette is:
 
-### Teacher Workspace
-Focus on:
-- assigned academic structure;
-- attendance;
-- marks;
-- student performance;
-- risk information.
+- Deep forest: `#1A312C`
+- Teal: `#428475`
+- Mint: `#89D7B7`
+- Warm ivory: `#FFF4E1`
 
-### Student Workspace
-Focus on:
-- profile;
-- attendance;
-- marks;
-- performance;
-- risk prediction;
-- risk factors;
-- recommendations.
+Use the palette consistently across primary surfaces, actions, emphasis, and text. Maintain accessible contrast and visible focus states. Use Lucide React icons consistently and avoid mixing unrelated visual styles.
 
-## 4. Reusable UI Patterns
-Use reusable:
-- cards;
-- buttons;
-- form controls;
-- tables;
-- modal/dialog patterns where appropriate;
-- badges for status/risk;
-- empty states;
-- error messages;
-- loading indicators.
+## 3. Landing and authentication
 
-## 5. Risk Presentation
-Risk should be immediately understandable:
-- risk level: Low / Medium / High;
-- model confidence, only when it is the actual model output;
-- measurable factors;
-- recommendations.
+### Landing navigation
 
-Avoid presenting prediction as a guaranteed outcome. Use wording such as “predicted risk” or “prototype prediction.”
+The top-right navigation must show, in this order:
 
-## 6. Analytics
-Use Recharts for simple visual summaries, including risk distribution. Charts should support interpretation rather than become decorative elements.
+1. **Create Admin** — one-time institution and administrator setup.
+2. **Sign In** — existing administrator, teacher, and student accounts use the shared sign-in page.
 
-## 7. Responsive Behavior
-The interface should remain usable on laptop and common mobile widths, but desktop browser use is the primary demonstration environment.
+These are functional navigation actions, not decorative labels. After a deployment, verify both actions in a fresh/incognito browser session.
 
-## 8. Accessibility Basics
-- Use labels for form controls.
-- Maintain readable contrast.
-- Use descriptive button text.
-- Do not communicate important information by color alone.
-- Preserve keyboard usability where practical.
+### Create Admin
 
-## 9. Visual Consistency
-Use the existing Tailwind-based design system and avoid introducing multiple unrelated visual styles. Icons should come from Lucide React where an icon is useful.
+The form should collect institution details and the first administrator's name, email, and password. Validate required fields, password confirmation, and clear errors. The backend callable must enforce one-time setup; the client must not assign the admin role itself. On success, sign in the created account and open the admin workspace.
 
-## 10. Demonstration Priority
-The evaluator should be able to understand this sequence without explanation:
-Manage institute → manage people → assign academics → enter academic records → generate prediction → inspect factors/recommendations → view analytics.
+### Sign In
+
+Provide labeled email and password fields, clear validation and Firebase errors, password recovery where implemented, and a route back to the landing page. The workspace is determined by the trusted user profile role—not by a role dropdown on the public form.
+
+### Managed users
+
+Admin provisions teacher/student accounts from User Access & Roles. The public UI must not offer users a way to promote themselves or create additional administrator privileges.
+
+## 4. Role workspaces
+
+### Admin
+
+- Branches and programs
+- Academic years, classes and sections
+- Students and enrollments
+- Teachers and subjects
+- Teacher assignments
+- Attendance and marks
+- Predictions, recommendations and analytics
+- User Access & Roles
+
+### Teacher
+
+Focus on assigned academic work, permitted attendance/marks entry, and performance/risk information for students in valid assignments and enrollments.
+
+### Student
+
+Show the student's own linked profile, attendance, marks, risk indicators, prediction and recommendations. Never expose another student's records.
+
+## 5. Reusable interaction patterns
+
+Use consistent cards, buttons, form controls, tables, dialogs, status badges, loading indicators, empty states, and error messages. Forms should preserve entered values when safe and explain how to recover from failures.
+
+## 6. Risk presentation
+
+Use Low / Medium / High labels with measurable indicators and practical, rule-based recommendations. State clearly that these are prototype predictions. Do not imply a prediction guarantees an outcome or that model confidence is a calibrated probability.
+
+## 7. Analytics
+
+Charts should summarize persisted data and include meaningful labels. Empty datasets should produce a clear empty state rather than misleading zero-filled claims.
+
+## 8. Responsive and accessible behavior
+
+- Keep primary navigation usable on laptop and mobile widths.
+- Associate labels with controls.
+- Maintain readable contrast and keyboard focus.
+- Do not convey status by color alone.
+- Provide text feedback for loading, success and errors.
+
+## 9. Demonstration sequence
+
+Landing → Create Admin (first-time setup) → admin dashboard → create academic structure and managed users → assign teacher → record attendance/marks → generate prediction → review recommendation and analytics → sign in as linked student and confirm student-scoped data.
