@@ -23,5 +23,9 @@
     "ui": {
       "enabled": false
     }
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
   }
 }
