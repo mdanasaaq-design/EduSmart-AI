@@ -439,3 +439,17 @@ main.min-h-screen.bg-slate-950 .hover\\:text-red-400:hover { color: #9C3E31 !imp
 .auth-inline-action { display: inline-flex; align-items: center; gap: 5px; border: 0; padding: 0; color: var(--teal); background: transparent; font-size: inherit; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .auth-inline-action:hover { color: var(--forest); }
 .auth-inline-action:disabled { cursor: not-allowed; opacity: .55; }
+
+
+/* Role selection on the shared sign-in screen */
+.auth-role-picker { display:grid; grid-template-columns:1fr; gap:8px; margin-top:22px; }
+.auth-role-option { display:flex; align-items:center; gap:12px; width:100%; min-height:58px; border:1px solid rgba(26,49,44,.14); border-radius:12px; padding:10px 13px; text-align:left; color:var(--forest); background:#FFFEFA; transition:border-color .16s ease, background .16s ease, box-shadow .16s ease; cursor:pointer; }
+.auth-role-option > svg { flex-shrink:0; color:var(--teal); }
+.auth-role-option span,.auth-role-option strong,.auth-role-option small { display:block; }
+.auth-role-option strong { font-size:12px; font-weight:800; }
+.auth-role-option small { margin-top:3px; color:var(--muted); font-size:10px; }
+.auth-role-option:hover { border-color:rgba(66,132,117,.55); }
+.auth-role-option.is-selected { border-color:var(--teal); background:#EAF4EC; box-shadow:0 0 0 2px rgba(66,132,117,.09); }
+.auth-role-option.is-selected > svg { color:#1A6250; }
+.auth-form { margin-top:22px; }
+@media (min-width:1100px) { .auth-role-picker { grid-template-columns:1fr; } }
