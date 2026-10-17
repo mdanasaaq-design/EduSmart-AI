@@ -63,6 +63,7 @@ export async function registerStudent({ name, email, password, invitationCode = 
     } catch {
       await signOut(auth).catch(() => {})
     }
+    if (error instanceof Error && !error.code) throw error
     throw new Error('We could not finish setting up your account. Please try again. If the problem continues, contact your institute administrator.', { cause: error })
   }
 }
