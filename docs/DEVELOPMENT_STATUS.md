@@ -35,7 +35,7 @@ Implementation status means source exists; it does not imply every path has pass
 5. All roles use shared Sign In and receive access based on their Firestore profile.
 6. Public clients must not self-assign admin or teacher roles.
 
-The frontend in GitHub `main` contains both landing-page actions. However, on 2026-10-17 the local `git pull --ff-only origin main` was aborted because `frontend/src/services/authService.js` had a local modification. A subsequent local build and Firebase Hosting deployment succeeded from that checkout. **This does not verify that the latest GitHub frontend was deployed or that the live button is visible.** Resolve the Git synchronization issue without discarding the local change, pull, rebuild, and redeploy before asserting source parity.
+The frontend in GitHub `main` contains both landing-page actions. On 2026-10-17, the local `git pull --ff-only origin main` was aborted because `frontend/src/services/authService.js` had a local modification. A Hosting deployment then succeeded from that older checkout. Additional code changes have since been committed to GitHub: safe recovery of an admin profile from server-issued custom claims, teacher-scoped academic record queries, class-access records, and Firestore composite indexes. **These newer changes have not been built or deployed from the user's local checkout yet.** Preserve the local change, synchronize the intended source, build, deploy Hosting, Functions, rules and indexes, then verify the live app.
 
 ## Deployment status
 
@@ -46,9 +46,11 @@ The frontend in GitHub `main` contains both landing-page actions. However, on 20
 - [ ] Confirm the `registerInstitutionAdmin` callable is deployed and callable from the web app.
 - [ ] Confirm the managed-user callable is deployed and works.
 - [ ] Confirm Firestore rules deployed to the live project match the reviewed repository rules.
+- [ ] Verify admin can recover their profile after accidental Firestore-profile deletion when their server-issued admin claim remains.
+- [ ] Verify teacher can load only assigned classes, students, enrollments, marks and attendance, and save records/predictions.
 - [ ] Run complete role-based browser acceptance.
 
-Hosting deploy does not deploy Cloud Functions or Firestore rules.
+Hosting deploy does not deploy Cloud Functions, Firestore rules, or Firestore indexes. Functions are configured for Node.js 22.
 
 ## ML status
 
