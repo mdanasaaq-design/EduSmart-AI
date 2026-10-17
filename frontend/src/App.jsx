@@ -10,6 +10,7 @@ import ClassesSections from './pages/admin/ClassesSections'
 import StudentsEnrollments from './pages/admin/StudentsEnrollments'
 import Assignments from './pages/admin/Assignments'
 import AdminManagement from './pages/admin/AdminManagement'
+import UserAccess from './pages/admin/UserAccess'
 import AcademicRecords from './pages/AcademicRecords'
 import Analytics from './pages/Analytics'
 import RoleDashboard from './pages/RoleDashboard'
@@ -24,6 +25,7 @@ const modules = [
   { title: 'Teachers', description: 'Maintain teacher profiles and details.', icon: Users, page: 'teachers', category: 'PEOPLE' },
   { title: 'Subjects', description: 'Keep subjects and course codes organized.', icon: School, page: 'subjects', category: 'ACADEMICS' },
   { title: 'Teacher Assignments', description: 'Connect teachers with classes and subjects.', icon: Link2, page: 'assignments', category: 'PEOPLE' },
+  { title: 'User Access & Roles', description: 'Assign institution admin, teacher and student workspace roles.', icon: ShieldCheck, page: 'user-access', category: 'PEOPLE' },
   { title: 'Attendance & Marks', description: 'Record performance and generate risk insights.', icon: ClipboardCheck, page: 'records', category: 'INSIGHTS' },
   { title: 'Analytics', description: 'Explore institute metrics and risk patterns.', icon: BarChart3, page: 'analytics', category: 'INSIGHTS' },
 ]
@@ -41,6 +43,7 @@ function App() {
   if (page === 'classes-sections') return <ClassesSections onBack={() => setPage('dashboard')} />
   if (page === 'students') return <StudentsEnrollments onBack={() => setPage('dashboard')} />
   if (page === 'assignments') return <Assignments onBack={() => setPage('dashboard')} />
+  if (page === 'user-access') return user?.role === 'admin' ? <UserAccess user={user} onBack={() => setPage('dashboard')} /> : <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
   if (['teachers', 'subjects'].includes(page)) return <AdminManagement type={page} onBack={() => setPage('dashboard')} />
   if (page === 'records') return <AcademicRecords user={user} onBack={() => setPage('dashboard')} />
   if (page === 'analytics') return <Analytics onBack={() => setPage('dashboard')} />
