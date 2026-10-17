@@ -143,7 +143,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
                   <div className="auth-input-wrap"><KeyRound size={17} aria-hidden="true" /><input id="confirm-password" type="password" autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required minLength={6} placeholder="Re-enter your password" /></div>
                 </div>
               )}
-              <button type="submit" disabled={loading} className="auth-submit">
+              <button type="submit" disabled={loading || !firebaseConfigured} className="auth-submit">
                 {loading
                   ? <><LoaderCircle size={17} className="animate-spin" /> Please wait…</>
                   : registering
@@ -153,7 +153,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
             </form>
 
             {!registering && (
-              <button type="button" className="auth-inline-action" onClick={handlePasswordReset} disabled={loading}>
+              <button type="button" className="auth-inline-action" onClick={handlePasswordReset} disabled={loading || !firebaseConfigured}>
                 Forgot your password?
               </button>
             )}
