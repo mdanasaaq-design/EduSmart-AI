@@ -71,23 +71,54 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if signedIn() && (request.auth.uid == userId || isAdmin());
-      // Public registration may create only a basic student profile for the
-      // authenticated UID. Staff roles remain administrator-assigned.
+      // Self-registration is student-only unless the same email has a valid,
+      // administrator-created invitation for a teacher or student role.
       allow create: if isAdmin()
         || (signedIn()
           && request.auth.uid == userId
           && request.resource.data.keys().hasAll(['name', 'email', 'role', 'createdAt'])
-          && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt'])
+          && request.resource.data.keys().hasOnly(['name', 'email', 'role', 'createdAt', 'invitationId'])
           && request.resource.data.name is string
           && request.resource.data.name.size() > 0
           && request.resource.data.email == request.auth.token.email
-          && request.resource.data.role == 'student'
-          && request.resource.data.createdAt == request.time);
+          && request.resource.data.createdAt == request.time
+          && (
+            (request.resource.data.role == 'student'
+              && !('invitationId' in request.resource.data))
+            ||
+            (request.resource.data.role in ['teacher', 'student']
+              && request.resource.data.invitationId is string
+              && exists(/databases/$(database)/documents/roleInvitations/$(request.resource.data.invitationId))
+              && get(/databases/$(database)/documents/roleInvitations/$(request.resource.data.invitationId)).data.email == request.auth.token.email
+              && get(/databases/$(database)/documents/roleInvitations/$(request.resource.data.invitationId)).data.role == request.resource.data.role
+              && get(/databases/$(database)/documents/roleInvitations/$(request.resource.data.invitationId)).data.status == 'pending')
+          ));
       allow update: if isAdmin()
         || (signedIn()
           && request.auth.uid == userId
           && request.resource.data.role == resource.data.role);
       allow delete: if isAdmin();
+    }
+
+    match /roleInvitations/{invitationId} {
+      // Invitations can only be issued by an existing administrator.
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasAll(['email', 'role', 'status', 'createdAt', 'createdBy'])
+        && request.resource.data.keys().hasOnly(['email', 'role', 'status', 'createdAt', 'createdBy'])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.role in ['teacher', 'student']
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+      allow get: if isAdmin()
+        || (signedIn() && resource.data.email == request.auth.token.email);
+      allow list: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin()
+        || (signedIn()
+          && resource.data.email == request.auth.token.email
+          && resource.data.status == 'pending');
     }
 
     match /institutions/{id} { allow read, write: if isAdmin(); }
