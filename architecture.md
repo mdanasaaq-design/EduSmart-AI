@@ -1,128 +1,100 @@
-# EduSmart AI — Architecture
+# EduSmart AI — System Architecture
 
-## 1. Architecture Style
-EduSmart AI uses a lightweight client-centric Firebase architecture suitable for a college mini-project.
+## 1. Architecture overview
 
-## 2. Technology Stack
-### Frontend
-- React.js
-- Vite
-- Tailwind CSS
-- Recharts
-- Lucide React
+EduSmart AI is a React single-page application backed by Firebase. The browser handles interface rendering and model inference; Firebase provides identity, persistent records, trusted account-provisioning functions, and hosting.
 
-### Backend / Cloud Services
-- Firebase Authentication
-- Cloud Firestore
-- Firebase Hosting
-- Cloud Functions only if a later feature genuinely requires server-side logic
-
-### Machine Learning
-- Python
-- Pandas
-- NumPy
-- Scikit-learn
-
-### Development
-- VS Code
-- Git
-- GitHub
-- GPT
-- Claude
-
-## 3. High-Level Flow
+```text
 Browser
-→ React application
-→ Firebase Authentication
-→ Firestore
+  └── React + Vite application
+      ├── Firebase Authentication (identity)
+      ├── Cloud Firestore (profiles and academic records)
+      ├── Callable Cloud Functions (trusted account provisioning)
+      └── Browser-side Random Forest inference (exported model.json)
 
-React academic-record workflow
-→ feature calculation
-→ Random Forest inference
-→ prediction + factors + recommendations
-→ Firestore
-
-Python ML workflow
-→ synthetic/prototype dataset
-→ preprocessing
-→ model training
-→ exported compact model
-→ frontend inference for demonstration
-
-## 4. Repository Structure
+Python training workflow
+  └── synthetic data → preprocessing/training → compact model export
+      └── frontend/public/model.json
 ```
+
+## 2. Technology stack
+
+- **Frontend:** React, Vite, Tailwind CSS, Recharts, Lucide React
+- **Identity and data:** Firebase Authentication, Cloud Firestore
+- **Trusted backend operations:** Firebase Cloud Functions using the Admin SDK
+- **Hosting:** Firebase Hosting with SPA fallback to `index.html`
+- **ML training:** Python, Pandas, NumPy, Scikit-learn
+- **Development:** VS Code, Git, GitHub
+
+## 3. Authentication and role provisioning
+
+### First administrator
+
+The public landing page provides **Create Admin** and **Sign In**. Create Admin is a one-time setup flow that submits institution and administrator details to the callable `registerInstitutionAdmin` function. The function validates the request, creates the Firebase Authentication account, assigns trusted custom claims, and writes the initial administrator and institution profiles. The frontend then signs in the administrator.
+
+This flow requires the deployed function, correct Firebase client configuration, and consistent project IDs. Existing Authentication accounts are independent of Firestore documents: deleting a `users/{uid}` document does not delete the Auth account.
+
+### Managed users
+
+The administrator provisions teacher and student accounts through the managed-user flow. The callable `createManagedUser` verifies the caller's administrator profile, restricts assignable roles to teacher/student, creates the account/profile, and returns the password setup link. The shared sign-in page routes users based on the role stored in the trusted Firestore profile.
+
+### Authorization
+
+- Firebase Authentication establishes identity.
+- `users/{uid}` stores the application profile and role.
+- Custom claims are set by trusted server-side code; they are not user-editable.
+- Firestore Security Rules protect data operations.
+- Client-side role checks are navigation controls only, not the security boundary.
+
+## 4. Repository structure
+
+```text
 EduSmart-AI/
-├── frontend/
-├── functions/
-├── ml/
-├── docs/
-├── firebase/
-├── tests/
+├── frontend/             # React/Vite app and browser model
+├── functions/             # Trusted Firebase callable functions
+├── ml/                    # Training and evaluation
+├── docs/                  # Setup, project context and status
+├── firebase/              # Firestore Security Rules
+├── tests/                 # Rule and workflow tests
 ├── README.md
-├── .gitignore
-└── LICENSE
+├── architecture.md
+├── design.md
+├── prd.md
+├── rules.md
+├── tasks.md
+└── memory.md
 ```
 
-## 5. Frontend Structure
-```
-frontend/src/
-├── components/
-├── pages/
-│   ├── auth/
-│   ├── admin/
-│   ├── teacher/
-│   └── student/
-├── layouts/
-├── services/
-├── hooks/
-├── utils/
-├── routes/
-├── App.jsx
-├── main.jsx
-└── index.css
-```
+## 5. Main Firestore collections
 
-## 6. Data Model
-Core Firestore collections:
-- users
-- institutions
-- branches
-- programs
-- academicYears
-- classes
-- sections
-- students
-- teachers
-- subjects
-- enrollments
-- teacherAssignments
-- attendance
-- assessments
-- marks
-- predictions
-- recommendations
+- `users`, `institutions`
+- `branches`, `programs`, `academicYears`, `classes`, `sections`
+- `students`, `teachers`, `subjects`, `enrollments`, `teacherAssignments`
+- `attendance`, `assessments`, `marks`, `predictions`, `recommendations`
 
-Academic progression is represented through:
-Student → Enrollment → Academic Year → Class → Section.
+Academic relationship: Student → Enrollment → Academic Year / Class / Section. Student-linked academic records carry identity and scope fields used by rules to restrict access.
 
-## 7. Authentication
-Firebase Authentication handles email/password authentication. The Firestore `users/{uid}` document stores application role information:
-- admin
-- teacher
-- student
+## 6. Academic-record and ML flow
 
-The frontend uses the authenticated UID to load the user profile and determine the workspace.
+1. An authorized user records attendance and assessment marks.
+2. The application derives attendance percentage, average marks, recent trend, and missed-assessment count.
+3. The exported Random Forest model predicts Low, Medium, or High risk in the browser.
+4. The application persists the prediction and a separate rule-based recommendation.
+5. Analytics summarizes saved records.
 
-## 8. Security Boundary
-Firestore Security Rules enforce role-aware access. Client-side role checks are for user experience only; authorization must ultimately be enforced by Firestore rules.
+The model was trained on synthetic/demo data. Tree-vote fraction shown as confidence is not a calibrated probability; output is advisory and must not be used as the sole basis for consequential decisions.
 
-## 9. ML Design
-Training is performed in Python with Scikit-learn. The prototype model uses Random Forest classification with four input features. The frontend loads the exported compact model for browser-side inference so the demonstration does not require a separate ML API.
+## 7. Deployment boundaries
 
-## 10. Architectural Principles
-- Prefer simple Firebase-native solutions.
-- Avoid unnecessary backend infrastructure.
-- Keep the prototype modular.
-- Persist important academic records in Firestore.
-- Never expose secrets or `.env.local` in Git.
-- Do not claim production-grade ML validation from synthetic data.
+- Hosting deploys the built frontend from `frontend/dist`.
+- Cloud Functions are deployed separately from Hosting.
+- Firestore rules are deployed separately and must be reviewed before publication.
+- GitHub Actions checks do not by themselves prove that live Hosting, Functions, or rules match the repository.
+
+## 8. Architectural principles
+
+- Keep the implementation appropriate to an academic prototype.
+- Prefer Firebase-native services over unnecessary infrastructure.
+- Never expose credentials or commit `frontend/.env.local`.
+- Treat Firestore rules as mandatory authorization controls.
+- Distinguish implemented, tested, and planned features in documentation.
