@@ -66,7 +66,7 @@ function Landing({ onSignIn, onSignUp, firebaseConfigured }) {
         <div className="flex items-center gap-3">
           <span className="hidden text-sm text-white/65 sm:inline">A clearer view of every learner</span>
           <button onClick={onSignIn} className="button-light">Sign in <ArrowUpRight size={16} /></button>
-          <button onClick={onSignUp} className="button-light">Admin sign up</button>
+          <button onClick={onSignUp} className="button-light">Create Admin</button>
         </div>
       </nav>
 
