@@ -4,7 +4,8 @@ import {
   signOut,
 } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
-import app, { auth, db } from '../firebase'
+import { httpsCallable } from 'firebase/functions'
+import app, { auth, db, functions } from '../firebase'
 
 const allowedRoles = ['admin', 'teacher', 'student']
 
@@ -14,9 +15,19 @@ export async function loginUser(email, password) {
   const profileRef = doc(db, 'users', credential.user.uid)
 
   try {
-    const userSnapshot = await getDoc(profileRef)
+    let userSnapshot = await getDoc(profileRef)
     if (!userSnapshot.exists()) {
-      await signOut(auth)
+      // Admin custom claims are server-issued and survive accidental deletion of
+      // Firestore documents. Allow only that already-verified administrator to
+      // restore their own profile; never infer or accept a role from form input.
+      const token = await credential.user.getIdTokenResult(true)
+      if (token.claims.role === 'admin' && token.claims.institutionId === 'primary') {
+        const restoreAdminProfile = httpsCallable(functions, 'restoreAdminProfile')
+        await restoreAdminProfile({})
+        userSnapshot = await getDoc(profileRef)
+      }
+    }
+    if (!userSnapshot.exists()) {
       const projectId = app.options.projectId || 'unknown Firebase project'
       console.error('EduSmart profile lookup returned no document', {
         projectId,
