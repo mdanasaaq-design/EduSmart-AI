@@ -74,7 +74,14 @@ service cloud.firestore {
       // User accounts and profiles are provisioned by the trusted admin-only
       // Cloud Function. Never allow public self-registration or self-assigned roles.
       allow create: if isAdmin();
-      allow update: if isAdmin()
+      // Admins may edit non-role profile fields, and may reassign only
+      // teacher/student profiles between those two roles. Admin privileges
+      // are granted only by the trusted first-admin provisioning function.
+      allow update: if (isAdmin()
+          && request.resource.data.role == resource.data.role)
+        || (isAdmin()
+          && resource.data.role in ['teacher', 'student']
+          && request.resource.data.role in ['teacher', 'student'])
         || (signedIn()
           && request.auth.uid == userId
           && request.resource.data.role == resource.data.role);
