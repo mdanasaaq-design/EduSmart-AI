@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import {
   LockKeyhole, Mail, LoaderCircle, ArrowLeft, ArrowUpRight,
-  ShieldCheck, Sparkles, Brain, CheckCircle2, UserRound, KeyRound,
+  ShieldCheck, Sparkles, Brain, CheckCircle2, UserRound, KeyRound, Building2, GraduationCap, BookOpenCheck,
 } from 'lucide-react'
 import { loginUser, registerStudent, resetPassword } from '../../services/authService'
 
 function Login({ onLogin, onBack, firebaseConfigured = true }) {
   const [mode, setMode] = useState('login')
+  const [selectedRole, setSelectedRole] = useState('student')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,6 +18,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
 
   function switchMode(nextMode) {
     setMode(nextMode)
+    if (nextMode === 'register') setSelectedRole('student')
     setError('')
     setNotice('')
   }
@@ -35,7 +37,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
     try {
       const user = mode === 'register'
         ? await registerStudent({ name, email, password })
-        : await loginUser(email, password)
+        : await loginUser(email, password, selectedRole)
       onLogin(user)
     } catch (err) {
       const code = err?.code
@@ -115,8 +117,22 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
             <p className="auth-intro">
               {registering
                 ? 'Create a student account to access your academic workspace.'
-                : 'Sign in with your institute account to continue.'}
+                : 'Choose your workspace, then sign in with your registered institute account.'}
             </p>
+
+            {!registering && (
+              <div className="auth-role-picker" role="group" aria-label="Choose login role">
+                <button type="button" className={`auth-role-option ${selectedRole === 'admin' ? 'is-selected' : ''}`} aria-pressed={selectedRole === 'admin'} onClick={() => { setSelectedRole('admin'); setError('') }}>
+                  <Building2 size={18} /><span><strong>Institution Admin</strong><small>Manage your institute</small></span>
+                </button>
+                <button type="button" className={`auth-role-option ${selectedRole === 'teacher' ? 'is-selected' : ''}`} aria-pressed={selectedRole === 'teacher'} onClick={() => { setSelectedRole('teacher'); setError('') }}>
+                  <GraduationCap size={18} /><span><strong>Teacher</strong><small>Classes and academics</small></span>
+                </button>
+                <button type="button" className={`auth-role-option ${selectedRole === 'student' ? 'is-selected' : ''}`} aria-pressed={selectedRole === 'student'} onClick={() => { setSelectedRole('student'); setError('') }}>
+                  <BookOpenCheck size={18} /><span><strong>Student</strong><small>Your learning space</small></span>
+                </button>
+              </div>
+            )}
 
             {!firebaseConfigured && <div role="alert" className="auth-error">Firebase is not configured yet. Add the six VITE_FIREBASE_* values to frontend/.env.local, then restart the development server.</div>}
             {error && <div role="alert" className="auth-error">{error}</div>}
@@ -157,7 +173,7 @@ function Login({ onLogin, onBack, firebaseConfigured = true }) {
                 Forgot your password?
               </button>
             )}
-            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'New accounts are students. An administrator assigns staff roles.' : 'Your account permissions determine what you can access.'}</span></div>
+            <div className="auth-security-note"><ShieldCheck size={16} /><span>{registering ? 'New accounts are students. An administrator assigns staff roles.' : 'Your saved account role must match the workspace selected above. Choosing a role never grants permissions.'}</span></div>
             <p className="auth-footer-note">
               {registering ? 'Already have an account? ' : 'New to EduSmart AI? '}
               <button type="button" className="auth-inline-action" onClick={() => switchMode(registering ? 'login' : 'register')} disabled={loading}>
