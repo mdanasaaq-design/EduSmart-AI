@@ -20,7 +20,9 @@ Use `[x]` only for verified work, `[~]` for implemented but not fully verified, 
 - [~] Verify Create Admin is visible in the currently deployed website
 - [~] Verify callable functions are deployed to the target Firebase project
 - [~] Verify first-admin registration and success redirect in browser
+- [~] Restore a missing admin Firestore profile only for the original server-claimed admin
 - [~] Verify managed teacher/student creation and password setup
+- [~] Teacher class access records and scoped academic record reads are implemented; emulator/live acceptance pending
 - [~] Verify login, logout, password reset and profile consistency in live Firebase
 
 ## 3. Institute administration
@@ -52,6 +54,7 @@ Use `[x]` only for verified work, `[~]` for implemented but not fully verified, 
 
 ## 6. Security
 - [x] Firestore rule source committed
+- [x] Teacher reads scoped by per-class access documents and current student class
 - [x] Emulator tests previously documented for role escalation and student-scoped access
 - [~] Re-run emulator tests against current repository head
 - [~] Confirm current Firestore rules are deployed to live project
@@ -62,12 +65,13 @@ Use `[x]` only for verified work, `[~]` for implemented but not fully verified, 
 - [x] Firebase Hosting release completed locally on 2026-10-17
 - [ ] Confirm local checkout was updated to intended latest `main` before the next release
 - [ ] Verify live landing page after deploying the latest source
-- [ ] Deploy and verify Cloud Functions
+- [ ] Deploy and verify Cloud Functions (Node.js 22)
+- [ ] Deploy and verify Firestore composite indexes
 - [ ] Review and deploy Firestore rules
 - [~] Resolve local pull conflict in `frontend/src/services/authService.js` without losing changes
 - [~] Re-run lint/build after synchronizing source
 
-**Deployment caveat:** the 2026-10-17 local pull was aborted by a modified `frontend/src/services/authService.js`; the following successful build/Hosting release used the existing checkout. Do not mark latest-source deployment complete until source parity and live UI are checked.
+**Deployment caveat:** the 2026-10-17 local pull was aborted by a modified `frontend/src/services/authService.js`; the following successful build/Hosting release used the existing checkout. Newer code changes for admin recovery, teacher-scoped records, Node.js 22 and Firestore indexes have since been committed. Do not mark latest-source deployment complete until source parity, build, target deployments and live UI are checked.
 
 ## 8. Documentation and submission
 - [x] README and architecture documentation
