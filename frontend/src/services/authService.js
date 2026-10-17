@@ -44,7 +44,7 @@ export async function registerStudent({ name, email, password }) {
   }
 }
 
-export async function loginUser(email, password) {
+export async function loginUser(email, password, expectedRole) {
   const credential = await signInWithEmailAndPassword(auth, email.trim(), password)
   const userSnapshot = await getDoc(doc(db, 'users', credential.user.uid))
 
@@ -57,6 +57,12 @@ export async function loginUser(email, password) {
   if (!allowedRoles.includes(profile.role)) {
     await signOut(auth)
     throw new Error('Your user profile does not have a valid role. Contact the administrator.')
+  }
+
+  if (expectedRole && profile.role !== expectedRole) {
+    await signOut(auth)
+    const roleNames = { admin: 'Institution Admin', teacher: 'Teacher', student: 'Student' }
+    throw new Error(`This account is registered as ${roleNames[profile.role] || profile.role}. Select the matching login option or contact your institute administrator.`)
   }
 
   return {
