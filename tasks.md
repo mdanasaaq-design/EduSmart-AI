@@ -99,6 +99,7 @@ Use:
 - [~] Label the landing-page static metrics as an illustrative preview; complete the broader live/demo data review before sign-off.
 - [x] Measure current bundle in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601): main JS 238.17 kB; Analytics 360.71 kB; Firebase 560.38 kB; Vite chunk warning remains.
 - [~] Add route-level lazy loading and defer Firebase/dashboard imports; main JS is reduced, but the 560.38 kB Firebase chunk still needs a measured follow-up split.
+- [~] Restore a persisted Firebase session into the verified role workspace after refresh; session-hint tests and CI verification pending, live browser test required.
 
 ## Phase 7 — Release verification (requires explicit authorization)
 

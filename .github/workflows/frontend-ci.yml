@@ -63,7 +63,7 @@ jobs:
         run: npx firebase emulators:exec --config ../firebase.json --only firestore --project demo-edusmart-ai "node --test tests/firestore.rules.test.js"
 
       - name: Test browser model and data-integrity contracts
-        run: node --test tests/modelInference.test.js tests/chunkArray.test.js tests/predictionFeatures.test.js tests/studentDeletionPolicy.test.js
+        run: node --test tests/modelInference.test.js tests/chunkArray.test.js tests/predictionFeatures.test.js tests/studentDeletionPolicy.test.js tests/sessionHint.test.js
 
       - name: Run ESLint
         run: npm run lint

@@ -148,7 +148,7 @@ All authorization tests pass on the current rules; live role-specific checks agr
 
 **Priority: P2, after core correctness.**
 
-**Status:** Route-level lazy loading and deferred Firebase/dashboard imports are in place, and the landing preview now labels its static metrics as illustrative. CI build passes in run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601); the Firebase SDK chunk is still 560.38 kB minified (166.16 kB gzip), so further bundle optimization remains open.
+**Status:** Route-level lazy loading and deferred Firebase/dashboard imports are in place, and the landing preview now labels its static metrics as illustrative. CI build passes in run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601); the Firebase SDK chunk is still 560.38 kB minified (166.16 kB gzip), so further bundle optimization remains open. Session restoration from Firebase Auth is now implemented in source; automated helper/build verification and live browser reload acceptance are pending.
 
 ### Work
 - Confirm Create Admin and Sign In are visible and navigate correctly, while explaining the plan-related limitation of the callable.

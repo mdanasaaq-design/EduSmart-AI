@@ -1,7 +1,8 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { firebaseConfigReady } from './firebaseConfig'
 import { ArrowUpRight, BarChart3, Brain, CheckCircle2, School, ShieldCheck, Sparkles } from 'lucide-react'
 import Brand from './components/Brand'
+import { hasSessionHint, setSessionHint } from './utils/sessionHint'
 
 const Login = lazy(() => import('./pages/auth/Login'))
 const Signup = lazy(() => import('./pages/auth/Signup'))
@@ -29,8 +30,40 @@ function PageBoundary({ children }) {
 function App() {
   const [page, setPage] = useState('home')
   const [user, setUser] = useState(null)
-  const login = (nextUser) => { setUser(nextUser); setPage('dashboard') }
-  const logout = async () => { const { logoutUser } = await import('./services/authService'); await logoutUser(); setUser(null); setPage('home') }
+  const [authReady, setAuthReady] = useState(() => !hasSessionHint())
+  const [sessionNotice, setSessionNotice] = useState('')
+  const login = (nextUser) => { setUser(nextUser); setPage('dashboard'); setSessionHint(true); setSessionNotice(''); setAuthReady(true) }
+  const logout = async () => { const { logoutUser } = await import('./services/authService'); await logoutUser(); setSessionHint(false); setUser(null); setPage('home'); setSessionNotice('') }
+
+  useEffect(() => {
+    if (!firebaseConfigReady || !hasSessionHint()) { setAuthReady(true); return undefined }
+    let cancelled = false
+    let unsubscribe
+    import('./services/authService').then(({ subscribeToAuthState }) => {
+      if (cancelled) return
+      unsubscribe = subscribeToAuthState(
+        (nextUser) => {
+          if (cancelled) return
+          const hadSessionHint = hasSessionHint()
+          setUser(nextUser)
+          setPage(nextUser ? 'dashboard' : 'home')
+          setSessionHint(Boolean(nextUser))
+          setSessionNotice(!nextUser && hadSessionHint ? 'Your previous session could not be restored. Please sign in again.' : '')
+          setAuthReady(true)
+        },
+        (error) => { if (!cancelled) console.error('Unable to restore EduSmart session.', error) },
+      )
+    }).catch((error) => {
+      if (cancelled) return
+      console.error('Unable to initialize EduSmart session restoration.', error)
+      setSessionHint(false)
+      setSessionNotice('Your previous session could not be restored. Please sign in again.')
+      setAuthReady(true)
+    })
+    return () => { cancelled = true; unsubscribe?.() }
+  }, [])
+
+  if (!authReady) return <div role="status" className="grid min-h-screen place-items-center bg-[#FFF4E1] px-6 text-[#1A312C]">Restoring your secure session…</div>
 
   if (page === 'login') return <PageBoundary><Login onLogin={login} onBack={() => setPage('home')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} /></PageBoundary>
   if (page === 'signup') return <PageBoundary><Signup onComplete={login} onBack={() => setPage('login')} firebaseConfigured={firebaseConfigReady} /></PageBoundary>
@@ -50,10 +83,10 @@ function App() {
   if (page === 'analytics') return <PageBoundary><Analytics onBack={() => setPage('dashboard')} /></PageBoundary>
   if (page === 'role') return <PageBoundary><RoleDashboard user={user} onBack={() => setPage('dashboard')} /></PageBoundary>
   if (page === 'dashboard') return <PageBoundary><Dashboard user={user} onLogout={logout} onNavigate={setPage} /></PageBoundary>
-  return <Landing onSignIn={() => setPage('login')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} />
+  return <Landing onSignIn={() => setPage('login')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} sessionNotice={sessionNotice} />
 }
 
-function Landing({ onSignIn, onSignUp, firebaseConfigured }) {
+function Landing({ onSignIn, onSignUp, firebaseConfigured, sessionNotice }) {
   return (
     <main className="landing-shell min-h-screen overflow-hidden">
       <nav className="landing-nav">
@@ -64,6 +97,8 @@ function Landing({ onSignIn, onSignUp, firebaseConfigured }) {
           <button onClick={onSignIn} className="button-light">Sign In <ArrowUpRight size={16} /></button>
         </div>
       </nav>
+
+      {sessionNotice && <p role="status" className="mx-auto mt-4 max-w-5xl rounded-xl border border-amber-200/25 bg-amber-100/10 px-4 py-3 text-sm text-amber-100">{sessionNotice}</p>}
 
       <section className="hero-wrap">
         <div className="hero-copy">

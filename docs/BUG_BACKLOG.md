@@ -106,6 +106,14 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Change:** Block deletion when enrollment history, attendance/marks/predictions/recommendations, or a Firebase Auth UID is linked; keep the record and use the Inactive status or approved cleanup process instead.
 - **Acceptance:** Five policy tests cover enrolled, academic-record-linked, Auth-linked, unlinked and missing student cases; deletion is allowed only when no linked account, enrollment or academic history exists.
 
+### BUG-019 — Persisted Firebase sessions were not restored into application state
+- **Status:** Source implementation committed; CI verification pending; live browser acceptance pending
+- **Area:** `frontend/src/App.jsx`, `frontend/src/services/authService.js`
+- **Evidence:** Firebase Auth persists sessions, but the React app's in-memory `user` state was initialized to null and no auth-state listener restored the verified Firestore profile after a page refresh.
+- **Impact:** A refresh could return the user to the landing page rather than the correct role workspace, making the demo feel unreliable.
+- **Change:** Add an auth-state listener that resolves the Firestore profile and role before restoring the dashboard. A local storage flag is only a non-sensitive loading hint; it never grants access or supplies a role.
+- **Acceptance:** Session-hint helper tests pass; ESLint/build pass; a real browser reload with admin/teacher/student accounts still needs manual verification.
+
 ## P2 — Robustness and user experience
 
 ### BUG-009 — Institution setup error text assumes a Blaze deployment

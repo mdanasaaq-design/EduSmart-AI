@@ -30,7 +30,7 @@ The original CI run failed on a stale self-registration test. After correcting t
 | ID | Test | Expected result | Current status |
 |---|---|---|---|
 | AUTH-01 | Sign in as existing admin | Auth succeeds and `users/{uid}` profile matches same UID/role | NOT RUN against current live deployment |
-| AUTH-02 | Reload admin workspace | User remains authenticated as supported and correct workspace loads | NOT RUN |
+| AUTH-02 | Reload admin workspace | Persisted Firebase session restores the verified profile and correct workspace | CI pending; live browser reload NOT RUN |
 | AUTH-03 | Sign in with invalid credentials | Clear generic error; no unintended profile changes | NOT RUN |
 | AUTH-04 | Password reset with valid registered email | Firebase sends reset email without exposing whether unrelated accounts exist | NOT RUN |
 | AUTH-05 | Missing profile for ordinary user | Access is denied with actionable guidance; no role inferred from input | SOURCE REVIEW only |
