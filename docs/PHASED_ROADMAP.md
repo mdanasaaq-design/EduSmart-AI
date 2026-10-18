@@ -1,7 +1,7 @@
 # EduSmart AI — Phased Roadmap
 
 **Planning baseline:** repository audit dated 2026-10-18  
-**Execution rule:** This document is a plan. No phase is marked complete merely because code exists. Each phase requires evidence. The current task authorizes documentation changes only; implementation/build/deployment require a separate step.
+**Execution rule:** No phase is marked complete merely because code exists. Each phase requires evidence. Implementation and testing are authorized phase by phase; production deployment and Firebase data/rules changes remain excluded unless separately authorized.
 
 ## Guiding principles
 
@@ -41,9 +41,9 @@ All known findings are recorded and the plan does not assume unverified deployme
 1. Inspect the user's local `git status --short`, current commit, and the diff for `frontend/src/services/authService.js`.
 2. Preserve local work; do not use destructive reset/clean commands.
 3. Synchronize with the intended `origin/main` only after the local changes are understood and safely retained.
-4. Capture the exact failing assertion from the latest Firestore Emulator test run.
-5. Resolve the test/rule policy contradiction. Recommended policy: admin-managed account profiles; self-created student profiles remain denied.
-6. Rerun Firestore authorization tests, then lint, then production build.
+4. Capture the exact failing assertion from the latest Firestore Emulator test run. **Done:** the self-registration success test failed with `PERMISSION_DENIED`.
+5. Resolve the test/rule policy contradiction. **Committed:** test now expects self-registration denial; admin-create test uses a new UID. The admin-managed account policy is unchanged.
+6. Rerun Firestore authorization tests, then lint, then production build. **Pending current CI run 39115312291.**
 7. Record the exact commit and complete output summaries.
 
 ### Exit gate
