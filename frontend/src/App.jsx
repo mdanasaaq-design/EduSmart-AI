@@ -84,7 +84,7 @@ function Landing({ onSignIn, onSignUp, firebaseConfigured }) {
         <div className="hero-art" aria-label="Illustration of an academic analytics dashboard">
           <div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" />
           <div className="preview-card">
-            <div className="preview-top"><div><span className="preview-kicker">ACADEMIC OVERVIEW</span><h2>Good morning.</h2></div><div className="preview-avatar">ES</div></div>
+            <div className="preview-top"><div><span className="preview-kicker">ILLUSTRATIVE PREVIEW</span><h2>Good morning.</h2></div><div className="preview-avatar">ES</div></div>
             <div className="preview-metrics">
               <div className="preview-metric"><span>Attendance</span><strong>94.8%</strong><div className="metric-line"><i style={{ width: '94.8%' }} /></div></div>
               <div className="preview-metric"><span>On-track learners</span><strong>82%</strong><div className="metric-line"><i style={{ width: '82%' }} /></div></div>
