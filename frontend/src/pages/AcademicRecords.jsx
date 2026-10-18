@@ -3,19 +3,8 @@ import { addDoc, collection, doc, getDocs, query, serverTimestamp, where, writeB
 import { ArrowLeft, Brain, Save, TrendingDown, TrendingUp } from 'lucide-react'
 import { db } from '../firebase'
 
-function runTree(node, features) {
-  if (node.leaf !== undefined) return node.leaf
-  return features[node.feature] <= node.threshold
-    ? runTree(node.left, features)
-    : runTree(node.right, features)
-}
-function predict(model, features) {
-  const votes = model.trees.map(tree => runTree(tree, features))
-  const counts = [0, 0, 0]
-  votes.forEach(vote => { counts[vote] += 1 })
-  const index = counts.indexOf(Math.max(...counts))
-  return { label: model.classes[index], confidence: Math.round(counts[index] / model.trees.length * 100) }
-}
+import { predict, validateModel } from '../ml/modelInference'
+
 function rows(snapshot) {
   return snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
 }
@@ -26,8 +15,8 @@ async function loadModel() {
   const response = await fetch('/model.json')
   if (!response.ok) throw new Error('Unable to load the Random Forest model.')
   const model = await response.json()
-  if (!Array.isArray(model.trees) || !model.trees.length || !Array.isArray(model.classes) || model.classes.length !== 3) {
-    throw new Error('The Random Forest model file is invalid.')
+  if (!validateModel(model)) {
+    throw new Error('The Random Forest model file is invalid or uses an unsupported class order.')
   }
   return model
 }
