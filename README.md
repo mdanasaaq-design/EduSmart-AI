@@ -25,7 +25,7 @@ EduSmart AI is a college mini-project prototype that brings institute administra
 - The latest recorded GitHub Actions run for the audited code baseline fails in the Firestore authorization test step; lint and build were skipped in that run. See [Development Status](docs/DEVELOPMENT_STATUS.md).
 - A source-level mismatch exists between a test that expects student self-registration and the current administrator-only user-profile creation rule. The intended security policy should be resolved without weakening authorization.
 - The user's Firebase project is constrained to the no-Blaze/free plan. Callable Cloud Functions are required by some automated onboarding/account workflows and must not be assumed deployed. Do not upgrade billing as a default recommendation. For the immediate demo, the existing administrator and manually provisioned demo accounts may be used, with matching Firestore profiles and restrictive rules.
-- Source review indicates the ML numeric class mapping is consistent with the Low/Medium/High metadata, but deterministic regression tests are still needed. The checked-in model artifact contains 5 trees while the training script/evaluation document specify 40. Do not treat the documented synthetic accuracy as verified performance of the shipped browser model until the artifact is regenerated and reevaluated.
+- The numeric class mapping is consistent with the Low/Medium/High metadata and now has deterministic Python and browser inference tests. The shipped model artifacts were regenerated to 40 trees from the canonical training script and are byte-identical. The 86.25% result is reproduced against synthetic labels only; it is not real-world validation.
 - The most recent known Hosting release used a local checkout that had not successfully synchronized to the intended latest GitHub source. Current live/source parity is unverified.
 
 ## Account and role workflow
@@ -65,7 +65,7 @@ npm run lint
 npm run build
 ```
 
-The latest recorded CI run failed before lint/build. Run these commands only after synchronizing the intended source and preserving local changes.
+The current CI workflow includes Firestore authorization tests, Python ML export/inference tests, browser model-contract tests, ESLint and the production build. Check the latest Actions run before relying on the result.
 
 ## Firebase deployment
 
@@ -85,6 +85,7 @@ Current target: `edusmart-ai-c4692`. Confirm the target before any authorized de
 ## Documentation index
 
 - [Repository Audit](docs/REPOSITORY_AUDIT.md)
+- [No-Billing Demo Setup](docs/FREE_PLAN_DEMO_SETUP.md)
 - [Bug and Improvement Backlog](docs/BUG_BACKLOG.md)
 - [Phased Roadmap](docs/PHASED_ROADMAP.md)
 - [Acceptance Test Plan](docs/ACCEPTANCE_TEST_PLAN.md)
