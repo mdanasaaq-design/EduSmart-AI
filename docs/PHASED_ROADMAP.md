@@ -76,14 +76,14 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 - The demo can proceed without deploying Cloud Functions or adding billing.
 - Blocked automated setup flows are disclosed honestly.
 
-## Phase 3 — Correct the ML class mapping and artifact provenance
+## Phase 3 — Verify ML label semantics and fix artifact provenance
 
 **Priority: P0 for the core prediction feature.**
 
 ### Work
-1. Establish a canonical mapping between numeric target values and Low/Medium/High labels.
-2. Fix the export contract so tree leaf labels and metadata use the same mapping.
-3. Add deterministic tests for representative low-, medium- and high-risk feature vectors.
+1. Record the existing mapping explicitly: index 0 = Low risk (strong indicators), index 1 = Medium risk, index 2 = High risk (poor indicators).
+2. Add deterministic tests for representative low-, medium- and high-risk feature vectors; only change the encoding if a test demonstrates a real mismatch.
+3. Verify the exporter and browser both interpret leaf indices as indices into `["Low", "Medium", "High"]`.
 4. Confirm the browser's inference agrees with Python inference on the same model and feature vectors.
 5. Regenerate the model artifact from the approved training script.
 6. Confirm `ml/model.json` and `frontend/public/model.json` are identical.
@@ -92,7 +92,8 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 9. Keep the UI/report explicit that data and labels are synthetic, and tree-vote fraction is not calibrated probability.
 
 ### Exit gate
-- Numeric label mapping, displayed names, training script, exported artifact and evaluation document agree.
+- Deterministic tests prove risk semantics and browser interpretation agree.
+- Training configuration, exported artifact, evaluation record and frontend model file agree.
 - Python/browser parity tests pass.
 - The metric is explicitly tied to the artifact/configuration actually evaluated.
 - No real-world accuracy or fairness claim is made.
