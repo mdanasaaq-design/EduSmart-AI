@@ -18,8 +18,8 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Status:** Confirmed source-level inconsistency
 - **Area:** `ml/train_model.py`, `ml/model.json`, `frontend/public/model.json`, `frontend/src/pages/AcademicRecords.jsx`
 - **Evidence:** Synthetic label generation uses numeric 2 for low risk and 0 for high risk, while model metadata maps class index 0 to Low and index 2 to High. Exported leaf indices are interpreted through that metadata.
-- **Impact:** A correct numeric model output can be shown with the wrong human-readable risk label.
-- **Plan:** Define one canonical label-to-index mapping; export leaves using that mapping; add unit tests for known low/medium/high feature cases; validate browser output against Python predictions.
+- **Impact:** A correct numeric model output can be shown with the wrong human-readable risk label. The evaluation script's `classification_report(..., target_names=CLASSES)` and the documented confusion-matrix headings also likely mislabel the low/high classes.
+- **Plan:** Define one canonical label-to-index mapping; export leaves using that mapping; add unit tests for known low/medium/high feature cases; validate browser output against Python predictions; regenerate the per-class report and confusion matrix from the corrected numeric label order.
 - **Acceptance:** For a fixed set of representative feature vectors, Python and browser outputs agree on the same label. The numeric encoding and displayed label order are documented and tested.
 
 ### BUG-002 — Model artifact is inconsistent with the documented experiment
@@ -103,6 +103,14 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Area:** Landing, auth, dashboards, tables and charts
 - **Plan:** Check laptop and narrow viewport layouts, focus visibility, keyboard operation, semantic labels, contrast, and text alternatives for charts/statuses.
 - **Acceptance:** Core workflows can be completed without mouse-only interaction and without status communicated only by color.
+
+### BUG-013 — Teacher academic-record queries silently cap class scope at 30 IDs
+- **Status:** Confirmed source-level behavior; user impact needs verification
+- **Area:** `frontend/src/pages/AcademicRecords.jsx`
+- **Evidence:** The teacher workflow derives assigned class IDs and slices the list to the first 30.
+- **Impact:** Teachers with more than 30 assigned classes may silently miss records for later classes.
+- **Plan:** Decide whether to page/batch queries or show a clear limit message; preserve Firestore query limits and security constraints.
+- **Acceptance:** No assigned classes are silently omitted; larger assignment sets are either handled correctly or explicitly reported.
 
 ## P3 — Future improvements, not prerequisites for the immediate demo
 
