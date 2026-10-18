@@ -9,13 +9,13 @@
 
 ## Current overall status
 
-**Not signed off.** The project has substantial implemented source, but current CI is failing, the ML label/artifact contract has source-level inconsistencies, the user's Firebase no-Blaze constraint blocks assumed callable workflows, and live deployment parity has not been verified.
+**Not signed off.** The expanded CI suite now passes and the model artifacts are synchronized, but the manual Firebase Console demo setup and end-to-end role workflows have not been verified, the user's no-Blaze constraint blocks assuming callable workflows are available, and live deployment/source parity remains unverified.
 
 Work has progressed through CI recovery and ML artifact validation. Source changes include the Firestore test correction, explicit ML class semantics, a reproducible 40-tree training/export pipeline, Python/browser inference tests, and clearer no-billing account-setup messages. No Firebase deployment or Firebase data was changed. Current full CI passed on commit `cd6e134b51259917ddd25520d01d2940a228a870` in run [39116551389](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116551389). Local Windows working-tree synchronization remains unverified because the local machine's `git status` and diff are not available from this GitHub session.
 
 ## Latest automated verification evidence
 
-Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification: [Frontend CI run 39116551389](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116551389).
+Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification: [Frontend CI run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998).
 
 - Dependency installation: passed.
 - Original Firestore Emulator authorization test step: **failed** due to the stale self-registration success test.
@@ -47,7 +47,7 @@ The current project plan must not assume Cloud Functions can be deployed. The fi
 A deeper source review indicates the current numeric mapping is internally consistent: low score/poor indicators map to numeric class 2 / High risk; middle scores map to 1 / Medium; high scores/strong indicators map to 0 / Low risk. Metadata order `Low, Medium, High` and leaf indices align with that encoding. The earlier audit's claim of a reversed mapping was incorrect. Add deterministic regression tests; do not change the mapping without test evidence.
 
 ### 3. Model artifact mismatch
-The model artifacts now contain 40 trees, are byte-identical and reproduce the documented 86.25% synthetic holdout result under the pinned training environment. This metric measures agreement with formula-generated labels only and does not establish real-world performance.
+The model artifacts now contain 40 trees and are byte-identical. On the pinned synthetic holdout, scikit-learn probability averaging scored 86.25% (207/240), while the browser's per-tree majority vote scored 87.08% (209/240). Both measure agreement with formula-generated labels only and do not establish real-world performance.
 
 ### 4. Deployment/source parity
 A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
