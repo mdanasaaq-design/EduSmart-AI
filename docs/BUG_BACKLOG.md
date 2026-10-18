@@ -15,20 +15,20 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 ## P0 — Must resolve before relying on the demonstration
 
 ### BUG-001 — Risk-class semantics need deterministic regression tests
-- **Status:** Test gap; source review indicates the current mapping is internally consistent
+- **Status:** Resolved by deterministic Python and browser contract tests; latest CI passed
 - **Area:** `ml/train_model.py`, `ml/model.json`, `frontend/public/model.json`, `frontend/src/pages/AcademicRecords.jsx`
 - **Evidence:** Poorer synthetic scores map to numeric class `2` / `High` risk; stronger scores map to class `0` / `Low` risk. The model metadata order is `["Low", "Medium", "High"]`, and leaf argmax indices are used as class indices. This is consistent by source inspection; the earlier audit's claim of reversed labels was incorrect.
 - **Impact:** Without deterministic tests, a future edit could accidentally reverse class semantics without detection.
 - **Plan:** Add fixed low-/medium-/high-risk test vectors and compare Python predictions with the browser inference contract. Preserve the current mapping unless test evidence demonstrates a defect.
 - **Acceptance:** Test vectors prove poor inputs map to High risk, midrange inputs to Medium, strong inputs to Low, and the browser interprets exported class indices consistently.
 
-### BUG-002 — Model artifact is inconsistent with the documented experiment
-- **Status:** Confirmed
+### BUG-002 — Model artifact was inconsistent with the documented experiment
+- **Status:** Resolved; 40-tree artifacts regenerated and synchronized
 - **Area:** `ml/train_model.py`, `ml/EVALUATION.md`, `ml/model.json`, `frontend/public/model.json`
-- **Evidence:** The two checked-in model artifacts contain 5 trees, while the training script and evaluation document specify 40 trees.
-- **Impact:** The documented 86.25% holdout metric cannot be assumed to describe the model currently served by the frontend.
-- **Plan:** Regenerate the artifact from the documented training script; verify model file equality; evaluate the exact exported artifact and update evaluation documentation only from actual output.
-- **Acceptance:** Artifact tree count, training configuration, evaluation record and frontend model file all agree.
+- **Evidence:** The original artifacts contained 5 trees while the training script specified 40.
+- **Change:** Commit `30f52d7` regenerated both artifacts from the canonical training script. CI now reruns training and fails if the checked-in artifacts differ.
+- **Verification:** Both artifacts contain 40 trees, are byte-identical, and the pinned run reproduces 86.25% synthetic holdout accuracy.
+- **Limitation:** This metric reflects synthetic labels and is not real-world validation.
 
 ### BUG-003 — Current Firestore rule test contradicted the security policy
 - **Status:** Resolved; current-head CI passed
@@ -36,7 +36,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Evidence:** CI run `39010124131` and follow-up run `39114483639` failed because `a user can self-register only a constrained student profile for their own UID` expected success but received `PERMISSION_DENIED`. The existing rule permits create only when `isAdmin()`.
 - **Impact:** CI failed before lint/build, so there was no green verification signal.
 - **Change:** Commit `f65742c8b04385ef609e92fc885e063c8f36b145` changes the test to expect denial and changes the admin-create test to use a new UID.
-- **Acceptance:** Current-head CI passes all authorization tests, lint and production build; tests match the intended policy rather than weakening it. Verified by passing CI run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953): all 18 emulator tests passed, followed by ESLint and production build.
+- **Acceptance:** Current-head CI passes all authorization tests, lint and production build; tests match the intended policy rather than weakening it. Verified by full CI run [39116551389](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116551389): 18 emulator tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build all passed.
 
 ## P1 — High-priority integration blockers
 
