@@ -30,10 +30,8 @@ Use:
 - [ ] Synchronize to intended `origin/main` without destructive reset/clean commands.
 - [x] Original CI failure captured: self-registration test failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`.
 - [x] Reconcile self-registration test with administrator-managed account policy; admin-create test now targets a new UID.
-- [x] Firestore Emulator suite passes on current head (18/18 tests; run `39115368953`).
-- [x] ESLint passes on current head (run `39115368953`).
-- [x] Production build passes on current head (run `39115368953`).
-- [x] Record tested commit `1b453d5ef83a758f2e3c90781e909a729fa1d70c` and run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953).
+- [x] Full CI passed: 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build (run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998)).
+- [ ] Reconfirm the full suite after the latest vote-share rounding correction; current CI run is pending.
 - [ ] Inspect local `git status --short`, current commit and `frontend/src/services/authService.js` diff; preserve and synchronize local work safely.
 
 ## Phase 2 — Firebase free-plan-safe demo readiness (P0)
@@ -52,13 +50,15 @@ Use:
 ## Phase 3 — ML correctness and artifact provenance (P0)
 
 - [x] Document the current numeric mapping semantics: index 0 = Low risk, 1 = Medium risk, 2 = High risk.
-- [ ] Add deterministic low/medium/high prediction tests.
-- [ ] Verify Python/browser interpretation of exported leaf indices.
-- [ ] Add Python/browser prediction parity tests.
-- [ ] Regenerate exported model from the approved training script.
+- [x] Add deterministic low/medium/high risk-label tests.
+- [x] Verify Python/browser interpretation of exported leaf indices.
+- [x] Add Python/browser prediction parity tests using shared fixed vectors.
+- [x] Regenerate exported model from the approved training script.
 - [x] Confirm `ml/model.json` and `frontend/public/model.json` are identical (40 trees each; verified after regeneration).
-- [x] Resolve 5-tree versus 40-tree artifact mismatch; the regenerated 40-tree run reproduces 86.25% on the synthetic holdout. Keep real-world claims prohibited.
-- [ ] Re-run evaluation on the exact shipped artifact and update `ml/EVALUATION.md` from actual output.
+- [x] Resolve 5-tree versus 40-tree artifact mismatch; both artifacts contain 40 trees and are byte-identical.
+- [x] Evaluate the exact browser majority-vote contract: 87.08% (209/240); scikit-learn probability-averaging baseline is 86.25% (207/240), both synthetic-only.
+- [x] Update `ml/EVALUATION.md` with both metrics and limitations.
+- [x] Fix vote-share rounding at exact half values (23/40 → 58%); latest CI rerun pending.
 - [x] Keep synthetic-data and uncalibrated-confidence limitations visible in evaluation documentation.
 
 ## Phase 4 — Academic workflow integration (P1)
