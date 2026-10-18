@@ -37,8 +37,8 @@ Manage institute structure, student/teacher records, attendance and marks, then 
 - Features: `attendance`, `averageMarks`, `recentTrend`, `missedAssessments`.
 - Output labels: Low, Medium, High; recommendations are rule-based.
 - Training/evaluation data and labels are synthetic. Metrics do not establish real-world performance.
-- Audit dated 2026-10-18 found that the numeric label mapping in `ml/train_model.py` is inconsistent with the human-readable class order in the exported metadata.
-- The checked-in `ml/model.json` and `frontend/public/model.json` contain 5 trees, while the training script and evaluation document specify 40. The current 86.25% metric must not be presented as verified performance of the shipped browser model until mapping and artifact are reconciled and reevaluated.
+- Audit correction dated 2026-10-18: source review indicates the numeric label mapping is consistent with the human-readable class order; deterministic regression tests are required.
+- The checked-in `ml/model.json` and `frontend/public/model.json` contain 5 trees, while the training script and evaluation document specify 40. The current 86.25% metric must not be presented as verified performance of the shipped browser model until the 5-tree/40-tree artifact mismatch is reconciled and reevaluated.
 - Tree-vote fraction is not a calibrated probability.
 
 ## Latest audit and verification state (2026-10-18)
@@ -52,7 +52,7 @@ Manage institute structure, student/teacher records, attendance and marks, then 
 ## Current roadmap
 1. Source synchronization and CI recovery.
 2. No-billing demo account setup.
-3. ML label mapping/artifact correction and parity testing.
+3. ML label-semantic regression tests, artifact reconciliation and parity testing.
 4. End-to-end academic workflow.
 5. Security acceptance.
 6. UI/accessibility/responsive polish.
