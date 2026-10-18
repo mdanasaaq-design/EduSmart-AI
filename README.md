@@ -7,7 +7,8 @@ EduSmart AI is a college mini-project prototype that brings institute administra
 - **Repository:** [mdanasaaq-design/EduSmart-AI](https://github.com/mdanasaaq-design/EduSmart-AI)
 - **Firebase project:** `edusmart-ai-c4692`
 - **Hosting URL:** [https://edusmart-ai-c4692.web.app](https://edusmart-ai-c4692.web.app)
-- **Status:** implementation and integration verification; do not assume every live workflow is verified.
+- **Status:** implementation and integration verification; not signed off as complete.
+- **Current audit:** [Repository Audit](docs/REPOSITORY_AUDIT.md)
 
 ## Technology stack
 
@@ -15,29 +16,37 @@ EduSmart AI is a college mini-project prototype that brings institute administra
 - Firebase Authentication (email/password)
 - Cloud Firestore
 - Firebase Hosting
-- Firebase Cloud Functions for trusted account provisioning
+- Firebase Cloud Functions source for trusted account provisioning
 - Python, Pandas, NumPy, Scikit-learn for model training
 - Git and GitHub
 
+## Important current limitations
+
+- The latest recorded GitHub Actions run for the audited code baseline fails in the Firestore authorization test step; lint and build were skipped in that run. See [Development Status](docs/DEVELOPMENT_STATUS.md).
+- A source-level mismatch exists between a test that expects student self-registration and the current administrator-only user-profile creation rule. The intended security policy should be resolved without weakening authorization.
+- The user's Firebase project is constrained to the no-Blaze/free plan. Callable Cloud Functions are required by some automated onboarding/account workflows and must not be assumed deployed. Do not upgrade billing as a default recommendation. For the immediate demo, the existing administrator and manually provisioned demo accounts may be used, with matching Firestore profiles and restrictive rules.
+- The ML numeric class mapping is inconsistent with the human-readable Low/Medium/High metadata, and the checked-in model artifact contains 5 trees while the training script/evaluation document specify 40. Do not treat current browser predictions or the documented synthetic accuracy as validated until these discrepancies are corrected and tested.
+- The most recent known Hosting release used a local checkout that had not successfully synchronized to the intended latest GitHub source. Current live/source parity is unverified.
+
 ## Account and role workflow
 
-1. The landing page offers **Create Admin** and **Sign In** in the top-right navigation.
-2. **Create Admin** is intended for one-time institution setup. It collects institution and administrator details, calls the trusted `registerInstitutionAdmin` Cloud Function, and then signs in the new administrator.
-3. If a Firestore admin profile was accidentally deleted but the original account retains its server-issued admin custom claim, the shared sign-in flow calls the restricted `restoreAdminProfile` function to restore that same UID's profile. The administrator then receives the workspace permitted by the trusted Firestore profile role.
-4. From **User Access & Roles**, an administrator can provision teacher and student accounts. Public users must not be able to assign themselves admin or teacher privileges.
-5. Teachers and students sign in through the same sign-in entry point. Their available screens and data depend on their role and linked records.
+The intended account design uses a one-time institution/admin setup, then administrator-managed teacher/student accounts. All roles use the shared sign-in page; trusted user profiles determine their workspace. Public users must not be able to promote themselves to administrator or teacher.
 
-Teacher academic-record access is scoped by assignment-specific queries and `teacherClassAccess/{uid}__{classId}` documents; student profiles receive `currentClassId` when an enrollment is saved. The account and academic workflows depend on deployed Cloud Functions, Firebase Authentication configuration, Firestore rules, and the composite indexes in `firebase/firestore.indexes.json`. Deleting Firestore documents does **not** delete Firebase Authentication accounts. Do not repeatedly clear collections to troubleshoot account setup.
+The current Create Admin and managed-user workflows call trusted Cloud Functions. Because the current plan blocks assuming those functions are deployed, distinguish the **intended automated workflow** from the **manual Firebase Console setup used for the current demo**. Do not claim automated provisioning is verified unless the callable is available and tested.
+
+Teacher academic-record access is intended to be scoped by assignment and enrollment data. Student records must be linked to the correct Firebase Auth UID. Deleting Firestore documents does not delete Firebase Authentication accounts; inspect both systems before troubleshooting.
 
 ## Core demonstration flow
 
-Manage institute structure → manage students and enrollments → manage teachers and subjects → assign teachers → record attendance and marks → calculate features → generate academic-risk prediction → inspect factors and recommendations → review analytics → sign in as a linked student.
+Manage institute structure → create student and enrollment → create teacher and subject → assign teacher → record attendance/marks → generate academic-risk prediction → inspect recommendation → review analytics → sign in as linked student.
+
+Run the flow only after the relevant acceptance checks pass. If a feature is blocked or unverified, state that limitation and use the tested demo path.
 
 ## Machine-learning prototype
 
-The demo Random Forest is trained by `ml/train_model.py` on a synthetic dataset. Inputs include attendance, average marks, recent performance trend, and missed assessments. The compact exported model is loaded by the frontend for browser inference.
+The demo Random Forest is trained by `ml/train_model.py` on synthetic data. Inputs include attendance, average marks, recent performance trend, and missed assessments. The compact model is loaded by the frontend for browser inference.
 
-The documented 86.25% holdout accuracy is measured against formula-generated synthetic labels only. It is **not** evidence of real-world student-risk accuracy, fairness, or calibration. See [ML Evaluation](ml/EVALUATION.md).
+The evaluation document records 86.25% holdout accuracy against formula-generated synthetic labels. This is not evidence of real-world academic-risk accuracy, fairness, or calibration. In addition, the current audit found a class-label mapping inconsistency and a mismatch between the checked-in artifact's tree count and the documented training configuration. See [ML Evaluation](ml/EVALUATION.md), [Repository Audit](docs/REPOSITORY_AUDIT.md) and [Bug Backlog](docs/BUG_BACKLOG.md). Do not present the current metric as verified performance of the shipped browser model until the artifact is corrected and reevaluated.
 
 ## Run locally
 
@@ -48,34 +57,42 @@ cd frontend
 npm ci
 ```
 
-Create `frontend/.env.local` with the six Firebase Web App settings (see `frontend/.env.example` if present). Never commit this file.
+Create `frontend/.env.local` with the six Firebase Web App settings (see `frontend/.env.example`). Never commit this file.
 
 ```bash
 npm run dev
-npm run build
 npm run lint
+npm run build
 ```
+
+The latest recorded CI run failed before lint/build. Run these commands only after synchronizing the intended source and preserving local changes.
 
 ## Firebase deployment
 
-See [Firebase Deployment](docs/FIREBASE_DEPLOYMENT.md). Hosting serves the built SPA from `frontend/dist`. Build after pulling the intended commit; deploying an old local build will not publish newer GitHub source. If the frontend calls Cloud Functions, deploy the functions separately as documented.
+See [Firebase Deployment](docs/FIREBASE_DEPLOYMENT.md). Hosting serves the built SPA from `frontend/dist`. Build after synchronizing the intended source; deploying an old local build will not publish newer GitHub source. Hosting, Firestore rules, indexes and Cloud Functions are separate targets.
 
-Current target: `edusmart-ai-c4692`, region `us-central1`. Confirm the target project before every deployment.
+Current target: `edusmart-ai-c4692`. Confirm the target before any authorized deployment. Do not attempt to deploy Cloud Functions while the no-Blaze constraint remains in force.
 
 ## Security notes
 
 - Firestore Security Rules, not hidden buttons or client-side role checks, are the authorization boundary.
-- Normal users must not create or edit their own role.
-- Trusted Cloud Functions use the Admin SDK to provision administrator and managed-user profiles.
+- Normal users must not create or edit their own privileged roles.
+- Trusted Cloud Functions provision privileged accounts when available; manual Console setup is a separate demonstration procedure.
 - Never commit `.env.local`, service-account JSON, or other credentials.
 - Teacher/student record access must remain constrained by linked identity and academic assignment/enrollment data.
 - These are prototype controls; complete production security review is still required.
 
 ## Documentation index
 
+- [Repository Audit](docs/REPOSITORY_AUDIT.md)
+- [Bug and Improvement Backlog](docs/BUG_BACKLOG.md)
+- [Phased Roadmap](docs/PHASED_ROADMAP.md)
+- [Acceptance Test Plan](docs/ACCEPTANCE_TEST_PLAN.md)
+- [Architecture and Product Decisions](docs/DECISIONS.md)
 - [Canonical Project Context](docs/PROJECT_CONTEXT.md)
 - [Development Status and Verification](docs/DEVELOPMENT_STATUS.md)
 - [Firebase Deployment](docs/FIREBASE_DEPLOYMENT.md)
+- [Exam Demonstration Checklist](docs/EXAM_DEMO_CHECKLIST.md)
 - [Product Requirements](prd.md)
 - [Architecture](architecture.md)
 - [Project Rules](rules.md)
@@ -84,4 +101,4 @@ Current target: `edusmart-ai-c4692`, region `us-central1`. Confirm the target pr
 - [Project Memory](memory.md)
 - [Synthetic ML Evaluation](ml/EVALUATION.md)
 
-**Source-of-truth rule:** code and verified test output take precedence over outdated documentation. Mark a workflow verified only after running its acceptance test.
+**Source-of-truth rule:** code and verified test output take precedence over outdated documentation. Mark a workflow verified only after running its acceptance test. See the phased roadmap for the order of work.
