@@ -9,20 +9,17 @@
 
 ## 1. Scope and method
 
-This is a read-only source and documentation audit. It reviewed the GitHub tree, project documentation, frontend and Functions package manifests, Firebase configuration and Firestore rules, authentication UI/service code, academic records and analytics code, ML training script and checked-in model artifacts, Firestore rule tests, and recent GitHub Actions run metadata.
-
-**No application code was changed, no build or test was run, no deployment was performed, and no Firebase data or security rules were changed during this audit.** Findings below distinguish source-level facts from items that require execution or live-project verification.
+This document records the initial read-only audit and subsequent follow-up corrections. The initial audit itself changed no application code and ran no tests. Follow-up work on 2026-10-18 corrected the Firestore test, added Python/browser ML contract tests, regenerated the model artifacts, improved no-billing account-setup messaging, and expanded CI. No Firebase deployment or Firebase data change was performed.
 
 ## 2. Executive assessment
 
 EduSmart AI has a substantial academic-prototype foundation: React/Vite frontend, Firebase Authentication and Firestore integration, role-specific screens, institute structure management, attendance/marks workflows, browser-side Random Forest inference, recommendations, analytics, deployment configuration, and project documentation.
 
 It is **not ready for a verified-complete sign-off**. The highest risks are:
-1. Current GitHub Actions CI fails in the Firestore authorization test step; lint and build are skipped in that run.
-2. A rule test expects public self-created student profiles, but the current Firestore rule allows profile creation only by an administrator.
+1. The initial GitHub Actions run failed in the Firestore authorization test step because a test expected public self-created student profiles, while the current Firestore rule allows profile creation only by an administrator. The test was corrected to reflect the existing security policy; the rules were not weakened.
 3. The user requires Firebase's no-Blaze/free-plan constraint to be preserved. Core onboarding and managed-account flows call Cloud Functions, while deployment of those functions is blocked under the current plan.
 4. The numeric risk-label semantics appear consistent with the human-readable class order by source review; deterministic regression tests are needed to lock that behavior.
-5. The checked-in frontend model has 5 trees, while the training script and evaluation document describe 40 trees.
+5. The initial checked-in frontend model had 5 trees while the training script and evaluation document described 40. Follow-up work regenerated and synchronized the artifacts to 40 trees.
 6. The last documented Hosting deployment used a local checkout that had not successfully pulled the intended latest `main`; current live/source parity is unknown.
 7. Full admin → teacher → student workflows, deployed rules/indexes/functions, and the current live site have not been proven by current acceptance evidence.
 
@@ -41,7 +38,7 @@ The current frontend scripts are `dev`, `build`, `lint`, and `preview`. CI runs 
 
 ## 4. Evidence-based findings
 
-### A-01 — Current CI is red
+### A-01 — Initial CI failure; follow-up CI now passes
 
 The latest run for the reviewed head is [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). The job summary shows:
 - Dependency installation: passed.
@@ -49,13 +46,13 @@ The latest run for the reviewed head is [Frontend CI run 39010124131](https://gi
 - ESLint: skipped.
 - Production build: skipped.
 
-The exact failing assertion must be captured from the job output when implementation work begins. The source contains a direct test/rule contradiction described in A-02, which is a strong candidate.
+The exact assertion was captured: the self-registration success test failed with `PERMISSION_DENIED`. The test now expects denial, and the admin-create test uses a new UID.
 
-### A-02 — Firestore rule test contradicts the current account policy
+### A-02 — Firestore test/rule mismatch resolved
 
 The test `a user can self-register only a constrained student profile for their own UID` expects a normal authenticated user to create `users/{uid}`. The current `firebase/firestore.rules` says user profiles are provisioned by trusted admin-only logic and sets `allow create: if isAdmin()`.
 
-This is a **confirmed source-level inconsistency**. The intended policy must be chosen explicitly before changing code. The existing product documents say teachers/students are provisioned by an administrator, and the user does not want role security weakened. The recommended direction is to keep administrator-only profile creation and update the stale test to assert denial for self-created profiles, unless the product owner explicitly approves a different secure enrollment design.
+This was a confirmed test/policy inconsistency and is now resolved in tests. The administrator-managed policy remains in force; the self-registration test expects denial. Full CI now passes the authorization suite.
 
 ### A-03 — Firebase free-plan constraint blocks the documented callable workflow
 
@@ -67,13 +64,11 @@ Do not recommend enabling billing as the default solution. For the near-term dem
 
 Source review of `ml/train_model.py` indicates the numeric encoding is consistent with the intended risk semantics: scores below 3.0 (poorer indicators) map to numeric class `2` / `High` risk; scores from 3.0 to below 4.3 map to class `1` / `Medium`; scores at or above 4.3 (stronger indicators) map to class `0` / `Low` risk. The exported metadata order is `["Low", "Medium", "High"]`, and tree leaf argmax indices are interpreted against that order. The default numeric class order used by `classification_report` is 0, 1, 2, so the documented class-name order is consistent by source inspection.
 
-The earlier audit incorrectly described this as a reversed mapping. Do not change the mapping without test evidence. Add deterministic tests that assert poor inputs map to High risk, middle-range inputs to Medium, strong inputs to Low, and Python/browser predictions agree. The separate artifact mismatch below remains a confirmed issue: current frontend artifact contains 5 trees while the training script specifies 40.
+The earlier audit incorrectly described this as a reversed mapping. Deterministic Python and browser tests now cover the risk semantics and fixed inference vectors. The separate artifact mismatch was resolved by regenerating both model files to 40 trees and verifying deterministic equality in CI.
 
 ### A-05 — Shipped model artifact does not match the documented training configuration
 
-Both `ml/model.json` and `frontend/public/model.json` currently contain 5 trees and are byte-identical. The training script specifies `n_estimators=40`, and `ml/EVALUATION.md` documents a 40-tree model.
-
-Therefore the checked-in browser artifact does not match the documented 40-tree experiment. The 86.25% metric describes the documented synthetic holdout run, not necessarily the checked-in 5-tree artifact. Regenerate/export the model from the documented training configuration, verify the two artifacts are identical, and evaluate the exact artifact intended for the frontend.
+The initial artifacts contained 5 trees despite the 40-tree training configuration. Follow-up work regenerated both artifacts from `ml/train_model.py`; each now contains 40 trees and CI reruns training and checks that regeneration produces no diff. Evaluation now reports both scikit-learn probability-averaging accuracy (86.25%) and the browser's majority-vote accuracy (87.08%) on the same synthetic holdout. Neither metric establishes real-world performance.
 
 ### A-06 — Live release parity is unverified
 
