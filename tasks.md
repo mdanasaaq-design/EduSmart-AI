@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-10-18  
 **Code baseline audited:** `facd992`  
-**Current status:** Phase 0 complete; CI recovery in Phase 1 passed on `1b453d5`. Local Windows source synchronization remains unverified.
+**Current status:** Phase 0 complete; remote CI recovery and Phase 3 ML artifact/inference validation passed. Phase 1 local Windows source synchronization and Phase 2 live Firebase Console verification remain open.
 
 Use:
 - `[x]` only for verified work.
@@ -38,6 +38,8 @@ Use:
 
 ## Phase 2 — Firebase free-plan-safe demo readiness (P0)
 
+- [x] Add `docs/FREE_PLAN_DEMO_SETUP.md` with the safe manual Auth/profile linkage procedure.
+- [x] Update Create Admin and User Access messaging to explain the no-billing fallback.
 - [~] Existing manually provisioned admin was reported working previously; reverify on current live source.
 - [ ] Verify admin Auth UID matches `users/{uid}`.
 - [ ] Create/verify one demo teacher Auth account and matching profile through Firebase Console (requires project-owner Console action).
@@ -57,7 +59,7 @@ Use:
 - [x] Confirm `ml/model.json` and `frontend/public/model.json` are identical (40 trees each; verified after regeneration).
 - [x] Resolve 5-tree versus 40-tree artifact mismatch; the regenerated 40-tree run reproduces 86.25% on the synthetic holdout. Keep real-world claims prohibited.
 - [ ] Re-run evaluation on the exact shipped artifact and update `ml/EVALUATION.md` from actual output.
-- [ ] Keep synthetic-data and uncalibrated-confidence limitations visible.
+- [x] Keep synthetic-data and uncalibrated-confidence limitations visible in evaluation documentation.
 
 ## Phase 4 — Academic workflow integration (P1)
 
