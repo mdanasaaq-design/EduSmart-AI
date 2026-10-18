@@ -94,11 +94,11 @@ Required adversarial cases:
 
 | ID | Test | Expected result | Current status |
 |---|---|---|---|
-| ML-01 | Check numeric target mapping | Low/Medium/High names match numeric labels and leaf indices | FAIL at source-review level; mapping inconsistency identified |
+| ML-01 | Check numeric target mapping | Poor indicators map to High risk, middle to Medium, strong to Low; leaf indices match metadata | SOURCE REVIEW: mapping appears consistent; deterministic test pending |
 | ML-02 | Check exported tree count | Artifact count matches documented training configuration | FAIL at source-review level; artifact has 5 trees, docs/script say 40 |
 | ML-03 | Compare Python and browser inference on fixed inputs | Same risk label for each fixed vector | NOT RUN |
 | ML-04 | Compare `ml/model.json` and `frontend/public/model.json` | Files are identical | PASS by source-content comparison during audit; both currently have 5 trees |
-| ML-05 | Re-run synthetic holdout evaluation after fixing mapping | Metrics generated from the exact model/configuration are recorded | NOT RUN |
+| ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | NOT RUN |
 | ML-06 | Review UI confidence language | Tree-vote share is not described as calibrated probability | SOURCE REVIEW: limitation documented; live UI review pending |
 | ML-07 | Review report/PPT model claims | Synthetic results are not presented as real-world accuracy | NOT RUN |
 
