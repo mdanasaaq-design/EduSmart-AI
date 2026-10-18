@@ -15,7 +15,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 ## P0 — Must resolve before relying on the demonstration
 
 ### BUG-001 — Risk-class semantics need deterministic regression tests
-- **Status:** Resolved by deterministic Python and browser contract tests; latest CI passed
+- **Status:** Resolved by deterministic Python and browser contract tests; full CI passed in run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998)
 - **Area:** `ml/train_model.py`, `ml/model.json`, `frontend/public/model.json`, `frontend/src/pages/AcademicRecords.jsx`
 - **Evidence:** Poorer synthetic scores map to numeric class `2` / `High` risk; stronger scores map to class `0` / `Low` risk. The model metadata order is `["Low", "Medium", "High"]`, and leaf argmax indices are used as class indices. This is consistent by source inspection; the earlier audit's claim of reversed labels was incorrect.
 - **Impact:** Without deterministic tests, a future edit could accidentally reverse class semantics without detection.
@@ -23,7 +23,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** Test vectors prove poor inputs map to High risk, midrange inputs to Medium, strong inputs to Low, and the browser interprets exported class indices consistently.
 
 ### BUG-002 — Model artifact was inconsistent with the documented experiment
-- **Status:** Resolved; 40-tree artifacts regenerated and synchronized
+- **Status:** Resolved; 40-tree artifacts regenerated, synchronized and checked for reproducibility by CI
 - **Area:** `ml/train_model.py`, `ml/EVALUATION.md`, `ml/model.json`, `frontend/public/model.json`
 - **Evidence:** The original artifacts contained 5 trees while the training script specified 40.
 - **Change:** Commit `30f52d7` regenerated both artifacts from the canonical training script. CI now reruns training and fails if the checked-in artifacts differ.
@@ -78,7 +78,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 ## P2 — Robustness and user experience
 
 ### BUG-009 — Institution setup error text assumes a Blaze deployment
-- **Status:** Confirmed copy mismatch with user's constraint
+- **Status:** Resolved in UI copy; both setup screens now explain the no-billing/manual fallback without recommending a billing upgrade
 - **Area:** `frontend/src/pages/auth/Signup.jsx`
 - **Impact:** The error message suggests a paid-plan action the user has explicitly declined.
 - **Plan:** In a future UI change, replace the message with a truthful, actionable explanation that secure first-time setup requires a deployed callable function and that the current demo uses a pre-provisioned admin on the current plan.
