@@ -21,7 +21,7 @@ Use:
 - [x] Record Firebase no-Blaze constraint.
 - [x] Create repository audit, bug backlog, phased roadmap, acceptance test plan and decisions document.
 - [x] Update development status.
-- [ ] Finish cross-linking all canonical documents and recheck consistency.
+- [x] Cross-link the audit, backlog, roadmap, acceptance tests, decisions and status documents; perform a final repository-tree presence check.
 
 ## Phase 1 — Source synchronization and CI recovery (P0)
 
