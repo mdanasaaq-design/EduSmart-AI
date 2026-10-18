@@ -124,7 +124,7 @@ export default function UserAccess({ user, onBack }) {
       </nav>
       <section className="mx-auto max-w-7xl px-5 py-7 sm:px-6 sm:py-9">
         <div className="mb-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5">
-          <div className="flex items-start gap-3"><Users size={22} className="mt-1 shrink-0 text-emerald-300"/><div><h2 className="font-semibold">Institution-managed accounts</h2><p className="mt-1 max-w-3xl text-sm leading-6 text-slate-300">Create teacher and student accounts here. EduSmart provisions the Firebase Authentication account and matching Firestore profile together. The user receives a password setup link and signs in through the same shared login page. Admin accounts are not created from this form.</p></div></div>
+          <div className="flex items-start gap-3"><Users size={22} className="mt-1 shrink-0 text-emerald-300"/><div><h2 className="font-semibold">Institution-managed accounts</h2><p className="mt-1 max-w-3xl text-sm leading-6 text-slate-300">When the trusted account-provisioning service is deployed, create teacher and student accounts here and share the password setup link privately. If that service is unavailable on the current no-billing plan, this form cannot create accounts; use the documented manual Firebase Console procedure instead. Admin accounts are not created from this form.</p></div></div>
         </div>
         {error && <p role="alert" className="mb-4 break-words rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
         {notice && <p role="status" className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">{notice}</p>}
