@@ -17,7 +17,7 @@ The project owner does **not** want to upgrade Firebase to Blaze. Do not recomme
 
 The source contains callable Functions for first-admin setup, admin-profile recovery and managed-user provisioning. These workflows must not be described as available unless the required Functions are already deployed and callable. The current plan has previously blocked Functions deployment.
 
-For the immediate no-billing demo:
+For the immediate no-billing demo, follow [No-Billing Demo Setup](FREE_PLAN_DEMO_SETUP.md):
 1. Use the existing manually provisioned administrator account.
 2. If teacher/student demo accounts are required, create the Auth accounts and matching Firestore profiles manually in Firebase Console.
 3. Ensure profile document IDs match Auth UIDs and role values are correct.
@@ -69,7 +69,7 @@ npm run lint
 npm run build
 ```
 
-The latest recorded CI run for the audited code baseline failed in Firestore Emulator tests, and lint/build were skipped. Do not treat these commands as currently passing until they have been run successfully on the intended source revision.
+The expanded CI workflow now checks pinned ML artifact regeneration, Python inference/export tests, Firestore Emulator authorization, browser inference vectors, ESLint and production build. Latest full passing run before the vote-share rounding correction: [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998); check the latest run after any subsequent source change.
 
 ## Hosting deployment (only when explicitly authorized)
 
@@ -99,7 +99,7 @@ If the owner changes the constraint in the future, revisit Functions deployment 
 
 ## GitHub Actions
 
-The frontend CI workflow runs Firestore Emulator authorization tests before ESLint and production build. The latest recorded run failed at the authorization test step, so the later checks were skipped. Fix the test/policy mismatch, then verify all three stages pass.
+The frontend CI workflow now runs Python ML artifact regeneration and contract tests, Firestore Emulator authorization tests, browser inference tests, ESLint and production build. The original test/policy mismatch was resolved without weakening rules.
 
 The manual Hosting workflow requires repository secrets and a deployment identity. Do not add, print or commit credentials during this documentation task. Historical deployment workflow failures do not prove current deployment status.
 
