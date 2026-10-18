@@ -71,7 +71,7 @@ Academic relationship: Student → Enrollment → Academic Year / Class / Sectio
 - Tree-vote share is not a calibrated probability; outputs are advisory.
 
 Audit dated 2026-10-18 found two source-level discrepancies:
-1. Numeric labels in `ml/train_model.py` encode low risk as 2 and high risk as 0, while exported metadata is ordered `Low, Medium, High` and the browser indexes metadata with the emitted leaf index. The human-readable Low/High mapping is inconsistent.
+1. Source review indicates numeric label semantics are consistent with the `Low, Medium, High` metadata order: poor scores map to High risk (index 2), middle scores to Medium (index 1), strong scores to Low risk (index 0). The earlier audit's reversed-mapping claim was incorrect; deterministic tests are still required.
 2. `ml/model.json` and `frontend/public/model.json` contain 5 trees, while the training script and `ml/EVALUATION.md` specify 40 trees.
 
 Do not claim the current 86.25% synthetic holdout metric describes the shipped frontend artifact until the artifact/configuration is reconciled and the exact shipped artifact is reevaluated.
