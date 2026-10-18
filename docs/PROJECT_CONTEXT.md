@@ -74,12 +74,12 @@ The 2026-10-18 audit identified two items, and subsequent validation refined the
 1. Source review indicates numeric label semantics are consistent with the `Low, Medium, High` metadata order: poor scores map to High risk (index 2), middle scores to Medium (index 1), strong scores to Low risk (index 0). The earlier audit's reversed-mapping claim was incorrect; deterministic tests are still required.
 2. The original checked-in artifacts contained 5 trees while the training script specified 40. They have now been regenerated to 40 trees, verified byte-identical, and tested against the canonical script.
 
-The regenerated 40-tree artifact reproduces the recorded 86.25% synthetic holdout result in the pinned environment. This is performance against formula-generated labels only, not evidence of real-world academic-risk accuracy, fairness or calibration.
+The regenerated 40-tree artifact yields 86.25% with scikit-learn probability averaging and 87.08% with the browser's majority vote on formula-generated labels. These metrics are not evidence of real-world academic-risk accuracy, fairness or calibration.
 
 ## Audit and current verification state (2026-10-18)
 
 - Initial code baseline audited: `facd99297139a4e891ee461e3a674751d7bf24f0`; subsequent commits include test, ML, UI messaging and documentation changes.
-- CI run `39115368953` passed 18/18 Firestore Emulator tests, ESLint and production build. A newer workflow now adds Python ML artifact reproducibility tests and browser inference contract tests; its latest run must be checked after the changes.
+- Full CI run `39116887998` passed 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. A subsequent floating-point vote-share rounding fix has a new CI run pending.
 - The stale self-registration test was corrected to expect denial, and the admin-create test now uses a new UID. The rules were not weakened.
 - A previous local `git pull --ff-only origin main` failed because of local modifications to `frontend/src/services/authService.js`. Preserve and inspect local changes before syncing.
 - A local build and Hosting release succeeded on 2026-10-17, but the local checkout had not successfully synchronized to intended latest source first. Current live/source parity is unverified.
