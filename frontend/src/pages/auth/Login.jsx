@@ -30,10 +30,20 @@ function Login({ onLogin, onBack, onSignUp, firebaseConfigured = true }) {
         setError('Please enter a valid email address.')
       } else if (code === 'auth/network-request-failed') {
         setError('Network error. Check your connection and try again.')
+      } else if (code === 'auth/api-key-not-valid' || code === 'auth/invalid-api-key') {
+        setError('Firebase rejected this web app API key. Verify the VITE_FIREBASE_* values against the registered EduSmart AI Web App, then rebuild and redeploy the frontend.')
+      } else if (code === 'auth/unauthorized-domain') {
+        setError('This website domain is not authorized for Firebase Authentication. Add the current Hosting domain under Firebase Authentication settings, then try again.')
+      } else if (code === 'auth/operation-not-allowed') {
+        setError('Email/password sign-in is disabled for this Firebase project. Enable the Email/Password provider in Firebase Authentication settings.')
+      } else if (code === 'functions/not-found' || code === 'functions/unavailable' || code === 'functions/failed-precondition') {
+        setError('This account setup or recovery action needs a Firebase backend function that is not currently available. Use the existing provisioned account and the documented no-billing setup; do not change billing or security rules to work around this.')
       } else if (code === 'permission-denied' || code === 'firestore/permission-denied') {
-        setError('Your account was verified, but EduSmart could not read your profile. Ask the administrator to check Firestore access.')
+        setError('Your account was verified, but EduSmart could not read your profile. Ask the administrator to check the matching users/{auth-uid} document and Firestore access.')
+      } else if (typeof err?.message === 'string' && err.message.includes('profile could not be found at the expected users/UID path')) {
+        setError('Firebase Authentication succeeded, but the EduSmart profile could not be read. Verify the Auth UID matches the users/{auth-uid} document ID in the same Firebase project.')
       } else {
-        setError(err?.message || 'Unable to sign in. Please try again.')
+        setError('Unable to sign in. Check your connection and Firebase project configuration, then try again.')
       }
     } finally {
       setLoading(false)
