@@ -38,14 +38,14 @@ This document records constraints and decisions that future implementation work 
 
 ## DEC-006 — Canonical ML class mapping must be explicit
 
-**Status:** Required correction identified by audit  
-**Decision:** Use one documented numeric mapping for Low, Medium and High, shared by data labels, model training, exported leaf indices, browser metadata, test vectors and evaluation report.  
+**Status:** Mapping documented and regression-tested  
+**Decision:** Keep one numeric mapping for Low, Medium and High, shared by data labels, model training, exported leaf indices, browser metadata, test vectors and evaluation report.  
 **Current finding:** Source review indicates the existing encoding is consistent: poor-performance scores map to numeric class 2 / High risk, middle scores to class 1 / Medium, and strong-performance scores to class 0 / Low risk. Metadata order is Low, Medium, High. The earlier audit's reversed-label claim was incorrect; add deterministic tests and preserve the mapping unless evidence shows a defect.  
 **Required outcome:** Python and browser inference must return the same human-readable label for deterministic test inputs.
 
 ## DEC-007 — The evaluated model must be the shipped model
 
-**Status:** Required correction identified by audit  
+**Status:** Artifact synchronized; reproducibility enforced by CI  
 **Decision:** Evaluation results must name the exact training configuration and exported artifact that is shipped to the browser.  
 **Current issue (resolved in source):** The artifacts were regenerated to 40 trees and synchronized. CI must continue verifying reproducibility and equality.  
 **Required outcome:** Keep `ml/model.json` and `frontend/public/model.json` synchronized and reproducible. The 86.25% metric is tied to the 40-tree synthetic holdout run and must never be presented as real-world validation.
