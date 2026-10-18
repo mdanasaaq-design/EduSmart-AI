@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-10-18  
 **Code baseline audited:** `facd992`  
-**Current status:** planning baseline recorded; application implementation and deployment are not being performed in this task.
+**Current status:** Phase 0 complete; Phase 1 underway. A test-only correction is committed and awaiting CI.
 
 Use:
 - `[x]` only for verified work.
@@ -29,8 +29,9 @@ Use:
 - [ ] Preserve all local modifications before syncing.
 - [ ] Synchronize to intended `origin/main` without destructive reset/clean commands.
 - [FAIL] Latest recorded CI run fails during Firestore authorization tests.
-- [ ] Capture exact failing assertion from GitHub Actions.
-- [ ] Reconcile self-registration test with administrator-managed account policy.
+- [x] Capture exact failing assertion from GitHub Actions: self-registration test failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`.
+- [x] Reconcile self-registration test with administrator-managed account policy; admin-create test now targets a new UID.
+- [ ] Verify the new CI run passes the full rules suite, ESLint and production build.
 - [ ] Run Firestore Emulator tests on current head.
 - [ ] Run ESLint after tests pass.
 - [ ] Run production build after lint passes.
