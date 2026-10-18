@@ -1,46 +1,42 @@
 # EduSmart AI — Exam Demonstration Checklist
 
-Use this checklist before presenting. A page rendering alone is not proof that a workflow works; verify the important data flow and record any limitation honestly.
+Use this checklist before presenting. A page rendering alone is not proof that a workflow works; verify data flow and record any limitation honestly. This checklist assumes the user's current Firebase no-Blaze constraint and must not require a billing upgrade.
 
-## 1. Synchronize and build safely
+## 1. Repository and build readiness
 
-From the repository root:
+- [ ] Inspect local `git status --short` and `git log -1 --oneline`.
+- [ ] Inspect local changes before syncing; preserve work in `frontend/src/services/authService.js` or any other modified file.
+- [ ] Synchronize to the intended source without destructive reset/clean commands.
+- [ ] Confirm the current Firestore authorization tests pass.
+- [ ] Confirm ESLint passes.
+- [ ] Confirm the production build passes.
+- [ ] Record the exact commit tested.
 
-```powershell
-git status --short
-git log -1 --oneline
-git pull --ff-only origin main
-cd frontend
-npm ci
-npm run lint
-npm run build
-npm run dev
-```
+**Current known status from the 2026-10-18 audit:** latest recorded CI for the audited code baseline failed at the Firestore Emulator test step; lint/build were skipped. The ML label mapping and model-artifact tree-count mismatch also need correction before relying on displayed risk labels. Do not treat these gates as passed until new evidence exists.
 
-If Git refuses to pull because of local modifications, stop and inspect the diff. Preserve local work before synchronizing; do not use destructive reset/clean commands. Open the local URL printed by Vite (usually `http://localhost:5173`). Do not overwrite a working `.env.local`; never commit it.
+## 2. Firebase prerequisites — no-billing path
 
-## 2. Firebase prerequisites
-
-- [ ] Confirm the selected Firebase project is the intended project (`edusmart-ai-c4692` for the current demo).
+- [ ] Confirm the selected project is `edusmart-ai-c4692`.
 - [ ] Confirm Email/Password Authentication is enabled.
-- [ ] Confirm frontend Firebase settings match the registered Web App.
-- [ ] Confirm `registerInstitutionAdmin`, `restoreAdminProfile`, and `createManagedUser` are deployed.
-- [ ] Review and confirm the current Firestore rules and composite indexes are deployed.
-- [ ] Use synthetic/demo academic records.
-- [ ] For the live demo, confirm Hosting reflects the intended source commit; GitHub changes are not automatically live unless deployment ran successfully.
+- [ ] Confirm frontend Firebase settings match the registered Web App; do not expose config secrets in reports or logs.
+- [ ] Use the existing manually provisioned admin account and verify its Auth UID matches `users/{uid}`.
+- [ ] If needed, manually create demo teacher/student Auth accounts in Firebase Console.
+- [ ] Create matching Firestore user profiles and link the records to the correct Auth UIDs.
+- [ ] Prepare synthetic/demo academic records only.
+- [ ] Do not assume `registerInstitutionAdmin`, `restoreAdminProfile` or `createManagedUser` are deployed; current Spark/no-Blaze constraint blocks assuming callable Functions are available.
+- [ ] Do not upgrade billing, weaken rules or allow public role self-assignment just to make the demo work.
 
-Hosting, Functions, Firestore rules, and Firestore indexes are separate deploy targets. A Hosting success message does not verify Functions or rules.
+Manual Console account provisioning is a demo workaround, not proof that automated account provisioning works.
 
-## 3. Landing page and account setup
+## 3. Landing page and sign-in
 
 - [ ] Open the landing page in a fresh/incognito session.
-- [ ] Confirm the top-right buttons appear in this order: **Create Admin**, then **Sign In**.
-- [ ] Use Create Admin for one-time institution setup only.
-- [ ] Enter institution details and the first administrator's credentials.
-- [ ] Confirm registration succeeds, the admin is authenticated, a matching `users/{uid}` profile exists, and the app opens the admin workspace.
-- [ ] Confirm Sign In works for the administrator after refresh.
-
-Do not repeatedly submit setup if an Auth account already exists. Deleting Firestore collections does not delete Firebase Authentication users; inspect both systems separately.
+- [ ] Confirm top-right actions appear in this order: **Create Admin**, then **Sign In**.
+- [ ] Confirm Sign In opens the shared authentication form.
+- [ ] Sign in as the existing administrator.
+- [ ] Confirm the signed-in UID matches the Firestore profile ID and the role is `admin`.
+- [ ] Refresh and verify the admin workspace remains usable.
+- [ ] Confirm errors are clear if an automated setup callable is unavailable; do not claim setup succeeded without a matching profile.
 
 ## 4. Admin academic workflow
 
@@ -51,44 +47,58 @@ Do not repeatedly submit setup if an Auth account already exists. Deleting Fires
 - [ ] Create a student and enrollment.
 - [ ] Create a teacher and subject.
 - [ ] Link the teacher profile to that teacher's Firebase Authentication UID.
-- [ ] Create the teacher–subject–class assignment.
-- [ ] Record attendance and marks for the enrolled student.
-- [ ] Generate and save a risk prediction and recommendation.
+- [ ] Create the teacher–subject–class assignment and any required class-access record.
+- [ ] Confirm the enrollment is active and references the intended student, class and academic year.
+
+## 5. Attendance, marks, prediction and analytics
+
+- [ ] Record attendance for the enrolled student.
+- [ ] Record assessment marks.
+- [ ] Reload the page and verify records persisted.
+- [ ] Verify the risk label against known test vectors after the ML mapping correction.
+- [ ] Confirm the model artifact served by the frontend matches the documented training/evaluation configuration.
+- [ ] Generate and save a prediction and rule-based recommendation.
 - [ ] Open Analytics and verify the saved prediction count/risk distribution.
+- [ ] Explain that training data/labels are synthetic and tree-vote share is not a calibrated probability.
 
-## 5. Managed teacher/student accounts
+**Do not present the current 86.25% metric as verified performance of the shipped browser model until the label mapping and 5-tree versus 40-tree artifact mismatch have been resolved and the exact artifact reevaluated.**
 
-- [ ] From User Access & Roles, create a teacher account.
-- [ ] Create a student account.
-- [ ] Confirm the managed account's password setup flow is usable.
-- [ ] Sign in with each role through the shared Sign In page.
-- [ ] Verify teacher can open Attendance & Marks and sees only assigned classes/students.
-- [ ] Confirm each account receives the correct workspace.
-- [ ] Confirm a normal user cannot self-assign admin/teacher role.
+## 6. Teacher and student workflows
 
-## 6. Student-scoped workflow
+- [ ] Sign in as the manually provisioned teacher.
+- [ ] Verify the teacher sees only assigned classes/students.
+- [ ] Verify the teacher can record allowed attendance/marks and save records for an actively enrolled student.
+- [ ] Verify out-of-assignment and withdrawn-enrollment operations are denied.
+- [ ] Sign in as the linked student.
+- [ ] Verify only that student's profile, attendance, marks, prediction and recommendations are shown.
+- [ ] Verify student writes to academic records and role escalation are denied.
 
-- [ ] Link the student's Firebase Auth UID to the matching student profile.
-- [ ] Sign in as that student.
-- [ ] Verify only that student's linked records, prediction and recommendation are shown.
-- [ ] Attempt an unauthorized read/write only in the approved test environment and confirm rules deny it.
+## 7. Security and deployment checks
 
-## 7. Explain the model accurately
+- [ ] Run emulator authorization tests against current rules.
+- [ ] Verify the rules match the approved administrator-managed account policy.
+- [ ] Confirm no public client can assign itself admin/teacher role.
+- [ ] Verify current Hosting/source parity; a historical Hosting success does not prove current source is live.
+- [ ] Record Hosting, Firestore rules, indexes and Functions as separate statuses.
+- [ ] Do not attempt Functions deployment under the current no-Blaze constraint.
+- [ ] Do not delete Auth users or Firestore collections as generic troubleshooting.
 
-- Inputs: attendance, average marks, recent trend, missed assessments.
-- Output classes: Low, Medium, High.
-- Training labels and dataset are synthetic/formula-generated.
-- The documented 86.25% holdout accuracy describes agreement with synthetic labels; it is not real-world student prediction accuracy.
-- Tree-vote share is not a calibrated probability.
-- Recommendations are rule-based.
-- Risk outputs are advisory and must not be treated as definitive judgments.
+## 8. Report and PPT readiness
 
-## 8. Troubleshooting discipline
+- [ ] Use genuine screenshots from the tested build/live site.
+- [ ] Describe only features that are implemented and verified; label blocked/unverified features.
+- [ ] Include architecture, module flow, security boundaries, test outcomes, ML limitations and future work.
+- [ ] Verify every research citation against a publisher record.
+- [ ] Do not invent test results, screenshots, references or performance claims.
+- [ ] Ensure report, PPT, README and website tell the same factual story.
+- [ ] Rehearse the end-to-end flow and a truthful fallback if a live service is unavailable.
 
-- Capture the exact error and identify which step failed.
-- Check the signed-in UID and matching `users/{uid}` role profile.
-- Check the student/teacher profile's `userId` linkage.
-- Check that the correct Firebase project is selected.
-- Check Functions deployment separately from Hosting.
-- Do not weaken Firestore Rules or delete data just to make a demonstration appear successful.
-- If a live workflow cannot be verified, state that limitation and demonstrate only the tested path.
+## 9. Troubleshooting discipline
+
+1. Capture the exact error and identify which step failed.
+2. Check the signed-in UID and matching `users/{uid}` profile.
+3. Check linked student/teacher profile, enrollment and assignment IDs.
+4. Confirm the selected Firebase project and registered Web App config.
+5. Check CI, Hosting, Functions, rules and indexes separately.
+6. Do not weaken rules or delete data to make a demonstration appear successful.
+7. If a workflow cannot be verified under the current plan, state that limitation and demonstrate only the tested path.
