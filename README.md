@@ -46,7 +46,7 @@ Run the flow only after the relevant acceptance checks pass. If a feature is blo
 
 The demo Random Forest is trained by `ml/train_model.py` on synthetic data. Inputs include attendance, average marks, recent performance trend, and missed assessments. The compact model is loaded by the frontend for browser inference.
 
-The evaluation document records 86.25% holdout accuracy against formula-generated synthetic labels. This is not evidence of real-world academic-risk accuracy, fairness, or calibration. In addition, the audit found an artifact tree-count mismatch between the checked-in model and the documented training configuration; class-label semantics appear consistent by source review and need regression tests. See [ML Evaluation](ml/EVALUATION.md), [Repository Audit](docs/REPOSITORY_AUDIT.md) and [Bug Backlog](docs/BUG_BACKLOG.md). Do not present the current metric as verified performance of the shipped browser model until the artifact is corrected and reevaluated.
+The evaluation document records 86.25% holdout accuracy against formula-generated synthetic labels. The regenerated 40-tree artifacts match the training configuration and are byte-identical; CI now tests the artifact and inference contract. This metric is not evidence of real-world academic-risk accuracy, fairness or calibration. See [ML Evaluation](ml/EVALUATION.md), [Repository Audit](docs/REPOSITORY_AUDIT.md) and [Bug Backlog](docs/BUG_BACKLOG.md).
 
 ## Run locally
 
