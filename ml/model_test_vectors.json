@@ -1,0 +1,35 @@
+{
+  "description": "Fixed feature vectors and expected outputs from the committed 40-tree model artifact. These are inference-contract fixtures, not claims that the model is clinically or academically validated.",
+  "vectors": [
+    {
+      "name": "strong_indicators",
+      "features": [95, 95, 15, 0],
+      "expectedLabel": "Low",
+      "expectedVoteShare": 100
+    },
+    {
+      "name": "midrange_indicators",
+      "features": [70, 60, -10, 2],
+      "expectedLabel": "Medium",
+      "expectedVoteShare": 57
+    },
+    {
+      "name": "poor_indicators",
+      "features": [45, 30, -25, 7],
+      "expectedLabel": "High",
+      "expectedVoteShare": 100
+    },
+    {
+      "name": "mixed_indicators",
+      "features": [65, 55, -5, 4],
+      "expectedLabel": "High",
+      "expectedVoteShare": 85
+    },
+    {
+      "name": "good_attendance_weak_marks",
+      "features": [90, 45, -10, 3],
+      "expectedLabel": "High",
+      "expectedVoteShare": 55
+    }
+  ]
+}
