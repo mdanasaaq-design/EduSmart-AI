@@ -17,19 +17,21 @@
 
 ## Objective and scope
 
-Provide a demonstrable web prototype for institute structure and people management, attendance/marks recording, academic-risk prediction, recommendations, and analytics. This is not a production ERP or commercial SaaS platform.
+Provide a demonstrable web prototype for institute structure and people management, attendance/marks recording, academic-risk prediction, recommendations and analytics. This is not a production ERP or commercial SaaS platform.
 
 ## Approved stack
 
 - React, Vite, Tailwind CSS, Recharts, Lucide React
 - Firebase Authentication (email/password), Cloud Firestore, Firebase Hosting
-- Firebase Cloud Functions for trusted account provisioning
+- Existing Firebase Cloud Functions source for trusted account provisioning
 - Python, Pandas, NumPy, Scikit-learn
 - VS Code, Git, GitHub
 
-## Explicit exclusions
+## Binding constraints and exclusions
 
-Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary FastAPI, microservices, parent portal, payments/fees, payroll, SMS/WhatsApp notifications, chat, SaaS billing, mobile application, or distributed ML infrastructure unless scope is explicitly changed.
+- The project owner does **not** want to upgrade Firebase to Blaze. Do not recommend billing upgrade as the default solution.
+- Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary FastAPI, microservices, parent portal, payments/fees, payroll, SMS/WhatsApp notifications, chat, SaaS billing, mobile application or distributed ML infrastructure unless scope is explicitly changed.
+- Preserve local changes and user data. Never use destructive reset/clean commands to resolve a sync conflict; never clear Firestore collections as generic troubleshooting.
 
 ## Roles and permissions
 
@@ -37,73 +39,81 @@ Do not introduce Kiro, Postman, PostgreSQL, SQLAlchemy, custom JWT, unnecessary 
 - **Teacher:** assigned academic work and permitted attendance/marks workflows; access must be constrained by assignments and enrollments.
 - **Student:** own linked profile, attendance, marks, risk indicators and recommendations.
 
-## Required account workflow
+Firestore Rules—not hidden UI controls—must enforce data access. Public users must not assign themselves admin/teacher roles. Current product documents describe administrator-managed student/teacher profiles. A test that expects public student-profile creation contradicts the current rule and should be reconciled without weakening security.
 
-1. Landing navigation shows **Create Admin** then **Sign In** in the top-right.
-2. Create Admin collects institution and first-admin details.
-3. Callable Cloud Function `registerInstitutionAdmin` performs one-time setup using trusted server-side Firebase Admin SDK operations.
-4. On success, the client signs in the administrator and opens the admin workspace.
-5. If the admin's Firestore profile was accidentally deleted, the original admin can sign in and use `restoreAdminProfile`, which is authorized only by their existing server-issued admin custom claim.
-6. The admin provisions teacher/student accounts through the trusted managed-user callable.
-6. All roles use shared Sign In. The role in the Firestore `users/{uid}` profile determines the workspace.
+## Account workflow and current plan limitation
 
-Public client code must not be able to self-assign admin/teacher roles. Existing Firebase Authentication accounts remain even if Firestore profiles/collections are deleted. Treat Auth and Firestore as separate stores during troubleshooting.
+Intended workflow:
+1. Landing navigation shows **Create Admin** then **Sign In**.
+2. Callable `registerInstitutionAdmin` performs one-time institution and first-admin setup.
+3. The administrator provisions teacher/student accounts through trusted managed-user logic.
+4. Shared Sign In opens the workspace based on the trusted `users/{uid}` profile.
+5. Admin profile recovery is intended only for the original account with server-issued admin custom claims.
 
-## Core demonstration flow
+Current limitation:
+- Callable functions are part of the source design, but their deployment is blocked by the current Spark/no-Blaze constraint and must not be assumed available.
+- The existing manually provisioned admin was reported working previously; reverify against the current live site.
+- For the no-billing demo, manually provision teacher/student Auth accounts and matching Firestore profiles through Firebase Console if needed. Link the profile and academic records to the correct Auth UIDs. This is a manual demonstration path, not proof of automated provisioning.
+- Never allow client-supplied role assignment or relax rules to bypass missing Functions.
 
-Admin setup → academic structure → students/enrollments → teachers/subjects → teacher assignments → attendance/marks → feature calculation → risk prediction → rule-based recommendation → analytics → student-scoped view.
+## Main collections
 
-## Firestore collections and relationships
+`users`, `institutions`, `branches`, `programs`, `academicYears`, `classes`, `sections`, `students`, `teachers`, `subjects`, `enrollments`, `teacherAssignments`, `teacherClassAccess`, `attendance`, `assessments`, `marks`, `predictions`, `recommendations`.
 
-Collections: `users`, `institutions`, `branches`, `programs`, `academicYears`, `classes`, `sections`, `students`, `teachers`, `subjects`, `enrollments`, `teacherAssignments`, `attendance`, `assessments`, `marks`, `predictions`, `recommendations`.
+Academic relationship: Student → Enrollment → Academic Year / Class / Section. Saving enrollment should update the student's current class/section/year references. Academic records use identity and scope fields so rules can constrain access.
 
-Relationship: Student → Enrollment → Academic Year / Class / Section. Student profiles may link `userId` to the Firebase Auth UID. Academic records use `studentUserId` and scope fields for rules-based access.
+## Machine-learning status and limitations
 
-## ML specification
+- Features: attendance, average marks, recent trend, missed assessments.
+- Output labels: Low, Medium, High.
+- Recommendations are rule-based.
+- Dataset and labels are synthetic/formula-generated.
+- Tree-vote share is not a calibrated probability; outputs are advisory.
 
-- **Inputs:** `attendance`, `averageMarks`, `recentTrend`, `missedAssessments`
-- **Outputs:** Low, Medium, High
-- **Model:** Random Forest classifier trained in Python and exported for frontend inference.
-- **Dataset:** synthetic/demo data, not real institutional records.
-- **Recommendations:** rule-based; do not describe as generated by a separate AI model.
-- **Evaluation:** documented in `ml/EVALUATION.md`; synthetic holdout metrics do not establish real-world accuracy, fairness, or calibration. Tree vote fraction is not a calibrated probability.
+Audit dated 2026-10-18 found two source-level discrepancies:
+1. Numeric labels in `ml/train_model.py` encode low risk as 2 and high risk as 0, while exported metadata is ordered `Low, Medium, High` and the browser indexes metadata with the emitted leaf index. The human-readable Low/High mapping is inconsistent.
+2. `ml/model.json` and `frontend/public/model.json` contain 5 trees, while the training script and `ml/EVALUATION.md` specify 40 trees.
 
-## Security principles
+Do not claim the current 86.25% synthetic holdout metric describes the shipped frontend artifact until the class mapping and artifact/configuration are reconciled and the exact shipped artifact is reevaluated.
 
-- Authentication establishes identity; Firestore rules enforce data authorization.
-- Role changes and trusted provisioning must occur through trusted server-side code.
-- Students can read only linked records.
-- Teacher access must be scoped to valid assignments and enrollments using `teacherClassAccess/{teacherUid}__{classId}` records and the student's current class linkage.
-- Never commit `frontend/.env.local`, service-account keys, or private credentials.
-- Treat rules as prototype controls requiring review before real student data is used.
+## Audit and current verification state (2026-10-18)
 
-## Repository documentation
+- Code baseline audited: `facd99297139a4e891ee461e3a674751d7bf24f0`; later commits in this audit task changed documentation only.
+- Latest recorded CI run for the audited code baseline failed during Firestore Emulator authorization tests; ESLint and build were skipped.
+- A test expects a user to self-create a student profile; current `users/{userId}` rules permit creation only by admin. Exact failing assertion still needs to be captured from CI output.
+- A previous local `git pull --ff-only origin main` failed because of local modifications to `frontend/src/services/authService.js`. Preserve and inspect local changes before syncing.
+- A local build and Hosting release succeeded on 2026-10-17, but the local checkout had not successfully synchronized to intended latest source first. Current live/source parity is unverified.
+- Hosting, Cloud Functions, Firestore rules and indexes are separate deployment targets.
+- A previous local build produced a roughly 1.2 MB JavaScript bundle with a Vite chunk warning; this is historical, not a current measurement.
 
-- `README.md`: setup and overview
-- `prd.md`: requirements and acceptance criteria
-- `architecture.md`: architecture and data model
-- `design.md`: UI/UX requirements
-- `rules.md`: project constraints
-- `tasks.md`: progress and verification checklist
-- `memory.md`: compact durable project context
-- `docs/DEVELOPMENT_STATUS.md`: implementation and verification state
-- `docs/FIREBASE_DEPLOYMENT.md`: deployment procedures
-- `ml/EVALUATION.md`: synthetic model evaluation
+## Required phases
 
-## Development conventions
+1. Preserve local changes, synchronize source and repair CI.
+2. Prepare a no-billing demo using verified/manual account provisioning.
+3. Fix ML class mapping, artifact mismatch and Python/browser parity.
+4. Verify the complete academic workflow.
+5. Complete security acceptance for all roles.
+6. Polish UI states, accessibility, responsive layout and performance.
+7. Perform authorized release verification and independently verify each Firebase target.
+8. Finalize report/PPT/demo from verified evidence.
 
-- Work directly on `main` unless requested otherwise.
-- Fetch the current file SHA before updating existing GitHub files.
-- Preserve user changes and avoid destructive resets.
+## Canonical documents
+
+- `docs/REPOSITORY_AUDIT.md`
+- `docs/BUG_BACKLOG.md`
+- `docs/PHASED_ROADMAP.md`
+- `docs/ACCEPTANCE_TEST_PLAN.md`
+- `docs/DECISIONS.md`
+- `docs/DEVELOPMENT_STATUS.md`
+- `docs/FIREBASE_DEPLOYMENT.md`
+- `docs/EXAM_DEMO_CHECKLIST.md`
+
+## Development rules
+
+- Inspect the current repository and local state before editing.
+- Work directly on `main` unless asked otherwise.
+- Fetch the latest file SHA before updating an existing GitHub file.
 - Keep commits focused and descriptive.
-- Browser-test workflows before calling them complete.
-- Verified source/test output takes precedence over stale documentation.
-- Distinguish implementation, automated test results, live deployment, and browser acceptance.
-
-## Current deployment caveat (2026-10-17)
-
-GitHub `main` contains the landing-page Create Admin and Sign In actions. A local Vite build and Hosting deployment completed, but the local `git pull --ff-only` was blocked by a modified `frontend/src/services/authService.js`. Therefore the deployment made from that local checkout must not be treated as proof that the latest `main` frontend is live. Cloud Functions and Firestore rules are separate deploy targets.
-
-## Definition of done
-
-The core workflow is complete only after fresh setup, admin provisioning, managed teacher/student creation, login, academic data persistence, prediction/recommendation, analytics, role-limited access, production build, and relevant live deployment/browser checks all pass.
+- Never commit `.env.local`, service-account JSON or credentials.
+- Report changed files, tests, deployment status and remaining limitations honestly.
+- Treat verified code and test output as authoritative over stale documentation.
