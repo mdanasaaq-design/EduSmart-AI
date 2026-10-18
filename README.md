@@ -65,7 +65,7 @@ npm run lint
 npm run build
 ```
 
-The current CI workflow includes Firestore authorization tests, Python ML export/inference tests, browser model-contract tests, ESLint and the production build. Check the latest Actions run before relying on the result.
+The current CI workflow includes Firestore authorization tests, Python ML export/inference tests, browser model-contract and query-batching tests, ESLint and the production build. Latest full passing run: [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
 
 ## Firebase deployment
 
