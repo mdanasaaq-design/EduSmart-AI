@@ -105,12 +105,11 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** Core workflows can be completed without mouse-only interaction and without status communicated only by color.
 
 ### BUG-013 — Teacher academic-record queries silently cap class scope at 30 IDs
-- **Status:** Confirmed source-level behavior; user impact needs verification
-- **Area:** `frontend/src/pages/AcademicRecords.jsx`
-- **Evidence:** The teacher workflow derives assigned class IDs and slices the list to the first 30.
-- **Impact:** Teachers with more than 30 assigned classes may silently miss records for later classes.
-- **Plan:** Decide whether to page/batch queries or show a clear limit message; preserve Firestore query limits and security constraints.
-- **Acceptance:** No assigned classes are silently omitted; larger assignment sets are either handled correctly or explicitly reported.
+- **Status:** Fixed in source; batching tests pass locally; full CI pending
+- **Area:** `frontend/src/pages/AcademicRecords.jsx`, `frontend/src/utils/chunkArray.js`
+- **Evidence:** The teacher workflow previously sliced unique assigned class IDs to the first 30, silently omitting later classes.
+- **Change:** Removed truncation and batches `in` queries into groups of at most 30 IDs. Student and enrollment results are combined and deduplicated across batches.
+- **Acceptance:** 65 class IDs produce batches of 30, 30 and 5 without loss or duplication; the full CI run must pass before this is marked verified.
 
 ### BUG-014 — Browser vote-share percentage can round down at exact half values
 - **Status:** Resolved; Python and browser regression tests pass in CI run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846)
