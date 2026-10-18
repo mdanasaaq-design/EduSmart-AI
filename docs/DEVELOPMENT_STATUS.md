@@ -15,7 +15,7 @@ Work has progressed through CI recovery, ML artifact validation, academic-input 
 
 ## Latest automated verification evidence
 
-Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification, including missed-assessment parsing, student-deletion policy tests, 21 Firestore authorization tests, ESLint and production build: [Frontend CI run 39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601).
+Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification, including missed-assessment parsing, student-deletion policy tests, role-boundary checks, ESLint and production build: [Frontend CI run 39119454945](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119454945).
 
 - Dependency installation: passed.
 - Original Firestore Emulator authorization test step: **failed** due to the stale self-registration success test.
