@@ -3,7 +3,7 @@
 **Status updated:** 2026-10-18  
 **Repository:** `mdanasaaq-design/EduSmart-AI`, branch `main`  
 **Audit baseline:** `facd99297139a4e891ee461e3a674751d7bf24f0`  
-**Latest code/test change:** `f65742c8b04385ef609e92fc885e063c8f36b145`  
+**Latest code/test change:** `37227fec8af7440b3a2bc3efc45aa413af1c80dd`  
 **Firebase project:** `edusmart-ai-c4692`  
 **Hosting URL:** https://edusmart-ai-c4692.web.app
 
@@ -15,13 +15,13 @@ Work has progressed through CI recovery and ML artifact validation. Source chang
 
 ## Latest automated verification evidence
 
-Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification: [Frontend CI run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998).
+Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification before the vote-share rounding correction: [run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998). Current verification after the rounding fix is pending: [run 39117171929](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117171929).
 
 - Dependency installation: passed.
 - Original Firestore Emulator authorization test step: **failed** due to the stale self-registration success test.
 - Follow-up CI after test correction: **PASS** for Firestore Emulator authorization tests, ESLint and production build.
 
-The exact failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Latest full CI passed: 18 Firestore authorization tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
+The exact failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Full CI passed on run `39116887998`: 18 Firestore authorization tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. The vote-share rounding fix adds a new regression case; its current-head CI run is pending. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
 
 ## Implemented in source (not equivalent to verified)
 
@@ -47,7 +47,7 @@ The current project plan must not assume Cloud Functions can be deployed. The fi
 A deeper source review indicates the current numeric mapping is internally consistent: low score/poor indicators map to numeric class 2 / High risk; middle scores map to 1 / Medium; high scores/strong indicators map to 0 / Low risk. Metadata order `Low, Medium, High` and leaf indices align with that encoding. The earlier audit's claim of a reversed mapping was incorrect. Add deterministic regression tests; do not change the mapping without test evidence.
 
 ### 3. Model artifact mismatch
-The model artifacts now contain 40 trees and are byte-identical. On the pinned synthetic holdout, scikit-learn probability averaging scored 86.25% (207/240), while the browser's per-tree majority vote scored 87.08% (209/240). Both measure agreement with formula-generated labels only and do not establish real-world performance.
+The model artifacts now contain 40 trees and are byte-identical. On the pinned synthetic holdout, scikit-learn probability averaging scored 86.25% (207/240), while the browser's per-tree majority vote scored 87.08% (209/240). Both measure agreement with formula-generated labels only and do not establish real-world performance. The browser vote-share rounding correction is covered by a fixed 23/40 → 58% regression case.
 
 ### 4. Deployment/source parity
 A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
