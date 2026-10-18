@@ -77,7 +77,7 @@ export default function UserAccess({ user, onBack }) {
       } else if (code.includes('permission-denied')) {
         setError('Only an authorized institution administrator can create accounts.')
       } else {
-        setError(e?.message || 'Could not create the account. Check that Firebase Functions have been deployed.')
+        setError(e?.message || 'Automated account creation is unavailable. No account was confirmed as created. For the current no-billing demo, use the manual Firebase Console procedure in docs/FREE_PLAN_DEMO_SETUP.md.')
       }
     } finally {
       setCreating(false)
