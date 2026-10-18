@@ -3,6 +3,7 @@ import { collection, getDocs } from 'firebase/firestore'
 import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Users } from 'lucide-react'
 import { db } from '../firebase'
 import Brand from '../components/Brand'
+import DemoDataTools from '../components/DemoDataTools'
 
 const modules = [
   { title: 'Branches', description: 'Manage institute locations and campuses.', icon: Building2, page: 'branches', category: 'INSTITUTE' },
@@ -49,6 +50,7 @@ export default function Dashboard({ user, onLogout, onNavigate }) {
           <div className="welcome-mark"><GraduationCap size={32} /><span>EDUSMART / 01</span></div>
         </div>
         {admin ? <>
+          <DemoDataTools />
           <div className="dashboard-stats"><Stat label="Students" value={stats.students ?? '—'} detail="Student records" icon={Users} /><Stat label="Teachers" value={stats.teachers ?? '—'} detail="Teaching team" icon={School} /><Stat label="Programs" value={stats.programs ?? '—'} detail="Academic programs" icon={GraduationCap} /><Stat label="AI predictions" value={stats.predictions ?? '—'} detail="Risk insights" icon={Brain} /></div>
           {statsError && <p role="status" className="mt-3 text-sm text-amber-800">{statsError}</p>}
           <div className="section-heading"><div><span>YOUR TOOLKIT</span><h2>Everything in its place.</h2></div><p>Choose a workspace to manage your institute.</p></div>
