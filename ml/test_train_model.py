@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+from sklearn.metrics import accuracy_score
 
 from train_model import (
     CLASSES,
@@ -39,7 +40,7 @@ class RiskModelContractTests(unittest.TestCase):
 
     def test_exported_forest_matches_per_tree_prediction_contract(self):
         with tempfile.TemporaryDirectory() as temp_dir:
-            model, artifact, x_test, _, _ = train_and_export(root=temp_dir)
+            model, artifact, x_test, y_test, _ = train_and_export(root=temp_dir)
             self.assertEqual(len(artifact["trees"]), MODEL_CONFIG["n_estimators"])
             self.assertEqual(artifact["classes"], CLASSES)
 
@@ -74,6 +75,11 @@ class RiskModelContractTests(unittest.TestCase):
                 votes = [predict_exported_tree(tree, fixture["features"]) for tree in loaded["trees"]]
                 vote_share = round(max(np.bincount(votes, minlength=3)) / len(votes) * 100)
                 self.assertEqual(vote_share, fixture["expectedVoteShare"], fixture["name"])
+
+            browser_predictions = [
+                predict_exported_model(loaded, vector.tolist()) for vector in x_test
+            ]
+            self.assertAlmostEqual(accuracy_score(y_test, browser_predictions), 0.8708333333333333, places=6)
 
 
 if __name__ == "__main__":
