@@ -2,7 +2,7 @@
 
 **Purpose:** Define the tests required to call a feature verified. This is a plan, not a claim that tests have been run.  
 **Audit date:** 2026-10-18  
-**Latest passing CI reference:** [run 39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846)
+**Latest passing CI reference:** [run 39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050)
 
 ## Status vocabulary
 
@@ -65,7 +65,7 @@ Manual Console provisioning is an operational workaround for a demonstration, no
 | DATA-08 | Edit a record | Only authorized fields/record scope change | NOT RUN |
 | DATA-09 | Attempt record for missing/withdrawn enrollment | Teacher write is denied | Source test exists; current suite status FAIL |
 | DATA-10 | Open analytics after records are saved | Counts and risk distribution reflect saved data | NOT RUN |
-| DATA-11 | Batch teacher queries across more than 30 assigned class IDs | No class IDs are silently omitted and no duplicate records appear | PASS locally: 4 chunking tests; full CI pending |
+| DATA-11 | Batch teacher queries across more than 30 assigned class IDs | No class IDs are silently omitted and no duplicate records appear | PASS: 4 chunking tests in CI run 39117547050; live Firestore role workflow still NOT RUN |
 
 ## E. Firestore authorization matrix
 
