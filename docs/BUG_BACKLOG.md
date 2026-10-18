@@ -112,6 +112,13 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Plan:** Decide whether to page/batch queries or show a clear limit message; preserve Firestore query limits and security constraints.
 - **Acceptance:** No assigned classes are silently omitted; larger assignment sets are either handled correctly or explicitly reported.
 
+### BUG-014 — Browser vote-share percentage can round down at exact half values
+- **Status:** Fixed in source; regression fixture added; current-head CI pending
+- **Area:** `frontend/src/ml/modelInference.js`, `ml/model_test_vectors.json`, `ml/test_train_model.py`
+- **Evidence:** Calculating `Math.round((23 / 40) * 100)` can produce 57 because the intermediate floating-point value is slightly below 57.5, despite 23 of 40 votes representing 57.5%.
+- **Change:** Calculate `Math.round(voteCount * 100 / treeCount)` to avoid the under-rounding case and update the shared fixed vector to expect 58%.
+- **Acceptance:** Python and browser tests agree on the same rounded vote share for fixed vectors, including the 23/40 case.
+
 ## P3 — Future improvements, not prerequisites for the immediate demo
 
 - **IDEA-001:** Add route-level code splitting after baseline correctness.
