@@ -63,17 +63,17 @@ This is a **confirmed source-level inconsistency**. The intended policy must be 
 
 Do not recommend enabling billing as the default solution. For the near-term demo, use the already-provisioned administrator and, where necessary, manually provision demonstration Auth accounts and matching Firestore profiles through Firebase Console. Do not expose self-assigned roles or weaken Firestore rules. Treat the callable workflows as blocked until a no-billing architecture is explicitly selected or the user changes the constraint.
 
-### A-04 — Risk-class mapping is inconsistent
+### A-04 — Risk-class mapping appears internally consistent; add regression tests
 
-In `ml/train_model.py`, the synthetic label expression assigns numeric label `2` to the lowest score/low-risk case, `1` to medium, and `0` to the high-score/high-risk case. The exported metadata lists classes as `["Low", "Medium", "High"]`, while `tree_to_json` emits the argmax class index and the browser uses that index against the metadata list.
+Source review of `ml/train_model.py` indicates the numeric encoding is consistent with the intended risk semantics: scores below 3.0 (poorer indicators) map to numeric class `2` / `High` risk; scores from 3.0 to below 4.3 map to class `1` / `Medium`; scores at or above 4.3 (stronger indicators) map to class `0` / `Low` risk. The exported metadata order is `["Low", "Medium", "High"]`, and tree leaf argmax indices are interpreted against that order. The default numeric class order used by `classification_report` is 0, 1, 2, so the documented class-name order is consistent by source inspection.
 
-This means the human-readable risk mapping is reversed for the low/high classes. The evaluation script also calls `classification_report(..., target_names=CLASSES)` while the numeric labels are sorted as 0, 1, 2, so per-class precision/recall/F1 names are likely reversed for Low and High; the old confusion matrix row/column labels are likewise unreliable. Overall numeric accuracy is not affected by relabeling, but its interpretation still cannot be attributed to the shipped artifact until the artifact mismatch is resolved. Correct the class encoding/export contract and add deterministic unit tests before relying on any displayed prediction.
+The earlier audit incorrectly described this as a reversed mapping. Do not change the mapping without test evidence. Add deterministic tests that assert poor inputs map to High risk, middle-range inputs to Medium, strong inputs to Low, and Python/browser predictions agree. The separate artifact mismatch below remains a confirmed issue: current frontend artifact contains 5 trees while the training script specifies 40.
 
 ### A-05 — Shipped model artifact does not match the documented training configuration
 
 Both `ml/model.json` and `frontend/public/model.json` currently contain 5 trees and are byte-identical. The training script specifies `n_estimators=40`, and `ml/EVALUATION.md` documents a 40-tree model.
 
-Therefore the checked-in browser artifact does not match the documented 40-tree experiment. The 86.25% metric describes the documented synthetic holdout run, not necessarily the checked-in 5-tree artifact. After fixing label mapping, regenerate/export the model deliberately, verify the two artifacts are identical, and evaluate the exact artifact intended for the frontend.
+Therefore the checked-in browser artifact does not match the documented 40-tree experiment. The 86.25% metric describes the documented synthetic holdout run, not necessarily the checked-in 5-tree artifact. Regenerate/export the model from the documented training configuration, verify the two artifacts are identical, and evaluate the exact artifact intended for the frontend.
 
 ### A-06 — Live release parity is unverified
 
