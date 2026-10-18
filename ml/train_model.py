@@ -82,20 +82,35 @@ def train_and_export(root=None):
     )
     model = RandomForestClassifier(**MODEL_CONFIG)
     model.fit(x_train, y_train)
-    predicted = model.predict(x_test)
-
-    print(f"Validation accuracy: {accuracy_score(y_test, predicted):.4f}")
-    print(classification_report(
-        y_test, predicted, labels=[0, 1, 2], target_names=CLASSES, zero_division=0
-    ))
-    print("Confusion matrix (rows/columns Low, Medium, High):")
-    print(confusion_matrix(y_test, predicted, labels=[0, 1, 2]))
+    sklearn_predictions = model.predict(x_test)
 
     artifact = {
         "features": FEATURES,
         "classes": CLASSES,
         "trees": [tree_to_json(estimator) for estimator in model.estimators_],
     }
+    # The browser uses per-tree majority voting, so evaluate that exact inference
+    # contract separately from sklearn's probability-averaging predict() method.
+    browser_predictions = np.array([
+        predict_exported_model(artifact, features) for features in x_test
+    ], dtype=int)
+
+    print("Scikit-learn RandomForestClassifier.predict() baseline:")
+    print(f"Validation accuracy: {accuracy_score(y_test, sklearn_predictions):.4f}")
+    print(classification_report(
+        y_test, sklearn_predictions, labels=[0, 1, 2], target_names=CLASSES, zero_division=0
+    ))
+    print("Confusion matrix (rows/columns Low, Medium, High):")
+    print(confusion_matrix(y_test, sklearn_predictions, labels=[0, 1, 2]))
+
+    print("Exported browser per-tree majority-vote evaluation:")
+    print(f"Browser vote accuracy: {accuracy_score(y_test, browser_predictions):.4f}")
+    print(classification_report(
+        y_test, browser_predictions, labels=[0, 1, 2], target_names=CLASSES, zero_division=0
+    ))
+    print("Browser vote confusion matrix (rows/columns Low, Medium, High):")
+    print(confusion_matrix(y_test, browser_predictions, labels=[0, 1, 2]))
+
     serialized = json.dumps(artifact, separators=(",", ":"))
     output_paths = [
         root / "ml" / "model.json",
