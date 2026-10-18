@@ -12,7 +12,7 @@ Use this checklist before presenting. A page rendering alone is not proof that a
 - [ ] Confirm the production build passes.
 - [ ] Record the exact commit tested.
 
-**Current known status from the 2026-10-18 audit:** latest recorded CI for the audited code baseline failed at the Firestore Emulator test step; lint/build were skipped. The ML label mapping and model-artifact tree-count mismatch also need correction before relying on displayed risk labels. Do not treat these gates as passed until new evidence exists.
+**Current status:** CI run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953) passed Firestore authorization tests (18/18), ESLint and production build on commit `1b453d5`. Source review indicates class-label semantics are internally consistent, but deterministic ML tests and the 5-tree versus 40-tree artifact reconciliation remain open.
 
 ## 2. Firebase prerequisites — no-billing path
 
@@ -55,13 +55,13 @@ Manual Console account provisioning is a demo workaround, not proof that automat
 - [ ] Record attendance for the enrolled student.
 - [ ] Record assessment marks.
 - [ ] Reload the page and verify records persisted.
-- [ ] Verify the risk label against known test vectors after the ML mapping correction.
+- [ ] Verify the risk label against deterministic test vectors and confirm the browser interprets exported leaf indices correctly.
 - [ ] Confirm the model artifact served by the frontend matches the documented training/evaluation configuration.
 - [ ] Generate and save a prediction and rule-based recommendation.
 - [ ] Open Analytics and verify the saved prediction count/risk distribution.
 - [ ] Explain that training data/labels are synthetic and tree-vote share is not a calibrated probability.
 
-**Do not present the current 86.25% metric as verified performance of the shipped browser model until the label mapping and 5-tree versus 40-tree artifact mismatch have been resolved and the exact artifact reevaluated.**
+**Do not present the current 86.25% metric as verified performance of the shipped browser model until the 5-tree versus 40-tree artifact mismatch is resolved and the exact artifact is reevaluated.**
 
 ## 6. Teacher and student workflows
 
