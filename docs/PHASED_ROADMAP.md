@@ -47,10 +47,12 @@ All known findings are recorded and the plan does not assume unverified deployme
 7. Record the exact commit and complete output summaries.
 
 ### Exit gate
-- Current-head CI passes Firestore tests, lint and build.
-- Tests express the approved security policy.
-- Local changes are preserved and source parity is clear.
-- No live Firebase changes have been made as a side effect of local verification.
+- [x] Current-head CI passes Firestore tests, lint and build (18/18 emulator tests passed on `1b453d5`; run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953)).
+- [x] Tests express the approved security policy; the test/rule mismatch was corrected without weakening rules.
+- [ ] Local changes are preserved and source parity is clear; requires inspection on the user's Windows machine.
+- [x] No live Firebase changes were made as a side effect of CI verification.
+
+**Phase status:** CI-recovery subtask complete; phase remains partially open until local source synchronization is confirmed.
 
 ## Phase 2 — Firebase free-plan-safe demo readiness
 
