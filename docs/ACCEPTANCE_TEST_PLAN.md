@@ -2,7 +2,7 @@
 
 **Purpose:** Define the tests required to call a feature verified. This is a plan, not a claim that tests have been run.  
 **Audit date:** 2026-10-18  
-**Latest passing CI reference:** [run 39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601)
+**Latest passing CI reference:** [run 39119454945](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119454945)
 
 ## Status vocabulary
 
