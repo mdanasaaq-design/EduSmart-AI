@@ -99,7 +99,7 @@ If the owner changes the constraint in the future, revisit Functions deployment 
 
 ## GitHub Actions
 
-The frontend CI workflow now runs Python ML artifact regeneration and contract tests, Firestore Emulator authorization tests, browser inference tests, ESLint and production build. The original test/policy mismatch was resolved without weakening rules.
+The frontend CI workflow now runs Python ML artifact regeneration and contract tests, Firestore Emulator authorization tests, browser inference tests, ESLint and production build. The original test/policy mismatch was resolved without weakening rules; the latest full suite passed in run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846).
 
 The manual Hosting workflow requires repository secrets and a deployment identity. Do not add, print or commit credentials during this documentation task. Historical deployment workflow failures do not prove current deployment status.
 
