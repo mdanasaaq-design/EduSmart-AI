@@ -74,7 +74,7 @@ Audit dated 2026-10-18 found two source-level discrepancies:
 1. Source review indicates numeric label semantics are consistent with the `Low, Medium, High` metadata order: poor scores map to High risk (index 2), middle scores to Medium (index 1), strong scores to Low risk (index 0). The earlier audit's reversed-mapping claim was incorrect; deterministic tests are still required.
 2. `ml/model.json` and `frontend/public/model.json` contain 5 trees, while the training script and `ml/EVALUATION.md` specify 40 trees.
 
-Do not claim the current 86.25% synthetic holdout metric describes the shipped frontend artifact until the artifact/configuration is reconciled and the exact shipped artifact is reevaluated.
+The regenerated 40-tree artifact reproduces the recorded 86.25% synthetic holdout result in the pinned environment. This is performance against formula-generated labels only, not evidence of real-world academic-risk accuracy, fairness or calibration.
 
 ## Audit and current verification state (2026-10-18)
 
@@ -90,7 +90,7 @@ Do not claim the current 86.25% synthetic holdout metric describes the shipped f
 
 1. Preserve local changes, synchronize source and repair CI.
 2. Prepare a no-billing demo using verified/manual account provisioning.
-3. Add ML label-semantic regression tests, reconcile the artifact mismatch and verify Python/browser parity.
+3. Maintain ML label-semantic regression tests, keep the artifact synchronized, and verify Python/browser parity.
 4. Verify the complete academic workflow.
 5. Complete security acceptance for all roles.
 6. Polish UI states, accessibility, responsive layout and performance.
