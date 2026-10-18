@@ -68,6 +68,7 @@ export default function Signup({ onComplete, onBack, firebaseConfigured = true }
             <span className="auth-panel-kicker">FIRST-TIME SETUP</span>
             <h2>Register your college.</h2>
             <p className="auth-intro">Create your institution profile and administrator login. This one-time setup is available only before an administrator is registered.</p>
+            <p className="auth-footer-note">This setup requires a deployed trusted Firebase service. If it is unavailable on your current no-billing plan, use the existing administrator sign-in and the documented manual demo setup.</p>
             {error && <div role="alert" className="auth-error">{error}</div>}
             {!firebaseConfigured && <div role="alert" className="auth-error">Firebase configuration is missing. Configure the six VITE_FIREBASE_* values and rebuild.</div>}
             <form onSubmit={submit} className="auth-form">
