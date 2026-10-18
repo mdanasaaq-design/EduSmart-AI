@@ -37,8 +37,8 @@ export default function Signup({ onComplete, onBack, firebaseConfigured = true }
       else if (code.includes('failed-precondition')) setError(err.message || 'Institution setup is already complete. Sign in instead.')
       else if (code.includes('already-exists')) setError('An account already uses this email. Please sign in or reset its password.')
       else if (code.includes('internal') || code.includes('unavailable') || code.includes('not-found') || /internal\s*\[?0\]?/i.test(err?.message || '')) {
-        setError('Institution setup service is not available yet. The registration form loaded, but its secure Firebase backend may not be deployed. Deploy the registerInstitutionAdmin Cloud Function on the Firebase Blaze plan, then try again. No account was confirmed as created.')
-      } else setError(err?.message || 'Could not complete institution setup. Confirm Firebase Functions are deployed and try again.')
+        setError('Secure institution setup is unavailable. No account was confirmed as created. On the current no-billing setup, use the existing administrator sign-in; do not retry public setup repeatedly. See docs/FREE_PLAN_DEMO_SETUP.md for the safe manual demonstration path.')
+      } else setError(err?.message || 'Could not complete institution setup. No account was confirmed as created. Use the existing administrator sign-in and follow the documented no-billing demo setup if needed.')
     } finally {
       setLoading(false)
     }
