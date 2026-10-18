@@ -2,7 +2,7 @@
 
 **Purpose:** Define the tests required to call a feature verified. This is a plan, not a claim that tests have been run.  
 **Audit date:** 2026-10-18  
-**Current CI reference:** [run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131)
+**Latest passing CI reference:** [run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998)
 
 ## Status vocabulary
 
@@ -12,7 +12,7 @@
 - **NOT RUN:** no current execution evidence.
 - **SOURCE REVIEW:** conclusion from code inspection only; not runtime verification.
 
-At the time this plan was written, current CI is **FAIL** at the Firestore authorization test step; lint and build are **NOT RUN in that CI run** because the workflow skipped them. The tests below are otherwise **NOT RUN** unless explicitly noted.
+The original CI run failed on a stale self-registration test. After correcting that test and adding ML contract checks, the latest full CI run passed Firestore authorization, Python model/export tests, browser inference tests, ESLint and production build. Live Firebase account provisioning and end-to-end role workflows remain NOT RUN unless explicitly marked.
 
 ## A. Repository and CI baseline
 
@@ -98,7 +98,7 @@ Required adversarial cases:
 | ML-02 | Check exported tree count | Artifact count matches documented training configuration | PASS: 40 trees; regeneration diff check passed in CI run 39116551389 |
 | ML-03 | Compare Python and browser inference on fixed inputs | Same risk label for each fixed vector | PASS: shared fixed vectors tested in Python and browser suites, CI run 39116551389 |
 | ML-04 | Compare `ml/model.json` and `frontend/public/model.json` | Files are identical | PASS: both contain 40 trees and CI regeneration produced no diff |
-| ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | PASS: 86.25% (207/240) on the pinned 40-tree synthetic holdout; not real-world validation |
+| ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | PASS: sklearn baseline 86.25% (207/240); browser majority vote 87.08% (209/240), both synthetic-only |
 | ML-06 | Review UI confidence language | Tree-vote share is not described as calibrated probability | SOURCE REVIEW: limitation documented; live UI review pending |
 | ML-07 | Review report/PPT model claims | Synthetic results are not presented as real-world accuracy | NOT RUN |
 
