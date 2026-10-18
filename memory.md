@@ -38,12 +38,12 @@ Manage institute structure, student/teacher records, attendance and marks, then 
 - Output labels: Low, Medium, High; recommendations are rule-based.
 - Training/evaluation data and labels are synthetic. Metrics do not establish real-world performance.
 - Audit correction dated 2026-10-18: source review indicates the numeric label mapping is consistent with the human-readable class order; deterministic regression tests are required.
-- The checked-in `ml/model.json` and `frontend/public/model.json` contain 5 trees, while the training script and evaluation document specify 40. The current 86.25% metric must not be presented as verified performance of the shipped browser model until the 5-tree/40-tree artifact mismatch is reconciled and reevaluated.
+- The checked-in `ml/model.json` and `frontend/public/model.json` now contain 40 trees and are regenerated reproducibly by CI. The scikit-learn baseline scores 86.25% and the browser majority-vote model scores 87.08% on the synthetic holdout; neither metric establishes real-world performance.
 - Tree-vote fraction is not a calibrated probability.
 
 ## Latest audit and verification state (2026-10-18)
 - Audited code baseline: commit `facd99297139a4e891ee461e3a674751d7bf24f0`; documentation-only audit commits followed.
-- Latest recorded CI run for that code baseline failed during Firestore Emulator authorization tests; lint/build were skipped. One test expects self-created student profile success, but the current rule permits profile creation only for admin. Keep the administrator-managed policy unless explicitly changed; do not weaken rules to make CI pass.
+- The original Firestore test/rule mismatch was fixed by changing the test to expect denial for self-registration; rules were not weakened. Expanded CI passes 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. The latest run after the vote-share rounding correction is pending.
 - A local `git pull --ff-only origin main` previously failed due to local changes in `frontend/src/services/authService.js`. Preserve local changes; never destructive-reset to solve a sync conflict.
 - A previous local Vite build and Hosting release succeeded on 2026-10-17, but the local checkout had not successfully pulled intended latest source first. Current live/source parity is unverified.
 - Hosting, Functions, Firestore rules and indexes are separate deployment targets. Do not infer one from another.
@@ -52,7 +52,7 @@ Manage institute structure, student/teacher records, attendance and marks, then 
 ## Current roadmap
 1. Source synchronization and CI recovery.
 2. No-billing demo account setup.
-3. ML label-semantic regression tests, artifact reconciliation and parity testing.
+3. ML label-semantic regression tests, artifact reconciliation, Python/browser parity and vote-share rounding tests.
 4. End-to-end academic workflow.
 5. Security acceptance.
 6. UI/accessibility/responsive polish.
