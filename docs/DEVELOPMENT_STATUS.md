@@ -43,11 +43,11 @@ The exact failed assertion was confirmed in CI: `a user can self-register only a
 ### 1. Firebase no-Blaze constraint
 The current project plan must not assume Cloud Functions can be deployed. The first-admin, admin-profile recovery and managed-user flows depend on callables. Do not recommend a billing upgrade as the default. For the immediate demo, use the existing manually provisioned admin and, if required, manually provision teacher/student Auth accounts plus matching Firestore profiles through Firebase Console. Keep role assignment trusted and rules restrictive. Mark automated callable flows blocked unless the project owner changes the constraint.
 
-### 2. ML class mapping
-The training script encodes low risk as numeric label 2 and high risk as 0, while exported metadata is ordered `Low, Medium, High` and the frontend uses the leaf index against that array. This creates a low/high label mapping inconsistency. Fix and test the canonical mapping before relying on displayed predictions.
+### 2. ML class semantics
+A deeper source review indicates the current numeric mapping is internally consistent: low score/poor indicators map to numeric class 2 / High risk; middle scores map to 1 / Medium; high scores/strong indicators map to 0 / Low risk. Metadata order `Low, Medium, High` and leaf indices align with that encoding. The earlier audit's claim of a reversed mapping was incorrect. Add deterministic regression tests; do not change the mapping without test evidence.
 
 ### 3. Model artifact mismatch
-`ml/model.json` and `frontend/public/model.json` currently contain 5 trees and are byte-identical. The training script and `ml/EVALUATION.md` specify 40 trees. The documented 86.25% synthetic holdout accuracy must not be claimed as the verified accuracy of the current shipped 5-tree artifact.
+`ml/model.json` and `frontend/public/model.json` currently contain 5 trees and are byte-identical. The training script and `ml/EVALUATION.md` specify 40 trees. The documented 86.25% synthetic holdout accuracy must not be claimed as verified performance of the currently shipped 5-tree artifact.
 
 ### 4. Deployment/source parity
 A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
