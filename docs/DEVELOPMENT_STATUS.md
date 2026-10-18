@@ -11,17 +11,17 @@
 
 **Not signed off.** The project has substantial implemented source, but current CI is failing, the ML label/artifact contract has source-level inconsistencies, the user's Firebase no-Blaze constraint blocks assumed callable workflows, and live deployment parity has not been verified.
 
-The 2026-10-18 work has moved from planning into Phase 1. One test-only change was committed to align the emulator test with the existing admin-only profile-creation rule. No application runtime code, Firebase deployment or Firebase data was changed. The current GitHub Actions verification passed on commit `1b453d5ef83a758f2e3c90781e909a729fa1d70c`. Local Windows working-tree synchronization is still unverified because the local machine's `git status` and diff are not available from this GitHub session.
+Work has progressed through CI recovery and ML artifact validation. Source changes include the Firestore test correction, explicit ML class semantics, a reproducible 40-tree training/export pipeline, Python/browser inference tests, and clearer no-billing account-setup messages. No Firebase deployment or Firebase data was changed. Current full CI passed on commit `cd6e134b51259917ddd25520d01d2940a228a870` in run [39116551389](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116551389). Local Windows working-tree synchronization remains unverified because the local machine's `git status` and diff are not available from this GitHub session.
 
 ## Latest automated verification evidence
 
-Latest failing baseline run: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Current passing verification run: [Frontend CI run 39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953).
+Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification: [Frontend CI run 39116551389](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116551389).
 
 - Dependency installation: passed.
 - Original Firestore Emulator authorization test step: **failed** due to the stale self-registration success test.
 - Follow-up CI after test correction: **PASS** for Firestore Emulator authorization tests, ESLint and production build.
 
-The exact failed assertion was confirmed in CI: `a user can self-register only a constrained student profile for their own UID` failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`. The existing `users/{userId}` rule allows profile creation only for admins, consistent with the admin-managed provisioning policy. The test now expects self-registration to be denied, and the admin-create test now uses a new UID to exercise actual creation rather than updating a fixture profile. CI passed on `1b453d5` (run `39115368953`): all 18 Firestore tests passed, ESLint passed, and the Vite production build passed. Phase 1's CI-recovery subtask is complete. The full phase remains open until the user's local changes are safely inspected and source synchronization is confirmed.
+The exact failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Latest full CI passed: 18 Firestore authorization tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
 
 ## Implemented in source (not equivalent to verified)
 
@@ -47,7 +47,7 @@ The current project plan must not assume Cloud Functions can be deployed. The fi
 A deeper source review indicates the current numeric mapping is internally consistent: low score/poor indicators map to numeric class 2 / High risk; middle scores map to 1 / Medium; high scores/strong indicators map to 0 / Low risk. Metadata order `Low, Medium, High` and leaf indices align with that encoding. The earlier audit's claim of a reversed mapping was incorrect. Add deterministic regression tests; do not change the mapping without test evidence.
 
 ### 3. Model artifact mismatch
-`ml/model.json` and `frontend/public/model.json` currently contain 5 trees and are byte-identical. The training script and `ml/EVALUATION.md` specify 40 trees. The documented 86.25% synthetic holdout accuracy must not be claimed as verified performance of the currently shipped 5-tree artifact.
+The model artifacts now contain 40 trees, are byte-identical and reproduce the documented 86.25% synthetic holdout result under the pinned training environment. This metric measures agreement with formula-generated labels only and does not establish real-world performance.
 
 ### 4. Deployment/source parity
 A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
