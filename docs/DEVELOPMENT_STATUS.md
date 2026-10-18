@@ -3,7 +3,7 @@
 **Status updated:** 2026-10-18  
 **Repository:** `mdanasaaq-design/EduSmart-AI`, branch `main`  
 **Audit baseline:** `facd99297139a4e891ee461e3a674751d7bf24f0`  
-**Latest verified source revision:** `29bd3d55a63c3b9b2068e9aab6901f888b14b0f6`  
+**Latest verified source revision:** `6aed166301c68d77219496bb4793495629110a46`  
 **Firebase project:** `edusmart-ai-c4692`  
 **Hosting URL:** https://edusmart-ai-c4692.web.app
 
@@ -11,17 +11,17 @@
 
 **Not signed off.** The expanded CI suite now passes and the model artifacts are synchronized, but the manual Firebase Console demo setup and end-to-end role workflows have not been verified, the user's no-Blaze constraint blocks assuming callable workflows are available, and live deployment/source parity remains unverified.
 
-Work has progressed through CI recovery, ML artifact validation, academic-input correctness, enrollment integrity and initial UI performance work. The missed-assessment count is now an explicit validated input (0–7), enrollment/current-student pointer changes use Firestore write batches, and the landing preview labels its static metrics as illustrative. No Firebase deployment or Firebase data was changed. The latest full CI passed on revision `29bd3d55a63c3b9b2068e9aab6901f888b14b0f6` in run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428). Local Windows working-tree synchronization remains unverified because the local machine's `git status` and diff are not available from this GitHub session. Local Windows working-tree synchronization remains unverified because the local machine's `git status` and diff are not available from this GitHub session.
+Work has progressed through CI recovery, ML artifact validation, academic-input correctness, enrollment integrity and initial UI performance work. The missed-assessment count is now an explicit validated input (0–7), enrollment/current-student pointer changes use Firestore write batches, and the landing preview labels its static metrics as illustrative. No Firebase deployment or Firebase data was changed. The latest full CI passed on revision `6aed166301c68d77219496bb4793495629110a46` in run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601). Local Windows working-tree synchronization remains unverified because the local machine's `git status` and diff are not available from this GitHub session. Local Windows working-tree synchronization remains unverified because the local machine's `git status` and diff are not available from this GitHub session.
 
 ## Latest automated verification evidence
 
-Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification, including missed-assessment parsing, 21 Firestore authorization tests, ESLint and production build: [Frontend CI run 39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428).
+Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification, including missed-assessment parsing, student-deletion policy tests, 21 Firestore authorization tests, ESLint and production build: [Frontend CI run 39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601).
 
 - Dependency installation: passed.
 - Original Firestore Emulator authorization test step: **failed** due to the stale self-registration success test.
 - Follow-up CI after test correction: **PASS** for Firestore Emulator authorization tests, ESLint and production build.
 
-The exact original failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Full CI passed on run `39118541428`: 21 Firestore authorization tests, 4 Python ML tests, 10 browser/helper tests, ESLint and production build. The run includes missed-assessment parser boundaries, teacher record-scope mutation denials, class-access and assignment write denials, and administrator self-demotion denial. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
+The exact original failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Full CI passed on run `39119008601`: 21 Firestore authorization tests, 4 Python ML tests, 15 browser/helper tests, ESLint and production build. The run includes missed-assessment parser boundaries, student deletion policy tests, teacher record-scope mutation denials, class-access and assignment write denials, and administrator self-demotion denial. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
 
 ## Implemented in source (not equivalent to verified)
 
@@ -53,7 +53,7 @@ The model artifacts now contain 40 trees and are byte-identical. On the pinned s
 A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
 
 ### 5. Academic input and enrollment integrity
-The academic-record screen previously guessed the missed-assessment count from the number of saved marks, which did not represent the feature's meaning. The current implementation replaces this with an explicit validated integer input from 0 to 7, matching the synthetic training domain. Parser boundary tests passed in the latest CI run. Enrollment creation/update and student current-class pointers are grouped into Firestore write batches; deactivation/deletion also reconciles current pointers in the same batch. ESLint and build pass, but the enrollment UI flow has not been tested against live Firebase data.
+The academic-record screen previously guessed the missed-assessment count from the number of saved marks, which did not represent the feature's meaning. The current implementation replaces this with an explicit validated integer input from 0 to 7, matching the synthetic training domain. Parser boundary tests passed in CI. Enrollment creation/update and student current-class pointers are grouped into Firestore write batches; deactivation/deletion reconciles current pointers atomically. Student deletion is blocked when enrollment history, academic records or an Auth UID is linked. Policy tests, ESLint and build pass, but the enrollment and deletion UI flows have not been tested against live Firebase data.
 
 ### 6. Historical bundle size
 Fresh CI build in run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428): main JS 238.17 kB (75.09 kB gzip), Analytics 360.71 kB (104.50 kB gzip), Firebase 560.38 kB (166.16 kB gzip). Route-level lazy loading substantially reduces the main entry chunk, but Vite still warns because the Firebase chunk exceeds 500 kB. Further splitting is a P2 optimization; do not hide the warning.

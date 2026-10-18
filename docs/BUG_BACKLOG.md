@@ -76,7 +76,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** Assigned teacher reads/writes permitted records only; unrelated classes and students are denied; records persist after reload.
 
 ### BUG-015 — Missed-assessment feature was guessed from marks-record count
-- **Status:** Resolved at source/unit-test/build level; verified in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)
+- **Status:** Resolved at source/unit-test/build level; verified in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601)
 - **Area:** `frontend/src/pages/AcademicRecords.jsx`, prediction feature contract
 - **Evidence:** The UI previously derived `missedAssessments` as `max(0, 5 - studentMarks.length)`. This is not the number of missed assessments and silently treated the number of saved marks as a proxy.
 - **Impact:** The prediction could use a fabricated feature value that was not supplied by the teacher/admin and did not represent the stated model input.
@@ -84,7 +84,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** The prediction remains unavailable until attendance, marks and a valid missed-assessment count are present; helper tests cover empty, boundary and invalid values.
 
 ### BUG-016 — Enrollment and current-student pointers could be partially updated
-- **Status:** Implemented; lint/build passed in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428); live/manual integration pending
+- **Status:** Implemented; lint/build passed in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601); live/manual integration pending
 - **Area:** `frontend/src/pages/admin/StudentsEnrollments.jsx`
 - **Evidence:** Enrollment creation wrote the enrollment document, then updated the student record, then deleted legacy duplicates as separate requests. Failure midway could leave inconsistent state. Deleting an enrollment also did not reconcile the student's current class/year references.
 - **Impact:** UI records could disagree about the student's current enrollment, and an error could appear after only part of the operation succeeded.
@@ -92,19 +92,19 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** The batch contains the enrollment change, any current-pointer update and legacy duplicate cleanup; no partial write occurs if the batch fails. Browser/manual integration verification remains required.
 
 ### BUG-017 — Static landing metrics could be mistaken for live institutional data
-- **Status:** Resolved in UI copy; verified by lint/build in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)
+- **Status:** Resolved in UI copy; verified by lint/build in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601)
 - **Area:** Landing page dashboard preview in `frontend/src/App.jsx`
 - **Evidence:** The preview showed static attendance and on-track percentages under an `ACADEMIC OVERVIEW` label, which could be mistaken for live institute data.
 - **Change:** The preview now says `ILLUSTRATIVE PREVIEW`.
 - **Acceptance:** Static preview values are explicitly framed as illustrative, not as real Firebase data.
 
 ### BUG-018 — Student deletion could orphan enrollment history or Auth accounts
-- **Status:** Fix implemented; CI verification pending
+- **Status:** Resolved at policy/unit-test/build level; verified in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601); live/manual deletion workflow pending
 - **Area:** `frontend/src/pages/admin/StudentsEnrollments.jsx`
 - **Evidence:** The Delete Student action removed only the Firestore student document. It did not delete or reconcile enrollment history and could leave academic records or a Firebase Authentication account without the expected student record.
 - **Impact:** Orphaned enrollment/academic references and a login that can no longer resolve its linked student profile.
 - **Change:** Block deletion when enrollment history, attendance/marks/predictions/recommendations, or a Firebase Auth UID is linked; keep the record and use the Inactive status or approved cleanup process instead.
-- **Acceptance:** Pure policy tests cover enrolled, Auth-linked, unlinked and missing student cases; deletion is allowed only when no linked account or enrollment history exists.
+- **Acceptance:** Five policy tests cover enrolled, academic-record-linked, Auth-linked, unlinked and missing student cases; deletion is allowed only when no linked account, enrollment or academic history exists.
 
 ## P2 — Robustness and user experience
 
@@ -118,7 +118,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 ### BUG-010 — Large JavaScript bundle
 - **Status:** Partially mitigated; a fresh CI build passes but Vite's large-chunk warning remains
 - **Area:** Frontend bundling and route loading
-- **Evidence:** CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428) reports main JS 238.17 kB (75.09 kB gzip), Analytics 360.71 kB (104.50 kB gzip), and Firebase 560.38 kB (166.16 kB gzip). Route-level lazy loading has reduced the main entry bundle from the previously observed roughly 1.2 MB, but the Firebase chunk still exceeds Vite's 500 kB warning threshold.
+- **Evidence:** CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601) reports main JS 238.17 kB (75.09 kB gzip), Analytics 360.71 kB (104.50 kB gzip), and Firebase 560.38 kB (166.16 kB gzip). Route-level lazy loading has reduced the main entry bundle from the previously observed roughly 1.2 MB, but the Firebase chunk still exceeds Vite's 500 kB warning threshold.
 - **Impact:** Slower initial load on weaker networks/devices and a remaining large dependency chunk.
 - **Plan:** Consider splitting the Firebase SDK chunk further only if dependency analysis shows a safe, meaningful reduction; retain lazy loading and compare compressed sizes after each change. Do not silence the warning without evidence.
 - **Acceptance:** A future measured build reduces the largest chunk without breaking routes; warning threshold is not raised merely to hide the warning.

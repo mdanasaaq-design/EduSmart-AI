@@ -80,7 +80,7 @@ The regenerated 40-tree artifact yields 86.25% with scikit-learn probability ave
 ## Audit and current verification state (2026-10-18)
 
 - Initial code baseline audited: `facd99297139a4e891ee461e3a674751d7bf24f0`; subsequent commits include test, ML, UI messaging and documentation changes.
-- Full CI run `39118541428` passed 21 Firestore tests, 4 Python ML tests, 10 browser/helper tests, ESLint and production build, including missed-assessment parsing and role-boundary regressions.
+- Full CI run `39119008601` passed 21 Firestore tests, 4 Python ML tests, 15 browser/helper tests, ESLint and production build, including missed-assessment parsing, student-deletion policy and role-boundary regressions.
 - The stale self-registration test was corrected to expect denial, and the admin-create test now uses a new UID. The rules were not weakened.
 - A previous local `git pull --ff-only origin main` failed because of local modifications to `frontend/src/services/authService.js`. Preserve and inspect local changes before syncing.
 - A local build and Hosting release succeeded on 2026-10-17, but the local checkout had not successfully synchronized to intended latest source first. Current live/source parity is unverified.

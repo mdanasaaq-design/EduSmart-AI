@@ -108,7 +108,7 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 
 **Priority: P1.**
 
-**Status:** Source-level batching and missed-assessment input fixes are implemented. CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428) passed the full suite. Enrollment writes are atomic in source, but the end-to-end admin/teacher/student workflow against Firebase remains unverified pending project-owner Console setup and live acceptance.
+**Status:** Source-level batching and missed-assessment input fixes are implemented. CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601) passed the full suite. Enrollment writes are atomic in source, but the end-to-end admin/teacher/student workflow against Firebase remains unverified pending project-owner Console setup and live acceptance.
 
 ### Work
 1. Create/verify academic structure in dependency order: branch → program → academic year → class/section.
@@ -121,7 +121,7 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 8. Open analytics and confirm counts/risk distribution reflect saved records.
 9. Replace the inferred missed-assessment proxy with explicit, validated model input; keep the accepted domain aligned with training data (integer 0–7).
 10. Make enrollment changes atomic and reconcile the student's current class/year pointers when an enrollment is inactivated or deleted.
-11. Add deterministic tests for missed-assessment parsing and security tests for immutable academic-record scope and admin/teacher role boundaries. **Verified in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428): 21 Firestore tests, 4 Python tests, 10 browser/helper tests, ESLint and build passed.**
+11. Add deterministic tests for missed-assessment parsing and security tests for immutable academic-record scope and admin/teacher role boundaries. **Verified in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601): 21 Firestore tests, 4 Python tests, 15 browser/helper tests, ESLint and build passed.**
 
 ### Exit gate
 The full admin-to-teacher academic-record flow works in a browser against the intended Firebase project and the data remains after refresh.
@@ -130,7 +130,7 @@ The full admin-to-teacher academic-record flow works in a browser against the in
 
 **Priority: P0/P1.**
 
-**Status:** The emulator suite passes 21/21 tests in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428), including role escalation, assignment/enrollment scope, academic-record identifier mutation and class-access writes. Live rules/index deployment and role-specific browser acceptance remain unverified.
+**Status:** The emulator suite passes 21/21 tests in CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601), including role escalation, assignment/enrollment scope, academic-record identifier mutation and class-access writes. Live rules/index deployment and role-specific browser acceptance remain unverified.
 
 ### Work
 - Verify admin, teacher, student and unauthenticated behavior using the emulator suite.
@@ -148,7 +148,7 @@ All authorization tests pass on the current rules; live role-specific checks agr
 
 **Priority: P2, after core correctness.**
 
-**Status:** Route-level lazy loading and deferred Firebase/dashboard imports are in place, and the landing preview now labels its static metrics as illustrative. CI build passes; the Firebase SDK chunk is still 560.38 kB minified (166.16 kB gzip), so further bundle optimization remains open.
+**Status:** Route-level lazy loading and deferred Firebase/dashboard imports are in place, and the landing preview now labels its static metrics as illustrative. CI build passes in run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601); the Firebase SDK chunk is still 560.38 kB minified (166.16 kB gzip), so further bundle optimization remains open.
 
 ### Work
 - Confirm Create Admin and Sign In are visible and navigate correctly, while explaining the plan-related limitation of the callable.

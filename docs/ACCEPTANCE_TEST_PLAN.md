@@ -2,7 +2,7 @@
 
 **Purpose:** Define the tests required to call a feature verified. This is a plan, not a claim that tests have been run.  
 **Audit date:** 2026-10-18  
-**Latest passing CI reference:** [run 39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)
+**Latest passing CI reference:** [run 39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601)
 
 ## Status vocabulary
 
@@ -12,7 +12,7 @@
 - **NOT RUN:** no current execution evidence.
 - **SOURCE REVIEW:** conclusion from code inspection only; not runtime verification.
 
-The original CI run failed on a stale self-registration test. After correcting that test and adding ML, feature-input and role-boundary checks, full CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428) passed 21 Firestore tests, 4 Python tests, 10 browser/helper tests, ESLint and production build. Live Firebase account provisioning and end-to-end role workflows remain NOT RUN unless explicitly marked.
+The original CI run failed on a stale self-registration test. After correcting that test and adding ML, feature-input and role-boundary checks, full CI run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601) passed 21 Firestore tests, 4 Python tests, 15 browser/helper tests, ESLint and production build. Live Firebase account provisioning and end-to-end role workflows remain NOT RUN unless explicitly marked.
 
 ## A. Repository and CI baseline
 
@@ -68,7 +68,7 @@ Manual Console provisioning is an operational workaround for a demonstration, no
 | DATA-11 | Batch teacher queries across more than 30 assigned class IDs | No class IDs are silently omitted and no duplicate records appear | PASS: 4 chunking tests in CI run 39117547050; live Firestore role workflow still NOT RUN |
 | DATA-12 | Supply missed-assessment feature | Prediction requires an explicit integer count from 0 through 7; no guessed proxy is used | PASS: 3 parser tests; all 10 browser/helper tests passed in CI run 39118541428 |
 | DATA-13 | Change/delete enrollment | Enrollment and current-student pointers update atomically; inactive/deleted current enrollment is reconciled | Source review and build pass; live/manual workflow NOT RUN |
-| DATA-14 | Delete student with linked data | Deletion is blocked for enrollment history, academic records or a linked Auth UID; no references are orphaned | CI pending |
+| DATA-14 | Delete student with linked data | Deletion is blocked for enrollment history, academic records or a linked Auth UID; no references are orphaned | PASS: 5 policy tests in CI run 39119008601; live/manual delete workflow NOT RUN |
 
 ## E. Firestore authorization matrix
 
