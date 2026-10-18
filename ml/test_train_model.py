@@ -73,7 +73,7 @@ class RiskModelContractTests(unittest.TestCase):
                 index = predict_exported_model(loaded, fixture["features"])
                 self.assertEqual(loaded["classes"][index], fixture["expectedLabel"], fixture["name"])
                 votes = [predict_exported_tree(tree, fixture["features"]) for tree in loaded["trees"]]
-                vote_share = round(max(np.bincount(votes, minlength=3)) / len(votes) * 100)
+                vote_share = round(max(np.bincount(votes, minlength=3)) * 100 / len(votes))
                 self.assertEqual(vote_share, fixture["expectedVoteShare"], fixture["name"])
 
             browser_predictions = [
