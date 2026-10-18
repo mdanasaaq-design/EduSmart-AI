@@ -31,12 +31,12 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** Artifact tree count, training configuration, evaluation record and frontend model file all agree.
 
 ### BUG-003 — Current Firestore rule test contradicted the security policy
-- **Status:** Test correction committed; current-head CI pending
+- **Status:** Resolved; current-head CI passed
 - **Area:** `frontend/tests/firestore.rules.test.js`, `firebase/firestore.rules`, `.github/workflows/frontend-ci.yml`
 - **Evidence:** CI run `39010124131` and follow-up run `39114483639` failed because `a user can self-register only a constrained student profile for their own UID` expected success but received `PERMISSION_DENIED`. The existing rule permits create only when `isAdmin()`.
 - **Impact:** CI failed before lint/build, so there was no green verification signal.
 - **Change:** Commit `f65742c8b04385ef609e92fc885e063c8f36b145` changes the test to expect denial and changes the admin-create test to use a new UID.
-- **Acceptance:** Current-head CI passes all authorization tests, lint and production build; tests match the intended policy rather than weakening it. Current verification is pending.
+- **Acceptance:** Current-head CI passes all authorization tests, lint and production build; tests match the intended policy rather than weakening it. Verified by passing CI run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953): all 18 emulator tests passed, followed by ESLint and production build.
 
 ## P1 — High-priority integration blockers
 
