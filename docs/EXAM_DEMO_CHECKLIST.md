@@ -12,7 +12,7 @@ Use this checklist before presenting. A page rendering alone is not proof that a
 - [ ] Confirm the production build passes.
 - [ ] Record the exact commit tested.
 
-**Current status:** Full CI run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998) passed 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. Both shipped model files now contain 40 trees and are reproducible from the pinned training script. Manual Firebase Console setup and live role workflows still need verification.
+**Current status:** Full CI run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846) passed 18 Firestore tests, 4 Python ML tests, 3 browser inference tests (including the 23/40 vote-share rounding case), ESLint and production build. Both shipped model files contain 40 trees and are reproducible from the pinned training script. Manual Firebase Console setup and live role workflows still need verification.
 
 ## 2. Firebase prerequisites — no-billing path
 
