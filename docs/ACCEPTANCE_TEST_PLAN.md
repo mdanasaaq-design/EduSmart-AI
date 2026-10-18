@@ -36,7 +36,7 @@ At the time this plan was written, current CI is **FAIL** at the Firestore autho
 | AUTH-05 | Missing profile for ordinary user | Access is denied with actionable guidance; no role inferred from input | SOURCE REVIEW only |
 | AUTH-06 | Admin profile recovery callable | Only same UID with server-issued admin claims can recover profile | BLOCKED on current Spark/no-Blaze plan unless callable already deployed |
 | AUTH-07 | Teacher/student profile linkage | Auth UID matches `users/{uid}` and linked teacher/student record | NOT RUN |
-| AUTH-08 | Student account self-promotion attempt | Rules deny role changes | Test exists in source; latest suite is failing elsewhere/unknown |
+| AUTH-08 | Student account self-promotion attempt | Rules deny role changes | Test exists; latest suite pending after self-registration test correction |
 
 ## C. Free-plan account provisioning
 
