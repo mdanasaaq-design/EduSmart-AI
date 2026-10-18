@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Edit3, GraduationCap, Plus, Trash2, UserRound } from 'lucide-react'
-import { addDoc, collection, deleteDoc, deleteField, doc, getDocs, orderBy, query, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, deleteField, doc, getDocs, orderBy, query, serverTimestamp, updateDoc, where, writeBatch } from 'firebase/firestore'
 import { db } from '../../firebase'
 import { getStudentDeletionBlockReason } from '../../utils/studentDeletionPolicy'
 
@@ -50,9 +50,15 @@ export default function StudentsEnrollments({onBack}){
  const remove=async(x)=>{
   const blockReason=getStudentDeletionBlockReason(x,enrollments)
   if(blockReason){setError(blockReason);return}
-  if(!confirm(`Delete ${x.name}?`))return
   setError('')
-  try{await deleteDoc(doc(db,'students',x.id));await load()}catch(e){setError(e.message||'Unable to delete the student record.')}
+  try{
+   const linkedRecords=await Promise.all(['attendance','marks','predictions','recommendations'].map(name=>getDocs(query(collection(db,name),where('studentId','==',x.id)))))
+   const recordBlockReason=getStudentDeletionBlockReason(x,[],linkedRecords.some(snapshot=>!snapshot.empty))
+   if(recordBlockReason){setError(recordBlockReason);return}
+   if(!confirm(`Delete ${x.name}?`))return
+   await deleteDoc(doc(db,'students',x.id))
+   await load()
+  }catch(e){setError(e.message||'Unable to verify linked records or delete the student safely.')}
  }
  const removeEnrollment=async(x)=>{
   if(!confirm('Delete this enrollment?'))return

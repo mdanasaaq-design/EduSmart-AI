@@ -66,7 +66,7 @@ Use:
 - [x] Add boundary tests for 0, 30 and 65 IDs; verified in full CI run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
 - [x] Replace the guessed missed-assessment proxy with an explicit integer input (0–7); parser boundary tests passed in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428).
 - [~] Make enrollment writes and current-student pointer changes atomic; ESLint/build pass in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428); live/manual enrollment verification remains pending.
-- [~] Block student deletion when enrollment history or a Firebase Auth UID is linked; helper tests and CI verification pending.
+- [~] Block student deletion when enrollment history, academic records or a Firebase Auth UID is linked; helper tests and CI verification pending.
 - [~] Institute structure and academic-record screens exist in source.
 - [ ] Create branch → program → academic year → class/section.
 - [ ] Create student and active enrollment.

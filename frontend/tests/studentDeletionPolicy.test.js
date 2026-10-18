@@ -15,10 +15,16 @@ test('student deletion is blocked when a Firebase Auth UID is linked', () => {
   assert.match(getStudentDeletionBlockReason(student, []), /Firebase Authentication/i)
 })
 
-test('an unlinked student with no enrollment history can be deleted', () => {
+test('student deletion is blocked when academic records exist without an enrollment', () => {
   const student = { id: 'student-3', userId: '' }
 
-  assert.equal(getStudentDeletionBlockReason(student, []), '')
+  assert.match(getStudentDeletionBlockReason(student, [], true), /saved academic records/i)
+})
+
+test('an unlinked student with no enrollment or academic history can be deleted', () => {
+  const student = { id: 'student-4', userId: '' }
+
+  assert.equal(getStudentDeletionBlockReason(student, [], false), '')
 })
 
 test('a missing student cannot be deleted', () => {
