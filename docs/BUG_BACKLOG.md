@@ -30,13 +30,13 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Plan:** After fixing label mapping, regenerate the artifact from the documented training script; verify model file equality; evaluate the exact exported artifact and update evaluation documentation only from real output.
 - **Acceptance:** Artifact tree count, training configuration, evaluation record and frontend model file all agree.
 
-### BUG-003 — Current Firestore rule test contradicts the security policy
-- **Status:** Confirmed source-level inconsistency; likely contributor to current CI failure
+### BUG-003 — Current Firestore rule test contradicted the security policy
+- **Status:** Test correction committed; current-head CI pending
 - **Area:** `frontend/tests/firestore.rules.test.js`, `firebase/firestore.rules`, `.github/workflows/frontend-ci.yml`
-- **Evidence:** A test expects a user to create their own student profile, but `users/{userId}` currently permits create only when `isAdmin()`.
-- **Impact:** CI fails before lint/build, so the current revision lacks a green verification signal.
-- **Plan:** Keep the documented administrator-managed account policy and replace the stale self-registration success test with a denial test, unless a different secure registration design is explicitly approved. Capture the actual failed assertion from CI, then rerun the complete suite.
-- **Acceptance:** Current-head CI passes all authorization tests, lint and production build; tests match the intended policy rather than weakening it to make CI green.
+- **Evidence:** CI run `39010124131` and follow-up run `39114483639` failed because `a user can self-register only a constrained student profile for their own UID` expected success but received `PERMISSION_DENIED`. The existing rule permits create only when `isAdmin()`.
+- **Impact:** CI failed before lint/build, so there was no green verification signal.
+- **Change:** Commit `f65742c8b04385ef609e92fc885e063c8f36b145` changes the test to expect denial and changes the admin-create test to use a new UID.
+- **Acceptance:** Current-head CI passes all authorization tests, lint and production build; tests match the intended policy rather than weakening it. Current verification is pending.
 
 ## P1 — High-priority integration blockers
 
