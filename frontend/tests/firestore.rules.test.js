@@ -122,6 +122,9 @@ test('a non-admin cannot create or modify academic structure', async () => {
     subjectId: 'subject-1',
     classId: 'class-1',
   }))
+  await assertFails(updateDoc(doc(db, 'teacherAssignments', 'teacher-1__subject-1__class-1'), {
+    classId: 'class-2',
+  }))
 })
 
 test('unauthenticated users cannot read academic records', async () => {
