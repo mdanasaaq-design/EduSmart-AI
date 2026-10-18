@@ -17,7 +17,7 @@ export function predict(model, features) {
   const index = counts.indexOf(Math.max(...counts))
   return {
     label: model.classes[index],
-    confidence: Math.round(counts[index] / model.trees.length * 100),
+    confidence: Math.round(counts[index] * 100 / model.trees.length),
   }
 }
 
