@@ -1,104 +1,94 @@
 # EduSmart AI — Development Status
 
-**Status updated:** 2026-10-17  
+**Status updated:** 2026-10-18  
 **Repository:** `mdanasaaq-design/EduSmart-AI`, branch `main`  
-**Firebase project:** `edusmart-ai-c4692`
+**Code baseline audited:** `facd99297139a4e891ee461e3a674751d7bf24f0`  
+**Firebase project:** `edusmart-ai-c4692`  
+**Hosting URL:** https://edusmart-ai-c4692.web.app
 
-## Overall status
+## Current overall status
 
-The project is in **integration and live acceptance verification**, not final sign-off. The latest documented CI results and the local Hosting deployment are distinct from browser verification. Do not describe the full system as complete until the required acceptance flow has been exercised.
+**Not signed off.** The project has substantial implemented source, but current CI is failing, the ML label/artifact contract has source-level inconsistencies, the user's Firebase no-Blaze constraint blocks assumed callable workflows, and live deployment parity has not been verified.
 
-## Implemented areas
+The current work is **planning/documentation only**. No application source was changed, no build or test was run, and no Firebase deployment or data change was performed during the 2026-10-18 audit.
 
-- React + Vite frontend and role-aware navigation
-- Firebase email/password authentication
-- Institution/admin setup callable in `functions/index.js`
-- Managed teacher/student provisioning callable
-- Branches, programs, academic years, classes and sections
-- Student/enrollment management
-- Teacher, subject and assignment screens
-- Attendance and marks workflow
-- Browser-side Random Forest inference
-- Prediction persistence and rule-based recommendations
-- Analytics and role workspaces
-- Firestore rules and emulator tests
-- Firebase Hosting configuration and deployment workflow
+## Latest automated verification evidence
 
-Implementation status means source exists; it does not imply every path has passed browser acceptance.
+Latest CI run for the audited code baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131).
 
-## Account workflow: required behavior
+- Dependency installation: passed.
+- Firestore Emulator authorization test step: **failed**.
+- ESLint: **skipped** after the test failure.
+- Production build: **skipped** after the test failure.
 
-1. Landing page top-right actions: **Create Admin**, then **Sign In**.
-2. Create Admin invokes `registerInstitutionAdmin` for one-time institution setup.
-3. The first administrator signs in and enters the admin workspace.
-4. Admin provisions teacher/student accounts through the managed-user callable.
-5. All roles use shared Sign In and receive access based on their Firestore profile.
-6. Public clients must not self-assign admin or teacher roles.
+A current source-level mismatch is visible: one rules test expects a signed-in user to create their own student profile, while the current `users/{userId}` Firestore rule permits creation only for an administrator. This is a likely cause, but the exact failed assertion must be confirmed from CI output before a code change. Do not weaken authorization just to make CI green.
 
-The frontend in GitHub `main` contains both landing-page actions. On 2026-10-17, the local `git pull --ff-only origin main` was aborted because `frontend/src/services/authService.js` had a local modification. A Hosting deployment then succeeded from that older checkout. Additional code changes have since been committed to GitHub: safe recovery of an admin profile from server-issued custom claims, teacher-scoped academic record queries, class-access records, and Firestore composite indexes. **These newer changes have not been built or deployed from the user's local checkout yet.** Preserve the local change, synchronize the intended source, build, deploy Hosting, Functions, rules and indexes, then verify the live app.
+## Implemented in source (not equivalent to verified)
 
-## Deployment status
+- React + Vite frontend and role-aware navigation.
+- Firebase email/password authentication and password reset UI.
+- First-admin registration callable and managed-user provisioning callable source.
+- Admin-profile recovery callable source.
+- Branch/program/year/class/section management.
+- Student/enrollment and teacher/subject/assignment screens.
+- Attendance/marks workflows.
+- Browser-side Random Forest inference, prediction persistence and rule-based recommendations.
+- Analytics and role workspaces.
+- Firestore rules, index definitions and emulator tests.
+- Firebase Hosting and GitHub Actions configuration.
+- Project requirements, architecture, design, context and deployment documentation.
 
-- [x] Local Vite production build completed on 2026-10-17.
-- [x] Firebase Hosting release completed on 2026-10-17 for the local build.
-- [ ] Confirm the local checkout matches the intended latest `main` commit.
-- [ ] Confirm live landing page shows Create Admin then Sign In in a fresh/incognito session.
-- [ ] Confirm the `registerInstitutionAdmin` callable is deployed and callable from the web app.
-- [ ] Confirm the managed-user callable is deployed and works.
-- [ ] Confirm Firestore rules deployed to the live project match the reviewed repository rules.
-- [ ] Verify admin can recover their profile after accidental Firestore-profile deletion when their server-issued admin claim remains.
-- [ ] Verify teacher can load only assigned classes, students, enrollments, marks and attendance, and save records/predictions.
-- [ ] Run complete role-based browser acceptance.
+## High-priority findings
 
-Hosting deploy does not deploy Cloud Functions, Firestore rules, or Firestore indexes. Functions are configured for Node.js 22.
+### 1. Firebase no-Blaze constraint
+The current project plan must not assume Cloud Functions can be deployed. The first-admin, admin-profile recovery and managed-user flows depend on callables. Do not recommend a billing upgrade as the default. For the immediate demo, use the existing manually provisioned admin and, if required, manually provision teacher/student Auth accounts plus matching Firestore profiles through Firebase Console. Keep role assignment trusted and rules restrictive. Mark automated callable flows blocked unless the project owner changes the constraint.
 
-## ML status
+### 2. ML class mapping
+The training script encodes low risk as numeric label 2 and high risk as 0, while exported metadata is ordered `Low, Medium, High` and the frontend uses the leaf index against that array. This creates a low/high label mapping inconsistency. Fix and test the canonical mapping before relying on displayed predictions.
 
-- Synthetic dataset and Random Forest training/export workflow exist.
-- Frontend loads the compact model from `/model.json`.
-- Features: attendance, average marks, recent trend, missed assessments.
-- Evaluation is recorded in `ml/EVALUATION.md`: 86.25% accuracy on formula-generated synthetic labels. This is not real-world academic-risk accuracy or evidence of fairness/calibration.
-- Recommendations are rule-based.
+### 3. Model artifact mismatch
+`ml/model.json` and `frontend/public/model.json` currently contain 5 trees and are byte-identical. The training script and `ml/EVALUATION.md` specify 40 trees. The documented 86.25% synthetic holdout accuracy must not be claimed as the verified accuracy of the current shipped 5-tree artifact.
 
-## Automated verification previously recorded
+### 4. Deployment/source parity
+A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
 
-The repository previously documented 18 passing Firestore Emulator authorization tests and passing lint/build on CI for earlier commits. Those results do not prove the current live Firebase project is correctly deployed. Re-run/inspect CI for the current head before reporting current test status.
+### 5. Historical bundle size
+A previous local build produced a JavaScript bundle of roughly 1.2 MB with a Vite large-chunk warning. This is a historical measurement; capture a fresh build report after CI is repaired before planning optimizations.
 
-## High-priority acceptance checklist
+## Firebase deployment state
 
-### A. Deployment and onboarding
-- [ ] Resolve local Git pull conflict while preserving `authService.js`.
-- [ ] Pull intended `main` source and verify Create Admin in `frontend/src/App.jsx`.
-- [ ] Run `npm ci`, `npm run lint`, `npm run build`.
-- [ ] Deploy Hosting from the updated build.
-- [ ] Deploy Cloud Functions and Firestore rules after reviewing changes and permissions.
-- [ ] Verify Create Admin form, one-time setup guard, success redirect, and useful error messages.
-- [ ] Verify Sign In for the administrator.
+- Hosting: a previous local deployment was reported successful on 2026-10-17; current source parity and live UI are unverified.
+- Cloud Functions: source exists; deployment is blocked by the current Spark/no-Blaze constraint unless project constraints change.
+- Firestore rules: source exists; current deployed rules have not been independently verified in this audit.
+- Firestore indexes: source definitions exist; live deployment/index readiness has not been verified.
+- Firebase web config: historically had a mismatched API key; verify current live configuration against the registered Web App without exposing secrets.
 
-### B. Managed roles
-- [ ] Admin can create a teacher account.
-- [ ] Admin can create a student account.
-- [ ] Password setup and first sign-in work.
-- [ ] Role cannot be self-assigned or escalated.
-- [ ] Missing/mismatched Firestore profile errors are understandable.
+Hosting, Functions, rules and indexes are separate targets. Never infer their status from a successful frontend build or Hosting message.
 
-### C. Academic flow
-- [ ] Create branch, program, academic year, class and section.
-- [ ] Create student and enrollment.
-- [ ] Create teacher and subject.
-- [ ] Link teacher to Firebase Auth UID and create assignment.
-- [ ] Record attendance and marks.
-- [ ] Generate and save prediction and recommendation.
-- [ ] Verify analytics reads persisted predictions.
-- [ ] Verify linked student sees only their own records.
-- [ ] Verify teacher access is restricted by assignments and active enrollment.
+## Required next phases
 
-### D. Quality
-- [ ] Test loading, empty, validation and permission-error states.
-- [ ] Test responsive layout and direct-route refresh.
-- [ ] Confirm Firestore rules are deployed and test unauthorized access.
-- [ ] Confirm fresh clone/setup instructions work.
+1. **Source synchronization and CI recovery:** preserve local changes, capture the exact failing test, reconcile the test with the approved security policy, then rerun rules tests, lint and build.
+2. **No-billing demo readiness:** verify the existing admin and manually provision safe demo roles if needed; document blocked callable flows.
+3. **ML correctness:** fix class encoding, synchronize artifact and training configuration, add parity tests and reevaluate the exact shipped model.
+4. **Academic workflow:** verify structure, enrollment, assignments, attendance, marks, prediction, recommendation and analytics.
+5. **Security acceptance:** test role boundaries and teacher assignment/enrollment scope.
+6. **UI/UX polish:** loading/error/empty states, responsive/accessibility review, then bundle optimization.
+7. **Authorized release verification:** build/deploy only with explicit approval and independently verify each Firebase target.
+8. **Report/PPT/demo sign-off:** use only verified screenshots, metrics and feature claims.
 
-## Important data note
+See:
+- [Repository Audit](REPOSITORY_AUDIT.md)
+- [Bug Backlog](BUG_BACKLOG.md)
+- [Phased Roadmap](PHASED_ROADMAP.md)
+- [Acceptance Test Plan](ACCEPTANCE_TEST_PLAN.md)
+- [Architecture and Product Decisions](DECISIONS.md)
+- [Exam Demo Checklist](EXAM_DEMO_CHECKLIST.md)
 
-Deleting Firestore collections does not delete Firebase Authentication users. Check both systems separately; do not repeatedly delete data as a generic troubleshooting measure.
+## Development status rules
+
+- **Implemented** means source exists.
+- **Tested** means a relevant test ran and passed on a recorded revision.
+- **Deployed** means the specific target was deployed successfully.
+- **Verified** means the live/browser acceptance test passed.
+- **Blocked** means a known constraint prevents the intended path.
+- Never label the entire project complete while any critical acceptance gate is failing or unverified.
