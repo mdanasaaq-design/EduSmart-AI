@@ -22,10 +22,11 @@ EduSmart AI is a college mini-project prototype that brings institute administra
 
 ## Important current limitations
 
-- The original Firestore test failure was resolved without weakening rules. The expanded CI now covers Firestore, Python ML contract tests, browser inference tests, ESLint and production build. See [Development Status](docs/DEVELOPMENT_STATUS.md) for the latest run.
-- A source-level mismatch exists between a test that expects student self-registration and the current administrator-only user-profile creation rule. The intended security policy should be resolved without weakening authorization.
+- The previous Firestore test/rule mismatch was resolved without weakening rules. Latest CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428) passes 21 Firestore authorization tests, 4 Python ML tests, 10 browser/helper tests, ESLint and production build. See [Development Status](docs/DEVELOPMENT_STATUS.md) for details.
 - The user's Firebase project is constrained to the no-Blaze/free plan. Callable Cloud Functions are required by some automated onboarding/account workflows and must not be assumed deployed. Do not upgrade billing as a default recommendation. For the immediate demo, the existing administrator and manually provisioned demo accounts may be used, with matching Firestore profiles and restrictive rules.
 - The numeric class mapping is consistent with the Low/Medium/High metadata and has deterministic Python/browser inference tests. The shipped model artifacts contain 40 trees and are byte-identical. On the synthetic holdout, scikit-learn probability averaging scores 86.25% and browser majority voting scores 87.08%; neither is real-world validation.
+- The academic-record screen requires an explicit missed-assessment count from 0–7 instead of guessing from saved marks. The model still uses synthetic training data and remains a demonstration-only, advisory feature.
+- Route-level lazy loading reduces the main JS chunk to 238.17 kB, but the Firebase SDK chunk is 560.38 kB (166.16 kB gzip) and still triggers Vite's large-chunk warning. Performance optimization remains in progress, not complete.
 - The most recent known Hosting release used a local checkout that had not successfully synchronized to the intended latest GitHub source. Current live/source parity is unverified.
 
 ## Account and role workflow

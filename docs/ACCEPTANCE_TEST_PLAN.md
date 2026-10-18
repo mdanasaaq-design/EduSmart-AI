@@ -2,7 +2,7 @@
 
 **Purpose:** Define the tests required to call a feature verified. This is a plan, not a claim that tests have been run.  
 **Audit date:** 2026-10-18  
-**Latest passing CI reference:** [run 39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050)
+**Latest passing CI reference:** [run 39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)
 
 ## Status vocabulary
 
@@ -12,7 +12,7 @@
 - **NOT RUN:** no current execution evidence.
 - **SOURCE REVIEW:** conclusion from code inspection only; not runtime verification.
 
-The original CI run failed on a stale self-registration test. After correcting that test and adding ML contract checks, the latest full CI run passed Firestore authorization, Python model/export tests, browser inference tests, ESLint and production build. Live Firebase account provisioning and end-to-end role workflows remain NOT RUN unless explicitly marked.
+The original CI run failed on a stale self-registration test. After correcting that test and adding ML, feature-input and role-boundary checks, full CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428) passed 21 Firestore tests, 4 Python tests, 10 browser/helper tests, ESLint and production build. Live Firebase account provisioning and end-to-end role workflows remain NOT RUN unless explicitly marked.
 
 ## A. Repository and CI baseline
 
@@ -20,9 +20,9 @@ The original CI run failed on a stale self-registration test. After correcting t
 |---|---|---|---|
 | CI-01 | Inspect local `git status --short` and current commit before sync | All local changes identified and preserved | NOT RUN in current session |
 | CI-02 | Synchronize local source with intended `origin/main` | No local changes lost; expected commit confirmed | BLOCKED until local state inspected |
-| CI-03 | Run Firestore Emulator authorization suite | All tests pass against current rules | PASS: 18 tests in CI run 39117262846 |
-| CI-04 | Run ESLint after tests pass | No lint errors | PASS in CI run 39117262846 |
-| CI-05 | Run production build after lint passes | Build succeeds; record warnings/artifact size | PASS in CI run 39117262846 |
+| CI-03 | Run Firestore Emulator authorization suite | All tests pass against current rules | PASS: 21 tests in CI run 39118541428 |
+| CI-04 | Run ESLint after tests pass | No lint errors | PASS in CI run 39118541428 |
+| CI-05 | Run production build after lint passes | Build succeeds; record warnings/artifact size | PASS in CI run 39118541428; Firebase chunk warning remains |
 | CI-06 | Inspect current tree and package manifests | Documentation and test commands reflect actual repository | SOURCE REVIEW completed |
 
 ## B. Authentication and profile linkage
@@ -36,7 +36,7 @@ The original CI run failed on a stale self-registration test. After correcting t
 | AUTH-05 | Missing profile for ordinary user | Access is denied with actionable guidance; no role inferred from input | SOURCE REVIEW only |
 | AUTH-06 | Admin profile recovery callable | Only same UID with server-issued admin claims can recover profile | BLOCKED on current Spark/no-Blaze plan unless callable already deployed |
 | AUTH-07 | Teacher/student profile linkage | Auth UID matches `users/{uid}` and linked teacher/student record | NOT RUN |
-| AUTH-08 | Student account self-promotion attempt | Rules deny role changes | PASS in full CI run 39116551389 |
+| AUTH-08 | Student account self-promotion attempt | Rules deny role changes | PASS in CI run 39118541428 |
 
 ## C. Free-plan account provisioning
 
@@ -45,7 +45,7 @@ The original CI run failed on a stale self-registration test. After correcting t
 | PLAN-01 | Use existing manually provisioned admin | Admin signs in without requiring new callable deployment | Reported working previously; retest against current live revision |
 | PLAN-02 | Manually create demo teacher in Firebase Console | Auth account and matching Firestore profile exist with role teacher | NOT RUN |
 | PLAN-03 | Manually create demo student in Firebase Console | Auth account and matching Firestore profile exist with role student | NOT RUN |
-| PLAN-04 | Public user attempts to create admin/teacher profile | Denied by rules | SOURCE REVIEW; emulator suite required |
+| PLAN-04 | Public user attempts to create admin/teacher profile | Denied by rules | PASS in CI run 39118541428 |
 | PLAN-05 | Admin UI invokes callable-based managed-user creation | If Functions are unavailable, show clear blocked/error state without partial or misleading success | BLOCKED/NOT RUN on current plan |
 | PLAN-06 | Confirm no billing change was required | Demo setup stays on current Firebase plan | Required constraint |
 
@@ -63,11 +63,11 @@ Manual Console provisioning is an operational workaround for a demonstration, no
 | DATA-06 | Record attendance for enrolled student | Valid record persists and survives reload | NOT RUN |
 | DATA-07 | Record assessment/marks | Valid record persists and survives reload | NOT RUN |
 | DATA-08 | Edit a record | Only authorized fields/record scope change | NOT RUN |
-| DATA-09 | Attempt record for missing/withdrawn enrollment | Teacher write is denied | Source test exists; current suite status FAIL |
+| DATA-09 | Attempt record for missing/withdrawn enrollment | Teacher write is denied | PASS in CI run 39118541428 |
 | DATA-10 | Open analytics after records are saved | Counts and risk distribution reflect saved data | NOT RUN |
 | DATA-11 | Batch teacher queries across more than 30 assigned class IDs | No class IDs are silently omitted and no duplicate records appear | PASS: 4 chunking tests in CI run 39117547050; live Firestore role workflow still NOT RUN |
-| DATA-12 | Supply missed-assessment feature | Prediction requires an explicit integer count from 0 through 7; no guessed proxy is used | CI pending |
-| DATA-13 | Change/delete enrollment | Enrollment and current-student pointers update atomically; inactive/deleted current enrollment is reconciled | Source review; live/manual test NOT RUN |
+| DATA-12 | Supply missed-assessment feature | Prediction requires an explicit integer count from 0 through 7; no guessed proxy is used | PASS: 3 parser tests; all 10 browser/helper tests passed in CI run 39118541428 |
+| DATA-13 | Change/delete enrollment | Enrollment and current-student pointers update atomically; inactive/deleted current enrollment is reconciled | Source review and build pass; live/manual workflow NOT RUN |
 
 ## E. Firestore authorization matrix
 
@@ -83,18 +83,18 @@ Execute in the emulator first. Only perform live denial checks using approved te
 The current prototype uses a single primary institution context. Multi-institution isolation is not to be claimed unless implemented and tested.
 
 Required adversarial cases:
-- [ ] Student tries to change own role to admin/teacher.
-- [ ] Student tries to create a profile for another UID.
-- [ ] Student tries to write attendance, marks, predictions or recommendations.
+- [x] Student tries to change own role to admin/teacher (emulator test).
+- [x] Student tries to create a profile for another UID (emulator test).
+- [x] Student tries to write attendance, marks, predictions or recommendations (emulator test).
 - [ ] Teacher queries a class not assigned to them.
-- [ ] Teacher reads/writes a record for a student not enrolled in the assigned class/year.
-- [ ] Teacher reads/writes a record for a withdrawn enrollment.
-- [ ] Teacher changes class/subject/student identifiers during an update.
-- [ ] Teacher can update an allowed academic value but cannot mutate its class, subject, student, year or linked user identity.
-- [ ] Teacher cannot create or modify `teacherClassAccess` records.
-- [ ] Administrator cannot demote their own administrator profile through the client.
-- [ ] Unauthenticated client attempts any academic-record access.
-- [ ] A normal user tries to create or modify teacher assignment/access documents.
+- [x] Teacher reads/writes a record for a student not enrolled in the assigned class/year (emulator test).
+- [x] Teacher reads/writes a record for a withdrawn enrollment (emulator test).
+- [x] Teacher changes class/subject/student identifiers during an update; scope mutation is denied (emulator test).
+- [x] Teacher can update an allowed academic value but cannot mutate its class, subject, student, year or linked user identity (emulator test).
+- [x] Teacher cannot create or modify `teacherClassAccess` records (emulator test).
+- [x] Administrator cannot demote their own administrator profile through the client (emulator test).
+- [x] Unauthenticated client attempts academic-record access (emulator test).
+- [x] A normal user cannot create or modify teacher assignment/access documents (emulator tests).
 
 ## F. ML correctness and provenance
 

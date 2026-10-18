@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-10-18  
 **Code baseline audited:** `facd992`  
-**Current status:** Phase 0 complete; remote CI recovery and Phase 3 ML artifact/inference validation passed. Phase 1 local Windows source synchronization and Phase 2 live Firebase Console verification remain open.
+**Current status:** Latest remote CI passes on commit `29bd3d5` (run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)): 21 Firestore tests, 4 Python ML tests, 10 browser/helper tests, ESLint and production build. Phase 1 local Windows source synchronization, Phase 2 live Firebase Console verification and end-to-end academic workflow acceptance remain open.
 
 Use:
 - `[x]` only for verified work.
@@ -64,8 +64,8 @@ Use:
 
 - [x] Fix source-level teacher query truncation: batch `in` queries in groups of 30 instead of silently dropping assignments after the first 30.
 - [x] Add boundary tests for 0, 30 and 65 IDs; verified in full CI run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
-- [~] Replace the guessed missed-assessment proxy with an explicit integer input (0–7) and a tested parser; CI verification pending.
-- [~] Make enrollment writes and current-student pointer changes atomic; reconcile current pointers when current enrollments become inactive or are deleted; CI verification pending.
+- [x] Replace the guessed missed-assessment proxy with an explicit integer input (0–7); parser boundary tests passed in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428).
+- [~] Make enrollment writes and current-student pointer changes atomic; ESLint/build pass in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428); live/manual enrollment verification remains pending.
 - [~] Institute structure and academic-record screens exist in source.
 - [ ] Create branch → program → academic year → class/section.
 - [ ] Create student and active enrollment.
@@ -79,13 +79,13 @@ Use:
 ## Phase 5 — Security acceptance (P0/P1)
 
 - [~] Firestore rules and emulator tests exist in source.
-- [x] Fix the test/rule policy mismatch without weakening rules; CI passes 18/18 emulator tests.
-- [~] Add tests for teacher academic-record identifier mutation, class-access writes and admin self-demotion; CI verification pending.
-- [ ] Test student role escalation and cross-student access denial.
-- [ ] Test teacher access against assignment and enrollment.
-- [ ] Test withdrawn/mismatched enrollment denial.
-- [ ] Test unauthenticated access denial.
-- [ ] Test users cannot create privileged profiles.
+- [x] Fix the test/rule policy mismatch without weakening rules; CI passes 21/21 emulator tests in run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428).
+- [x] Add tests for teacher academic-record identifier mutation, class-access/assignment writes and admin self-demotion; verified in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428).
+- [x] Test student role escalation and cross-student access denial in the emulator suite.
+- [x] Test teacher access against assignment and enrollment in the emulator suite.
+- [x] Test withdrawn/mismatched enrollment denial in the emulator suite.
+- [x] Test unauthenticated access denial in the emulator suite.
+- [x] Test users cannot create privileged profiles in the emulator suite.
 - [ ] Confirm required indexes support actual queries.
 - [ ] Independently verify live rules and index state if deployment is authorized.
 
@@ -95,9 +95,9 @@ Use:
 - [ ] Review loading, empty, success, validation and error states.
 - [ ] Review mobile/tablet layout and keyboard accessibility.
 - [ ] Check contrast, labels, focus states and chart text alternatives.
-- [ ] Confirm synthetic/demo data is clearly labeled.
-- [ ] Measure current bundle after build is green.
-- [ ] Consider lazy-loading/splitting only after functional correctness.
+- [~] Label the landing-page static metrics as an illustrative preview; complete the broader live/demo data review before sign-off.
+- [x] Measure current bundle in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428): main JS 238.17 kB; Analytics 360.71 kB; Firebase 560.38 kB; Vite chunk warning remains.
+- [~] Add route-level lazy loading and defer Firebase/dashboard imports; main JS is reduced, but the 560.38 kB Firebase chunk still needs a measured follow-up split.
 
 ## Phase 7 — Release verification (requires explicit authorization)
 

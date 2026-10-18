@@ -76,7 +76,7 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** Assigned teacher reads/writes permitted records only; unrelated classes and students are denied; records persist after reload.
 
 ### BUG-015 — Missed-assessment feature was guessed from marks-record count
-- **Status:** Fix implemented; CI verification pending
+- **Status:** Resolved at source/unit-test/build level; verified in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)
 - **Area:** `frontend/src/pages/AcademicRecords.jsx`, prediction feature contract
 - **Evidence:** The UI previously derived `missedAssessments` as `max(0, 5 - studentMarks.length)`. This is not the number of missed assessments and silently treated the number of saved marks as a proxy.
 - **Impact:** The prediction could use a fabricated feature value that was not supplied by the teacher/admin and did not represent the stated model input.
@@ -84,12 +84,19 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** The prediction remains unavailable until attendance, marks and a valid missed-assessment count are present; helper tests cover empty, boundary and invalid values.
 
 ### BUG-016 — Enrollment and current-student pointers could be partially updated
-- **Status:** Fix implemented; CI verification pending
+- **Status:** Implemented; lint/build passed in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428); live/manual integration pending
 - **Area:** `frontend/src/pages/admin/StudentsEnrollments.jsx`
 - **Evidence:** Enrollment creation wrote the enrollment document, then updated the student record, then deleted legacy duplicates as separate requests. Failure midway could leave inconsistent state. Deleting an enrollment also did not reconcile the student's current class/year references.
 - **Impact:** UI records could disagree about the student's current enrollment, and an error could appear after only part of the operation succeeded.
 - **Change:** Save enrollment and current-student pointer changes together in a Firestore write batch, preserve an existing enrollment's creation timestamp, and reconcile current pointers atomically when an enrollment is made inactive or deleted.
 - **Acceptance:** The batch contains the enrollment change, any current-pointer update and legacy duplicate cleanup; no partial write occurs if the batch fails. Browser/manual integration verification remains required.
+
+### BUG-017 — Static landing metrics could be mistaken for live institutional data
+- **Status:** Resolved in UI copy; verified by lint/build in CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428)
+- **Area:** Landing page dashboard preview in `frontend/src/App.jsx`
+- **Evidence:** The preview showed static attendance and on-track percentages under an `ACADEMIC OVERVIEW` label, which could be mistaken for live institute data.
+- **Change:** The preview now says `ILLUSTRATIVE PREVIEW`.
+- **Acceptance:** Static preview values are explicitly framed as illustrative, not as real Firebase data.
 
 ## P2 — Robustness and user experience
 
@@ -101,12 +108,12 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Acceptance:** Error guidance matches the supported deployment path and does not pressure the user to enable billing.
 
 ### BUG-010 — Large JavaScript bundle
-- **Status:** Historical warning; current head requires fresh measurement
+- **Status:** Partially mitigated; a fresh CI build passes but Vite's large-chunk warning remains
 - **Area:** Frontend bundling and route loading
-- **Evidence:** A previous local build produced a roughly 1.2 MB JavaScript bundle and Vite emitted a large-chunk warning.
-- **Impact:** Slower initial load and a less polished experience on weaker networks/devices.
-- **Plan:** After correctness, consider lazy-loading major pages, reviewing dependency imports, and splitting noncritical charts/screens.
-- **Acceptance:** A fresh build report is captured; any optimization is measured against that baseline without breaking routes.
+- **Evidence:** CI run [39118541428](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39118541428) reports main JS 238.17 kB (75.09 kB gzip), Analytics 360.71 kB (104.50 kB gzip), and Firebase 560.38 kB (166.16 kB gzip). Route-level lazy loading has reduced the main entry bundle from the previously observed roughly 1.2 MB, but the Firebase chunk still exceeds Vite's 500 kB warning threshold.
+- **Impact:** Slower initial load on weaker networks/devices and a remaining large dependency chunk.
+- **Plan:** Consider splitting the Firebase SDK chunk further only if dependency analysis shows a safe, meaningful reduction; retain lazy loading and compare compressed sizes after each change. Do not silence the warning without evidence.
+- **Acceptance:** A future measured build reduces the largest chunk without breaking routes; warning threshold is not raised merely to hide the warning.
 
 ### BUG-011 — Empty/error/loading states need a systematic pass
 - **Status:** Planned audit
