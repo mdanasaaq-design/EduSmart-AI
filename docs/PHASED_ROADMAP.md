@@ -83,7 +83,7 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 
 **Priority: P0 for the core prediction feature.**
 
-**Status: Complete for source-level ML correctness and automated acceptance.** The full suite passed in CI run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846), including the vote-share rounding regression. The model artifacts match the 40-tree training configuration.
+**Status: Complete for source-level ML correctness and automated acceptance.** The full suite passed in CI run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050), including the vote-share rounding and teacher query batching regressions. The model artifacts match the 40-tree training configuration.
 
 ### Work
 1. Record the existing mapping explicitly: index 0 = Low risk (strong indicators), index 1 = Medium risk, index 2 = High risk (poor indicators).
@@ -102,11 +102,13 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 - [x] Python/browser parity tests pass.
 - [x] Metrics distinguish sklearn baseline from browser majority vote and are tied to the 40-tree synthetic holdout.
 - [x] No real-world accuracy or fairness claim is made.
-- [x] Re-run full CI after the vote-share rounding regression fix; all required automated gates passed in run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846).
+- [x] Re-run full CI after the vote-share rounding and teacher query batching fixes; all required automated gates passed in run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
 
 ## Phase 4 — Academic workflow integration
 
 **Priority: P1.**
+
+**Status:** Source-level batching defect fixed and covered by CI tests. The end-to-end admin/teacher/student workflow against Firebase remains unverified pending project-owner Console setup and live acceptance.
 
 ### Work
 1. Create/verify academic structure in dependency order: branch → program → academic year → class/section.
