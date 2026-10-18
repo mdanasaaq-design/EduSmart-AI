@@ -43,11 +43,11 @@ All known findings are recorded and the plan does not assume unverified deployme
 3. Synchronize with the intended `origin/main` only after the local changes are understood and safely retained.
 4. Capture the exact failing assertion from the latest Firestore Emulator test run. **Done:** the self-registration success test failed with `PERMISSION_DENIED`.
 5. Resolve the test/rule policy contradiction. **Committed:** test now expects self-registration denial; admin-create test uses a new UID. The admin-managed account policy is unchanged.
-6. Rerun Firestore authorization tests, then lint, then production build. **Pending current CI run 39115312291.**
+6. Expand CI to verify pinned ML regeneration, Python inference contract, browser inference vectors, Firestore authorization, ESLint and production build. **Done:** full suite passed in [run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998).
 7. Record the exact commit and complete output summaries.
 
 ### Exit gate
-- [x] Current-head CI passes Firestore tests, lint and build (18/18 emulator tests passed on `1b453d5`; run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953)).
+- [x] Current-head CI passes 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build (run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998)).
 - [x] Tests express the approved security policy; the test/rule mismatch was corrected without weakening rules.
 - [ ] Local changes are preserved and source parity is clear; requires inspection on the user's Windows machine.
 - [x] No live Firebase changes were made as a side effect of CI verification.
@@ -58,6 +58,8 @@ All known findings are recorded and the plan does not assume unverified deployme
 
 **Priority: P0. Must not require billing changes.**
 
+**Status:** Manual setup runbook and UI fallback messaging are in place. Actual Firebase Console account/profile verification remains pending because it requires the project owner's authenticated Console session.
+
 ### Work
 1. Keep the existing manually provisioned administrator account and verify its Auth UID matches `users/{uid}`.
 2. In Firebase Console, manually provision one teacher and one student demonstration Auth account if needed.
@@ -65,6 +67,7 @@ All known findings are recorded and the plan does not assume unverified deployme
 4. Prepare a minimal demo dataset: one branch, program, academic year, class, section, subject, student enrollment, teacher and assignment.
 5. Verify that the current Firestore rules permit the intended workflows and deny out-of-scope access.
 6. Clearly mark callable-based Create Admin and managed-account creation as blocked/unavailable on the current plan unless the user explicitly changes the constraint.
+7. Keep the no-billing manual account procedure in `docs/FREE_PLAN_DEMO_SETUP.md` and provide actionable errors from the setup screens.
 
 ### Important constraint
 Do not enable Blaze, attach billing, weaken rules, add public role assignment, or claim callable functions are deployed. A Firebase Console-created account/profile is a manual demo setup, not proof that the automated account-provisioning workflow works.
@@ -80,6 +83,8 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 
 **Priority: P0 for the core prediction feature.**
 
+**Status:** Implementation and automated acceptance passed in CI run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998). The model artifacts now match the 40-tree training configuration.
+
 ### Work
 1. Record the existing mapping explicitly: index 0 = Low risk (strong indicators), index 1 = Medium risk, index 2 = High risk (poor indicators).
 2. Add deterministic tests for representative low-, medium- and high-risk feature vectors; only change the encoding if a test demonstrates a real mismatch.
@@ -87,16 +92,16 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 4. Confirm the browser's inference agrees with Python inference on the same model and feature vectors.
 5. Regenerate the model artifact from the approved training script.
 6. Confirm `ml/model.json` and `frontend/public/model.json` are identical.
-7. Resolve the current 5-tree artifact versus 40-tree training/evaluation mismatch.
-8. Re-run evaluation only after these changes; update `ml/EVALUATION.md` from actual output.
+7. Resolve the initial 5-tree artifact versus 40-tree training/evaluation mismatch. **Done:** both artifacts now contain 40 trees and the CI regeneration check produces no diff.
+8. Evaluate both sklearn probability averaging and the browser's per-tree majority vote. **Done:** 86.25% baseline accuracy and 87.08% browser-vote accuracy on the synthetic holdout; `ml/EVALUATION.md` distinguishes them.
 9. Keep the UI/report explicit that data and labels are synthetic, and tree-vote fraction is not calibrated probability.
 
 ### Exit gate
-- Deterministic tests prove risk semantics and browser interpretation agree.
-- Training configuration, exported artifact, evaluation record and frontend model file agree.
-- Python/browser parity tests pass.
-- The metric is explicitly tied to the artifact/configuration actually evaluated.
-- No real-world accuracy or fairness claim is made.
+- [x] Deterministic tests prove risk semantics and browser interpretation agree.
+- [x] Training configuration, exported artifact, evaluation record and frontend model file agree.
+- [x] Python/browser parity tests pass.
+- [x] Metrics distinguish sklearn baseline from browser majority vote and are tied to the 40-tree synthetic holdout.
+- [x] No real-world accuracy or fairness claim is made.
 
 ## Phase 4 — Academic workflow integration
 
