@@ -76,6 +76,8 @@ export default function UserAccess({ user, onBack }) {
         setError('An Authentication account already uses this email. Do not create a duplicate; use password recovery or ask the administrator to link the existing account.')
       } else if (code.includes('permission-denied')) {
         setError('Only an authorized institution administrator can create accounts.')
+      } else if (code.includes('unavailable') || code.includes('not-found') || code.includes('internal')) {
+        setError('The trusted account-provisioning service is unavailable. No account was confirmed as created. For the current no-billing demo, use the manual Firebase Console procedure in docs/FREE_PLAN_DEMO_SETUP.md.')
       } else {
         setError(e?.message || 'Automated account creation is unavailable. No account was confirmed as created. For the current no-billing demo, use the manual Firebase Console procedure in docs/FREE_PLAN_DEMO_SETUP.md.')
       }
