@@ -30,8 +30,7 @@ Use:
 - [ ] Synchronize to intended `origin/main` without destructive reset/clean commands.
 - [x] Original CI failure captured: self-registration test failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`.
 - [x] Reconcile self-registration test with administrator-managed account policy; admin-create test now targets a new UID.
-- [x] Full CI passed: 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build (run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998)).
-- [ ] Reconfirm the full suite after the latest vote-share rounding correction; current CI run is pending.
+- [x] Full CI passed: 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build, including vote-share rounding regression (run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846)).
 - [ ] Inspect local `git status --short`, current commit and `frontend/src/services/authService.js` diff; preserve and synchronize local work safely.
 
 ## Phase 2 — Firebase free-plan-safe demo readiness (P0)
@@ -58,7 +57,7 @@ Use:
 - [x] Resolve 5-tree versus 40-tree artifact mismatch; both artifacts contain 40 trees and are byte-identical.
 - [x] Evaluate the exact browser majority-vote contract: 87.08% (209/240); scikit-learn probability-averaging baseline is 86.25% (207/240), both synthetic-only.
 - [x] Update `ml/EVALUATION.md` with both metrics and limitations.
-- [x] Fix vote-share rounding at exact half values (23/40 → 58%); latest CI rerun pending.
+- [x] Fix vote-share rounding at exact half values (23/40 → 58%); verified in CI run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846).
 - [x] Keep synthetic-data and uncalibrated-confidence limitations visible in evaluation documentation.
 
 ## Phase 4 — Academic workflow integration (P1)
