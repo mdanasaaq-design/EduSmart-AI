@@ -4,6 +4,7 @@ import { ArrowLeft, Brain, Save, TrendingDown, TrendingUp } from 'lucide-react'
 import { db } from '../firebase'
 import { chunkArray } from '../utils/chunkArray'
 import { predict, validateModel } from '../ml/modelInference'
+import { parseMissedAssessments } from '../ml/predictionFeatures'
 
 function rows(snapshot) {
   return snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
@@ -33,6 +34,7 @@ export default function AcademicRecords({ user, onBack }) {
   const [subjectId, setSubjectId] = useState('')
   const [att, setAtt] = useState('')
   const [mark, setMark] = useState('')
+  const [missedAssessmentsInput, setMissedAssessmentsInput] = useState('')
   const [model, setModel] = useState(null)
   const [msg, setMsg] = useState('')
   const [loading, setLoading] = useState(true)
@@ -133,10 +135,11 @@ export default function AcademicRecords({ user, onBack }) {
     : Number(att || 0)
   const ordered = [...studentMarks].sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0))
   const trend = ordered.length > 1 ? Number(ordered.at(-1).value) - Number(ordered[0].value) : 0
-  const missed = Math.max(0, 5 - studentMarks.length)
+  const missed = parseMissedAssessments(missedAssessmentsInput)
   const hasAttendance = studentAttendance.length > 0 || att !== ''
   const hasMarks = studentMarks.length > 0 || mark !== ''
-  const prediction = model && studentId && hasAttendance && hasMarks
+  const hasMissedAssessments = missed !== null
+  const prediction = model && studentId && hasAttendance && hasMarks && hasMissedAssessments
     ? predict(model, [avgAttendance, avgMarks, trend, missed])
     : null
 
@@ -184,7 +187,7 @@ export default function AcademicRecords({ user, onBack }) {
   }
 
   const savePrediction = async () => {
-    if (!prediction) return setMsg('Enter at least one attendance value and one marks value before generating a prediction.')
+    if (!prediction) return setMsg('Enter attendance, marks, and a whole-number missed-assessment count from 0 to 7 before generating a prediction.')
     if (!enrollment || !subjectId) return setMsg('Select an active enrollment and an assigned subject before saving the prediction.')
     if (user?.role === 'teacher' && !assignments.some(item => item.classId === enrollment.classId && item.subjectId === subjectId)) {
       return setMsg('Your teacher account is not assigned to this class and subject.')
@@ -249,7 +252,7 @@ export default function AcademicRecords({ user, onBack }) {
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 lg:col-span-2">
             <h2 className="mb-5 font-semibold">Record student performance</h2>
-            <select value={studentId} onChange={event => { setStudentId(event.target.value); setEnrollmentId(''); setAtt(''); setMark(''); setMsg('') }} className="mb-3 w-full rounded-lg bg-slate-950 p-3">
+            <select value={studentId} onChange={event => { setStudentId(event.target.value); setEnrollmentId(''); setAtt(''); setMark(''); setMissedAssessmentsInput(''); setMsg('') }} className="mb-3 w-full rounded-lg bg-slate-950 p-3">
               <option value="">Select student</option>
               {students.map(item => <option key={item.id} value={item.id}>{item.name} · {item.admissionNumber || item.rollNo || ''}</option>)}
             </select>
@@ -270,7 +273,11 @@ export default function AcademicRecords({ user, onBack }) {
             <div className="flex items-center gap-2 text-emerald-400"><Brain/><h2 className="font-semibold">AI Risk Prediction</h2></div>
             {studentId ? <>
               <p className="mt-5 text-center text-sm text-slate-400">{student?.name}</p>
-              <p className="mt-2 text-center text-4xl font-bold">{prediction?.label || '—'}</p>
+              <label className="mt-4 block text-sm text-slate-400">Missed assessments (0–7)
+                <input aria-label="Missed assessments" type="number" min="0" max="7" step="1" inputMode="numeric" value={missedAssessmentsInput} onChange={event => setMissedAssessmentsInput(event.target.value)} className="mt-2 w-full rounded-lg bg-slate-950 p-3 text-white" />
+                <span className="mt-1 block text-xs text-slate-500">Enter the actual count for the period; it is not inferred from the number of marks saved.</span>
+              </label>
+              <p className="mt-4 text-center text-4xl font-bold">{prediction?.label || '—'}</p>
               {prediction && <>
                 <p className="mt-2 text-center text-xs text-slate-500">Model vote share: {prediction.confidence}% (not calibrated probability)</p>
                 <div className="mt-6 space-y-3 text-sm"><p>Attendance <b>{avgAttendance.toFixed(1)}%</b></p><p>Average marks <b>{avgMarks.toFixed(1)}%</b></p><p className="flex items-center gap-2">Recent trend <b>{trend > 0 ? '+' : ''}{trend.toFixed(1)}%</b>{trend > 0 ? <TrendingUp size={16}/> : trend < 0 ? <TrendingDown size={16}/> : null}</p><p>Missed assessments <b>{missed}</b></p></div>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Edit3, GraduationCap, Plus, Trash2, UserRound } from 'lucide-react'
-import { addDoc, collection, deleteDoc, doc, getDocs, orderBy, query, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore'
+import { addDoc, collection, deleteDoc, deleteField, doc, getDocs, orderBy, query, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
 import { db } from '../../firebase'
 
 const emptyStudent={name:'',admissionNumber:'',email:'',phone:'',userId:'',gender:'',dateOfBirth:'',guardianName:'',status:'Active'}
@@ -15,9 +15,58 @@ export default function StudentsEnrollments({onBack}){
  const filteredClasses=useMemo(()=>classes.filter(x=>!ef.academicYearId||x.academicYearId===ef.academicYearId),[classes,ef.academicYearId])
  const filteredSections=useMemo(()=>sections.filter(x=>!ef.classId||x.classId===ef.classId),[sections,ef.classId])
  const saveStudent=async e=>{e.preventDefault();if(!sf.name.trim()||!sf.admissionNumber.trim())return setError('Name and admission number are required.');setSaving(true);setError('');try{const d={...sf,name:sf.name.trim(),admissionNumber:sf.admissionNumber.trim().toUpperCase(),updatedAt:serverTimestamp()};if(editing)await updateDoc(doc(db,'students',editing.id),d);else await addDoc(collection(db,'students'),{...d,createdAt:serverTimestamp()});setSf(emptyStudent);setEditing(null);await load()}catch(x){setError(x.message)}finally{setSaving(false)}}
- const saveEnrollment=async e=>{e.preventDefault();const s=students.find(x=>x.id===ef.studentId),y=years.find(x=>x.id===ef.academicYearId),c=classes.find(x=>x.id===ef.classId),sec=sections.find(x=>x.id===ef.sectionId);if(!s||!y||!c||!sec)return setError('Complete all enrollment fields.');setSaving(true);setError('');try{const enrollmentId=s.id+'__'+c.id+'__'+y.id;await setDoc(doc(db,'enrollments',enrollmentId),{studentId:s.id,studentUserId:s.userId||'',studentName:s.name,admissionNumber:s.admissionNumber,academicYearId:y.id,academicYearName:y.name,classId:c.id,className:c.name,sectionId:sec.id,sectionName:sec.name,status:ef.status,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});await updateDoc(doc(db,'students',s.id),{currentClassId:c.id,currentSectionId:sec.id,currentAcademicYearId:y.id,currentClassName:c.name,currentSectionName:sec.name,currentAcademicYearName:y.name,updatedAt:serverTimestamp()});await Promise.all(enrollments.filter(x=>x.studentId===s.id&&x.classId===c.id&&x.academicYearId===y.id&&x.id!==enrollmentId).map(x=>deleteDoc(doc(db,'enrollments',x.id))));setEf(emptyEnrollment);await load()}catch(x){setError(x.message)}finally{setSaving(false)}}
+ const saveEnrollment=async e=>{
+  e.preventDefault()
+  const s=students.find(x=>x.id===ef.studentId),y=years.find(x=>x.id===ef.academicYearId),c=classes.find(x=>x.id===ef.classId),sec=sections.find(x=>x.id===ef.sectionId)
+  if(!s||!y||!c||!sec)return setError('Complete all enrollment fields.')
+  setSaving(true)
+  setError('')
+  try{
+   const enrollmentId=s.id+'__'+c.id+'__'+y.id
+   const legacyDuplicates=enrollments.filter(x=>x.studentId===s.id&&x.classId===c.id&&x.academicYearId===y.id&&x.id!==enrollmentId)
+   if(legacyDuplicates.length>498)throw new Error('Too many legacy duplicate enrollment records to update safely in one operation. Resolve the duplicates before retrying.')
+   const batch=writeBatch(db)
+   const existingEnrollment=enrollments.find(x=>x.id===enrollmentId)
+   batch.set(doc(db,'enrollments',enrollmentId),{studentId:s.id,studentUserId:s.userId||'',studentName:s.name,admissionNumber:s.admissionNumber,academicYearId:y.id,academicYearName:y.name,classId:c.id,className:c.name,sectionId:sec.id,sectionName:sec.name,status:ef.status,createdAt:existingEnrollment?.createdAt||serverTimestamp(),updatedAt:serverTimestamp()})
+   const studentCurrentlyInEnrollment=s.currentClassId===c.id&&s.currentAcademicYearId===y.id
+   if(ef.status==='Active'){
+    batch.update(doc(db,'students',s.id),{currentClassId:c.id,currentSectionId:sec.id,currentAcademicYearId:y.id,currentClassName:c.name,currentSectionName:sec.name,currentAcademicYearName:y.name,updatedAt:serverTimestamp()})
+   }else if(studentCurrentlyInEnrollment){
+    const replacement=enrollments.find(x=>x.studentId===s.id&&x.id!==enrollmentId&&x.status==='Active'&&!legacyDuplicates.some(duplicate=>duplicate.id===x.id))
+    if(replacement){
+     batch.update(doc(db,'students',s.id),{currentClassId:replacement.classId,currentSectionId:replacement.sectionId||'',currentAcademicYearId:replacement.academicYearId,currentClassName:replacement.className||'',currentSectionName:replacement.sectionName||'',currentAcademicYearName:replacement.academicYearName||'',updatedAt:serverTimestamp()})
+    }else{
+     batch.update(doc(db,'students',s.id),{currentClassId:deleteField(),currentSectionId:deleteField(),currentAcademicYearId:deleteField(),currentClassName:deleteField(),currentSectionName:deleteField(),currentAcademicYearName:deleteField(),updatedAt:serverTimestamp()})
+    }
+   }
+   legacyDuplicates.forEach(x=>batch.delete(doc(db,'enrollments',x.id)))
+   await batch.commit()
+   setEf(emptyEnrollment)
+   await load()
+  }catch(x){setError(x.message||'Unable to save the enrollment. No partial enrollment update was applied.')}
+  finally{setSaving(false)}
+ }
  const remove=async(x)=>{if(!confirm(`Delete ${x.name}?`))return;try{await deleteDoc(doc(db,'students',x.id));await load()}catch(e){setError(e.message)}}
- const removeEnrollment=async(x)=>{if(!confirm('Delete this enrollment?'))return;try{await deleteDoc(doc(db,'enrollments',x.id));await load()}catch(e){setError(e.message)}}
+ const removeEnrollment=async(x)=>{
+  if(!confirm('Delete this enrollment?'))return
+  setError('')
+  try{
+   const batch=writeBatch(db)
+   batch.delete(doc(db,'enrollments',x.id))
+   const student=students.find(item=>item.id===x.studentId)
+   const isCurrent=student&&student.currentClassId===x.classId&&student.currentAcademicYearId===x.academicYearId
+   if(isCurrent){
+    const replacement=enrollments.find(item=>item.studentId===x.studentId&&item.id!==x.id&&item.status==='Active')
+    if(replacement){
+     batch.update(doc(db,'students',student.id),{currentClassId:replacement.classId,currentSectionId:replacement.sectionId||'',currentAcademicYearId:replacement.academicYearId,currentClassName:replacement.className||'',currentSectionName:replacement.sectionName||'',currentAcademicYearName:replacement.academicYearName||'',updatedAt:serverTimestamp()})
+    }else{
+     batch.update(doc(db,'students',student.id),{currentClassId:deleteField(),currentSectionId:deleteField(),currentAcademicYearId:deleteField(),currentClassName:deleteField(),currentSectionName:deleteField(),currentAcademicYearName:deleteField(),updatedAt:serverTimestamp()})
+    }
+   }
+   await batch.commit()
+   await load()
+  }catch(e){setError(e.message||'Unable to delete the enrollment and update the student record atomically.')}
+ }
  return <main className="min-h-screen bg-slate-950 text-white"><Header onBack={onBack}/><section className="mx-auto max-w-7xl px-6 py-8">{error&&<div className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>}{loading?<Box>Loading students and enrollments...</Box>:<><div className="grid gap-6 lg:grid-cols-2"><Panel title={editing?'Edit Student':'Add Student'} icon={<UserRound/>}><form onSubmit={saveStudent} className="grid gap-3 sm:grid-cols-2"><Input label="Full name" value={sf.name} onChange={v=>setSf({...sf,name:v})} required/><Input label="Admission number" value={sf.admissionNumber} onChange={v=>setSf({...sf,admissionNumber:v})} required/><Input label="Email" type="email" value={sf.email} onChange={v=>setSf({...sf,email:v})}/><Input label="Phone" value={sf.phone} onChange={v=>setSf({...sf,phone:v})}/><Input label="Firebase Auth UID" value={sf.userId} onChange={v=>setSf({...sf,userId:v.trim()})}/><Select label="Gender" value={sf.gender} onChange={v=>setSf({...sf,gender:v})} options={['Male','Female','Other'].map(x=>({value:x,label:x}))}/><Input label="Date of birth" type="date" value={sf.dateOfBirth} onChange={v=>setSf({...sf,dateOfBirth:v})}/><Input label="Guardian name" value={sf.guardianName} onChange={v=>setSf({...sf,guardianName:v})}/><Select label="Status" value={sf.status} onChange={v=>setSf({...sf,status:v})} options={['Active','Inactive'].map(x=>({value:x,label:x}))}/><div className="sm:col-span-2 flex gap-2"><button disabled={saving} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950"><Plus size={16}/>{editing?'Update Student':'Add Student'}</button>{editing&&<button type="button" onClick={()=>{setEditing(null);setSf(emptyStudent)}} className="rounded-lg border border-slate-700 px-4">Cancel</button>}</div></form></Panel><Panel title="Create Enrollment" icon={<GraduationCap/>}><form onSubmit={saveEnrollment} className="space-y-3"><Select label="Student" value={ef.studentId} onChange={v=>setEf({...ef,studentId:v})} options={students.map(x=>({value:x.id,label:`${x.name} · ${x.admissionNumber}`}))}/><Select label="Academic year" value={ef.academicYearId} onChange={v=>setEf({...ef,academicYearId:v,classId:'',sectionId:''})} options={activeYears.map(x=>({value:x.id,label:x.name}))}/><Select label="Class" value={ef.classId} onChange={v=>setEf({...ef,classId:v,sectionId:''})} options={filteredClasses.map(x=>({value:x.id,label:`${x.name} · ${x.programName||''}`}))}/><Select label="Section" value={ef.sectionId} onChange={v=>setEf({...ef,sectionId:v})} options={filteredSections.map(x=>({value:x.id,label:`${x.name} · ${x.className||''}`}))}/><Select label="Enrollment status" value={ef.status} onChange={v=>setEf({...ef,status:v})} options={['Active','Completed','Withdrawn'].map(x=>({value:x,label:x}))}/><button disabled={saving} className="w-full rounded-lg bg-emerald-500 px-4 py-2.5 font-semibold text-slate-950">Create Enrollment</button></form></Panel></div><div className="mt-6 grid gap-6 lg:grid-cols-2"><Panel title={`Students (${students.length})`} icon={<UserRound/>}>{students.length?students.map(x=><Row key={x.id} title={x.name} sub={`${x.admissionNumber} · ${x.email||'No email'}`} edit={()=>{setEditing(x);setSf({...emptyStudent,...x})}} remove={()=>remove(x)}/>):<Empty/>}</Panel><Panel title={`Enrollments (${enrollments.length})`} icon={<GraduationCap/>}>{enrollments.length?enrollments.map(x=><Row key={x.id} title={x.studentName} sub={`${x.academicYearName} · ${x.className} · ${x.sectionName}`} remove={()=>removeEnrollment(x)}/>):<Empty/>}</Panel></div></>}</section></main>
 }
 function Header({onBack}){return <nav className="border-b border-slate-800 bg-slate-900/80 px-6 py-4"><div className="mx-auto flex max-w-7xl items-center justify-between"><div><h1 className="font-bold">Students & Enrollments</h1><p className="text-xs text-slate-500">Student profiles and academic-year enrollment</p></div><button onClick={onBack} className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm"><ArrowLeft size={16}/>Dashboard</button></div></nav>}

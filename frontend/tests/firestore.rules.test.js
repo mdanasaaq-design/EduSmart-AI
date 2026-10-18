@@ -29,6 +29,7 @@ beforeEach(async () => {
     await setDoc(doc(db, 'users', 'student-2'), { role: 'student', name: 'Other student' })
     await setDoc(doc(db, 'users', 'teacher-1'), { role: 'teacher', name: 'Teacher' })
     await setDoc(doc(db, 'teacherAssignments', 'teacher-1__subject-1__class-1'), { teacherUserId: 'teacher-1', subjectId: 'subject-1', classId: 'class-1' })
+    await setDoc(doc(db, 'teacherClassAccess', 'teacher-1__class-1'), { teacherUserId: 'teacher-1', teacherId: 'teacher-record-1', classId: 'class-1' })
     await setDoc(doc(db, 'enrollments', 'student-2__class-1__year-1'), { studentId: 'student-2', studentUserId: 'student-2', classId: 'class-1', academicYearId: 'year-1', status: 'Active' })
     await setDoc(doc(db, 'enrollments', 'student-2__class-2__year-1'), { studentId: 'student-2', studentUserId: 'student-2', classId: 'class-2', academicYearId: 'year-1', status: 'Active' })
     await setDoc(doc(db, 'marks', 'mark-student-1'), {
@@ -194,4 +195,33 @@ test('teacher record student identity must match the enrollment', async () => {
     subjectId: 'subject-1',
     score: 93,
   }))
+})
+
+test('teachers can update record values but cannot change the academic record scope', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+  const recordRef = doc(db, 'marks', 'mark-assigned')
+
+  await assertSucceeds(updateDoc(recordRef, { score: 89 }))
+  await assertFails(updateDoc(recordRef, { classId: 'class-2' }))
+  await assertFails(updateDoc(recordRef, { subjectId: 'subject-2' }))
+  await assertFails(updateDoc(recordRef, { studentId: 'student-1' }))
+  await assertFails(updateDoc(recordRef, { academicYearId: 'year-2' }))
+  await assertFails(updateDoc(recordRef, { studentUserId: 'student-1' }))
+})
+
+test('teachers cannot create or modify teacher class-access records', async () => {
+  const db = testEnv.authenticatedContext('teacher-1').firestore()
+
+  await assertFails(setDoc(doc(db, 'teacherClassAccess', 'teacher-1__class-2'), {
+    teacherUserId: 'teacher-1',
+    classId: 'class-2',
+  }))
+  await assertFails(updateDoc(doc(db, 'teacherClassAccess', 'teacher-1__class-1'), {
+    classId: 'class-2',
+  }))
+})
+
+test('an administrator cannot demote their own administrator profile', async () => {
+  const db = testEnv.authenticatedContext('admin-1').firestore()
+  await assertFails(updateDoc(doc(db, 'users', 'admin-1'), { role: 'student' }))
 })

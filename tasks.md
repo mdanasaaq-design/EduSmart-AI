@@ -64,6 +64,8 @@ Use:
 
 - [x] Fix source-level teacher query truncation: batch `in` queries in groups of 30 instead of silently dropping assignments after the first 30.
 - [x] Add boundary tests for 0, 30 and 65 IDs; verified in full CI run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
+- [~] Replace the guessed missed-assessment proxy with an explicit integer input (0–7) and a tested parser; CI verification pending.
+- [~] Make enrollment writes and current-student pointer changes atomic; reconcile current pointers when current enrollments become inactive or are deleted; CI verification pending.
 - [~] Institute structure and academic-record screens exist in source.
 - [ ] Create branch → program → academic year → class/section.
 - [ ] Create student and active enrollment.
@@ -78,6 +80,7 @@ Use:
 
 - [~] Firestore rules and emulator tests exist in source.
 - [x] Fix the test/rule policy mismatch without weakening rules; CI passes 18/18 emulator tests.
+- [~] Add tests for teacher academic-record identifier mutation, class-access writes and admin self-demotion; CI verification pending.
 - [ ] Test student role escalation and cross-student access denial.
 - [ ] Test teacher access against assignment and enrollment.
 - [ ] Test withdrawn/mismatched enrollment denial.

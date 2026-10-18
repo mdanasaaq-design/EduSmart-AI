@@ -66,6 +66,8 @@ Manual Console provisioning is an operational workaround for a demonstration, no
 | DATA-09 | Attempt record for missing/withdrawn enrollment | Teacher write is denied | Source test exists; current suite status FAIL |
 | DATA-10 | Open analytics after records are saved | Counts and risk distribution reflect saved data | NOT RUN |
 | DATA-11 | Batch teacher queries across more than 30 assigned class IDs | No class IDs are silently omitted and no duplicate records appear | PASS: 4 chunking tests in CI run 39117547050; live Firestore role workflow still NOT RUN |
+| DATA-12 | Supply missed-assessment feature | Prediction requires an explicit integer count from 0 through 7; no guessed proxy is used | CI pending |
+| DATA-13 | Change/delete enrollment | Enrollment and current-student pointers update atomically; inactive/deleted current enrollment is reconciled | Source review; live/manual test NOT RUN |
 
 ## E. Firestore authorization matrix
 
@@ -88,6 +90,9 @@ Required adversarial cases:
 - [ ] Teacher reads/writes a record for a student not enrolled in the assigned class/year.
 - [ ] Teacher reads/writes a record for a withdrawn enrollment.
 - [ ] Teacher changes class/subject/student identifiers during an update.
+- [ ] Teacher can update an allowed academic value but cannot mutate its class, subject, student, year or linked user identity.
+- [ ] Teacher cannot create or modify `teacherClassAccess` records.
+- [ ] Administrator cannot demote their own administrator profile through the client.
 - [ ] Unauthenticated client attempts any academic-record access.
 - [ ] A normal user tries to create or modify teacher assignment/access documents.
 

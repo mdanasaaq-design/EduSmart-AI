@@ -119,6 +119,9 @@ Do not enable Blaze, attach billing, weaken rules, add public role assignment, o
 6. Generate and persist prediction and rule-based recommendation.
 7. Reload each page and confirm records persist.
 8. Open analytics and confirm counts/risk distribution reflect saved records.
+9. Replace the inferred missed-assessment proxy with explicit, validated model input; keep the accepted domain aligned with training data (integer 0–7).
+10. Make enrollment changes atomic and reconcile the student's current class/year pointers when an enrollment is inactivated or deleted.
+11. Add deterministic tests for missed-assessment parsing and security tests for immutable academic-record scope and admin/teacher role boundaries. **Implementation committed; CI result pending.**
 
 ### Exit gate
 The full admin-to-teacher academic-record flow works in a browser against the intended Firebase project and the data remains after refresh.

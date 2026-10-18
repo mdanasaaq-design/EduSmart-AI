@@ -65,6 +65,7 @@ Academic relationship: Student → Enrollment → Academic Year / Class / Sectio
 ## Machine-learning status and limitations
 
 - Features: attendance, average marks, recent trend, missed assessments.
+- The academic-record screen requires an explicit missed-assessment count from 0 through 7, matching the synthetic training domain; it no longer guesses this value from the number of marks records.
 - Output labels: Low, Medium, High.
 - Recommendations are rule-based.
 - Dataset and labels are synthetic/formula-generated.

@@ -75,6 +75,22 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Plan:** Test one assigned teacher/class/subject with an active enrollment; test out-of-scope and withdrawn enrollment cases; verify create/update/read behavior.
 - **Acceptance:** Assigned teacher reads/writes permitted records only; unrelated classes and students are denied; records persist after reload.
 
+### BUG-015 — Missed-assessment feature was guessed from marks-record count
+- **Status:** Fix implemented; CI verification pending
+- **Area:** `frontend/src/pages/AcademicRecords.jsx`, prediction feature contract
+- **Evidence:** The UI previously derived `missedAssessments` as `max(0, 5 - studentMarks.length)`. This is not the number of missed assessments and silently treated the number of saved marks as a proxy.
+- **Impact:** The prediction could use a fabricated feature value that was not supplied by the teacher/admin and did not represent the stated model input.
+- **Change:** Require an explicit whole-number count in the model's synthetic training domain (0–7); reject blank, fractional and out-of-range input instead of guessing.
+- **Acceptance:** The prediction remains unavailable until attendance, marks and a valid missed-assessment count are present; helper tests cover empty, boundary and invalid values.
+
+### BUG-016 — Enrollment and current-student pointers could be partially updated
+- **Status:** Fix implemented; CI verification pending
+- **Area:** `frontend/src/pages/admin/StudentsEnrollments.jsx`
+- **Evidence:** Enrollment creation wrote the enrollment document, then updated the student record, then deleted legacy duplicates as separate requests. Failure midway could leave inconsistent state. Deleting an enrollment also did not reconcile the student's current class/year references.
+- **Impact:** UI records could disagree about the student's current enrollment, and an error could appear after only part of the operation succeeded.
+- **Change:** Save enrollment and current-student pointer changes together in a Firestore write batch, preserve an existing enrollment's creation timestamp, and reconcile current pointers atomically when an enrollment is made inactive or deleted.
+- **Acceptance:** The batch contains the enrollment change, any current-pointer update and legacy duplicate cleanup; no partial write occurs if the batch fails. Browser/manual integration verification remains required.
+
 ## P2 — Robustness and user experience
 
 ### BUG-009 — Institution setup error text assumes a Blaze deployment
