@@ -98,6 +98,14 @@ Statuses: **Confirmed** = supported directly by current source or run metadata; 
 - **Change:** The preview now says `ILLUSTRATIVE PREVIEW`.
 - **Acceptance:** Static preview values are explicitly framed as illustrative, not as real Firebase data.
 
+### BUG-018 — Student deletion could orphan enrollment history or Auth accounts
+- **Status:** Fix implemented; CI verification pending
+- **Area:** `frontend/src/pages/admin/StudentsEnrollments.jsx`
+- **Evidence:** The Delete Student action removed only the Firestore student document. It did not delete or reconcile enrollment history and could leave a Firebase Authentication account without its expected student record.
+- **Impact:** Orphaned enrollment references and a login that can no longer resolve its linked student profile.
+- **Change:** Block deletion when enrollment history exists or a Firebase Auth UID is linked; keep the record and use the Inactive status or approved cleanup process instead.
+- **Acceptance:** Pure policy tests cover enrolled, Auth-linked, unlinked and missing student cases; deletion is allowed only when no linked account or enrollment history exists.
+
 ## P2 — Robustness and user experience
 
 ### BUG-009 — Institution setup error text assumes a Blaze deployment

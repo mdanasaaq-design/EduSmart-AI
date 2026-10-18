@@ -68,6 +68,7 @@ Manual Console provisioning is an operational workaround for a demonstration, no
 | DATA-11 | Batch teacher queries across more than 30 assigned class IDs | No class IDs are silently omitted and no duplicate records appear | PASS: 4 chunking tests in CI run 39117547050; live Firestore role workflow still NOT RUN |
 | DATA-12 | Supply missed-assessment feature | Prediction requires an explicit integer count from 0 through 7; no guessed proxy is used | PASS: 3 parser tests; all 10 browser/helper tests passed in CI run 39118541428 |
 | DATA-13 | Change/delete enrollment | Enrollment and current-student pointers update atomically; inactive/deleted current enrollment is reconciled | Source review and build pass; live/manual workflow NOT RUN |
+| DATA-14 | Delete student with linked data | Deletion is blocked for enrollment history or a linked Auth UID; no academic/Auth references are orphaned | CI pending |
 
 ## E. Firestore authorization matrix
 

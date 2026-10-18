@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Edit3, GraduationCap, Plus, Trash2, UserRound } from 'lucide-react'
 import { addDoc, collection, deleteDoc, deleteField, doc, getDocs, orderBy, query, serverTimestamp, updateDoc, writeBatch } from 'firebase/firestore'
 import { db } from '../../firebase'
+import { getStudentDeletionBlockReason } from '../../utils/studentDeletionPolicy'
 
 const emptyStudent={name:'',admissionNumber:'',email:'',phone:'',userId:'',gender:'',dateOfBirth:'',guardianName:'',status:'Active'}
 const emptyEnrollment={studentId:'',academicYearId:'',classId:'',sectionId:'',status:'Active'}
@@ -46,7 +47,13 @@ export default function StudentsEnrollments({onBack}){
   }catch(x){setError(x.message||'Unable to save the enrollment. No partial enrollment update was applied.')}
   finally{setSaving(false)}
  }
- const remove=async(x)=>{if(!confirm(`Delete ${x.name}?`))return;try{await deleteDoc(doc(db,'students',x.id));await load()}catch(e){setError(e.message)}}
+ const remove=async(x)=>{
+  const blockReason=getStudentDeletionBlockReason(x,enrollments)
+  if(blockReason){setError(blockReason);return}
+  if(!confirm(`Delete ${x.name}?`))return
+  setError('')
+  try{await deleteDoc(doc(db,'students',x.id));await load()}catch(e){setError(e.message||'Unable to delete the student record.')}
+ }
  const removeEnrollment=async(x)=>{
   if(!confirm('Delete this enrollment?'))return
   setError('')
