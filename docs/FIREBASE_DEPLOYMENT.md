@@ -1,30 +1,44 @@
 # Firebase Deployment and Verification
 
-This repository hosts the Vite single-page application from `frontend/dist`. Firebase Hosting rewrites client routes to `/index.html`. Hosting, Cloud Functions, and Firestore rules are separate deployment targets; deploying one does not publish the others.
+This repository hosts the Vite single-page application from `frontend/dist`. Firebase Hosting rewrites client routes to `/index.html`. Hosting, Cloud Functions, Firestore rules and Firestore indexes are separate deployment targets; deploying one does not publish the others.
 
 ## Target project
 
-The current demonstration project is `edusmart-ai-c4692`, with Hosting URL [https://edusmart-ai-c4692.web.app](https://edusmart-ai-c4692.web.app). Confirm this is the intended project before deploying.
+- Firebase project: `edusmart-ai-c4692`
+- Hosting URL: [https://edusmart-ai-c4692.web.app](https://edusmart-ai-c4692.web.app)
+- Functions region in source: `us-central1`
+- Functions runtime in source: Node.js 22
 
-## Prerequisites
+Confirm the intended project before any authorized deployment.
 
-- Node.js/npm supported by the repository's Vite version
-- Firebase CLI installed and authenticated
-- Access to the Firebase project
-- Correct frontend Firebase Web App configuration
-- Billing/plan and IAM permissions required by the configured Cloud Functions
+## Binding billing constraint
 
-## One-time Firebase setup
+The project owner does **not** want to upgrade Firebase to Blaze. Do not recommend enabling billing as the default way to finish the project.
 
-1. In Firebase Console, select the target project and register a Web App.
-2. Enable Email/Password under Authentication → Sign-in method.
-3. Create Firestore and review `firebase/firestore.rules` before publishing.
-4. Add the Hosting domains to Authentication → Settings → Authorized domains if required.
-5. Ensure the Cloud Functions required by the account workflow are deployed to the expected region (`us-central1`). Functions are configured for the Node.js 22 runtime.
+The source contains callable Functions for first-admin setup, admin-profile recovery and managed-user provisioning. These workflows must not be described as available unless the required Functions are already deployed and callable. The current plan has previously blocked Functions deployment.
+
+For the immediate no-billing demo:
+1. Use the existing manually provisioned administrator account.
+2. If teacher/student demo accounts are required, create the Auth accounts and matching Firestore profiles manually in Firebase Console.
+3. Ensure profile document IDs match Auth UIDs and role values are correct.
+4. Link the teacher/student profile documents to the relevant academic records.
+5. Keep Firestore rules restrictive; do not enable public role assignment or self-promotion.
+6. Label this procedure as **manual demo provisioning**, not verified automated onboarding.
+
+Do not attach billing, deploy Functions, or change the Firebase plan as part of a documentation or implementation phase unless the owner explicitly changes this constraint.
+
+## Prerequisites for the frontend
+
+- Supported Node.js/npm version for the repository's Vite version.
+- Firebase CLI installed and authenticated if deploying.
+- Correct Firebase Web App configuration.
+- Email/Password Authentication enabled.
+- Firestore created and rules reviewed.
+- Hosting domains configured as authorized domains where required.
 
 ## Frontend environment
 
-Create `frontend/.env.local` locally with the six values below, copied exactly from the registered Firebase Web App:
+Create `frontend/.env.local` locally with the six values copied exactly from the registered Firebase Web App:
 
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
@@ -33,50 +47,85 @@ Create `frontend/.env.local` locally with the six values below, copied exactly f
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
 
-Do not commit `.env.local`, service-account JSON, or private credentials. Firebase web configuration is client-visible; authorization must be enforced by Firestore rules and trusted server-side code.
+Do not commit `.env.local`, service-account JSON or private credentials. Firebase web configuration is client-visible; authorization must be enforced by Firestore rules and trusted server-side code.
 
-## Local build and Hosting deployment
+## Synchronize and verify before building
 
 From the repository root in PowerShell:
+
+```powershell
+git status --short
+git log -1 --oneline
+```
+
+Inspect any local changes before pulling. Preserve local work; do not use destructive reset/clean commands to resolve conflicts. Synchronize the intended source only after the local diff is understood.
+
+Then:
 
 ```powershell
 cd frontend
 npm ci
 npm run lint
 npm run build
+```
+
+The latest recorded CI run for the audited code baseline failed in Firestore Emulator tests, and lint/build were skipped. Do not treat these commands as currently passing until they have been run successfully on the intended source revision.
+
+## Hosting deployment (only when explicitly authorized)
+
+After confirming source parity, build output, Firebase target and authorization:
+
+```powershell
 cd ..
 firebase use edusmart-ai-c4692
 firebase deploy --only hosting --project edusmart-ai-c4692
 ```
 
-**Important:** Build only after the intended source commit is present locally. A successful build/deploy of an older local checkout does not publish newer GitHub changes. Verify `git log -1 --oneline` and confirm the expected source (including the landing-page actions) before building.
+A Hosting success message does not prove that the latest intended source was built unless the commit was checked first. It also does not publish Functions, Firestore rules or indexes.
 
-## Deploy functions and rules when required
+## Firestore rules and indexes
 
-Review the code, rules, and index definitions first, then deploy explicitly:
+The repository defines:
+- Rules: `firebase/firestore.rules`
+- Indexes: `firebase/firestore.indexes.json`
 
-```powershell
-firebase deploy --only functions --project edusmart-ai-c4692
-firebase deploy --only firestore:rules,firestore:indexes --project edusmart-ai-c4692
-```
+Review the exact diff and test it in the emulator before any live publication. If a rules/index deployment is separately approved, target only the intended project and record the outcome. Do not weaken rules to make a UI workflow pass.
 
-Functions deployment can require additional project billing and IAM configuration. Do not assume it succeeded merely because Hosting deployment succeeded. If the deployment fails, retain the complete error output for diagnosis.
+## Cloud Functions
+
+The source lives under `functions/` and is configured for Node.js 22. The callables are part of the intended automated onboarding and account-management design. Under the current no-Blaze constraint, treat their deployment as **blocked/not assumed available**. Do not attempt to deploy them or enable billing as part of the default roadmap.
+
+If the owner changes the constraint in the future, revisit Functions deployment prerequisites and IAM/billing requirements as a separate explicit decision.
 
 ## GitHub Actions
 
-If using the repository workflow, configure the required frontend `VITE_FIREBASE_*` secrets and the deployment identity secret described in the workflow. Grant the service account only the permissions required for deployment. Never commit or share its JSON key. A successful workflow verifies only the steps that ran; inspect its log to confirm which targets were deployed.
+The frontend CI workflow runs Firestore Emulator authorization tests before ESLint and production build. The latest recorded run failed at the authorization test step, so the later checks were skipped. Fix the test/policy mismatch, then verify all three stages pass.
 
-## Post-deployment acceptance checklist
+The manual Hosting workflow requires repository secrets and a deployment identity. Do not add, print or commit credentials during this documentation task. Historical deployment workflow failures do not prove current deployment status.
 
+## Post-deployment acceptance
+
+- [ ] Source commit and built revision are recorded.
+- [ ] Correct Firebase project is selected.
 - [ ] Landing page loads at the intended Hosting URL.
-- [ ] Top-right actions appear in order: **Create Admin**, **Sign In**.
-- [ ] Hard refresh/incognito still shows the updated page.
-- [ ] Create Admin form submits and the callable returns success for first-time setup.
-- [ ] Administrator is authenticated and a matching `users/{uid}` profile exists.
-- [ ] Sign In works for the administrator.
-- [ ] Admin can provision teacher and student accounts.
-- [ ] Managed accounts can complete password setup and sign in.
-- [ ] Role-based data access matches Firestore rules.
-- [ ] Core academic workflow is tested end-to-end.
+- [ ] Create Admin and Sign In navigation appear and behave as intended.
+- [ ] Current Firebase Web App configuration is correct.
+- [ ] Admin sign-in works and `users/{uid}` matches the authenticated UID.
+- [ ] Teacher/student demo profiles are linked to the correct Auth UIDs.
+- [ ] Academic structure, enrollment and teacher assignment are valid.
+- [ ] Attendance/marks persist.
+- [ ] Prediction and recommendation persist with correct class-label mapping.
+- [ ] Analytics reflects saved data.
+- [ ] Student and teacher access boundaries are verified.
+- [ ] Rules and indexes deployment state is recorded separately.
+- [ ] Functions-based onboarding is marked blocked unless it was actually deployed and tested.
 
-Deleting a Firestore user profile does not delete its Firebase Authentication account. If the original admin still has the server-issued `role=admin` and `institutionId=primary` claims, the updated sign-in flow calls `restoreAdminProfile` to safely recreate only that same UID's missing admin profile. If the institution document was also deleted, the function creates a placeholder institution record for the admin to review. This recovery requires the function to be deployed. Avoid clearing collections to troubleshoot account conflicts; inspect Authentication and Firestore state separately.
+## Troubleshooting discipline
+
+- Capture the exact error and identify the failing step.
+- Check the signed-in UID and `users/{uid}` profile.
+- Check linked student/teacher profile and enrollment IDs.
+- Check the selected Firebase project and Web App config.
+- Check Hosting, Functions, rules and indexes separately.
+- Do not delete collections to troubleshoot account conflicts; deleting Firestore profiles does not delete Auth users.
+- If a workflow cannot be verified under the current plan, state that limitation and demonstrate only the tested path.
