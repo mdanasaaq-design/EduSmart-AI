@@ -1,56 +1,74 @@
 # EduSmart AI — Synthetic Holdout Evaluation
 
-**Historical experiment date:** 2026-10-16  
-**Training script:** `ml/train_model.py`  
+**Evaluation date:** 2026-10-18  
+**Training/evaluation script:** `ml/train_model.py`  
 **Dataset:** 1,200 synthetic records generated with seed 42  
-**Documented split:** 80% training (960 records), 20% test (240 records), stratified; `random_state=42`  
-**Documented configuration:** `RandomForestClassifier`, 40 trees, `max_depth=6`, `min_samples_leaf=4`, `random_state=42`
+**Split:** 80% training (960 records), 20% holdout (240 records), stratified; `random_state=42`  
+**Model:** `RandomForestClassifier`, 40 trees, `max_depth=6`, `min_samples_leaf=4`, `random_state=42`  
+**Pinned Python dependencies:** NumPy 2.3.5, scikit-learn 1.8.0  
+**Browser artifact:** the same 40 exported trees are stored in `ml/model.json` and `frontend/public/model.json`.
 
-> **AUDIT NOTE (2026-10-18):** Source review indicates numeric label semantics are consistent with the `Low, Medium, High` metadata order: poor-performance scores map to class index 2 / High risk, midrange scores to index 1 / Medium, and strong-performance scores to index 0 / Low risk. The earlier audit's reversed-label claim was incorrect. Deterministic regression tests are still required. The checked-in browser artifact contains 5 trees, while the training script and this document specify 40; therefore the historical 86.25% metric must not be presented as verified performance of the current shipped browser artifact until the exact artifact is regenerated and reevaluated.
+## Important interpretation
 
-This document preserves the previously recorded experiment results for audit traceability. The audit itself did not rerun training, tests or evaluation.
+The class mapping is internally consistent: numeric class 0 = Low risk (stronger performance indicators), class 1 = Medium risk, and class 2 = High risk (poorer performance indicators). Deterministic tests verify this mapping and the browser's class-index interpretation.
 
-## Previously recorded results — historical, pending revalidation
+The training script now reports two distinct metrics:
+1. **scikit-learn baseline accuracy** uses `RandomForestClassifier.predict()`, which averages per-tree class probabilities.
+2. **Browser-vote accuracy** uses the frontend's actual inference contract: each exported tree votes for a class, and the most-voted class wins. The frontend uses this second method.
 
-| Metric | Recorded Low label* | Recorded Medium label | Recorded High label* | Macro average | Weighted average |
+These values differ slightly because the browser uses majority voting over each tree's predicted class, not scikit-learn's probability-averaging `predict()` method. The browser-vote result is therefore the more relevant metric for the shipped frontend artifact.
+
+## Results from the pinned 40-tree run
+
+### scikit-learn probability-averaging baseline
+
+**Accuracy: 86.25% (207/240).**
+
+| Metric | Low | Medium | High | Macro average | Weighted average |
 |---|---:|---:|---:|---:|---:|
 | Precision | 0.88 | 0.69 | 0.94 | 0.84 | 0.87 |
 | Recall | 0.82 | 0.75 | 0.93 | 0.83 | 0.86 |
 | F1-score | 0.85 | 0.72 | 0.94 | 0.83 | 0.86 |
 | Test support | 61 | 56 | 123 | 240 | 240 |
 
-**Previously recorded overall test accuracy: 86.25% (207/240).**
+Confusion matrix (rows = actual, columns = predicted; order Low, Medium, High):
 
-The class-specific labels above follow the source's documented numeric order 0 = Low risk, 1 = Medium risk, 2 = High risk; regenerate the report to verify the recorded values. The overall accuracy is historical and must not be attributed to the currently shipped 5-tree browser artifact without reevaluation.
-
-### Previously recorded confusion matrix — numeric order documented
-
-By the current source mapping, numeric class 0 corresponds to Low risk, class 1 to Medium risk, and class 2 to High risk. The matrix is preserved for traceability, but its values must be regenerated from the exact artifact before reuse in the report.
-
-| Recorded actual / predicted label | Index 0 | Index 1 | Index 2 |
+| Actual / predicted | Low | Medium | High |
 |---|---:|---:|---:|
-| Numeric class 0 | 50 | 11 | 0 |
-| Numeric class 1 | 7 | 42 | 7 |
-| Numeric class 2 | 0 | 8 | 115 |
+| Low | 50 | 11 | 0 |
+| Medium | 7 | 42 | 7 |
+| High | 0 | 8 | 115 |
 
-Numeric rows correspond to Low/Medium/High risk respectively by source inspection; regenerate the matrix after artifact reconciliation.
+### Browser per-tree majority-vote inference
 
-## Required revalidation procedure
+**Accuracy: 87.08% (209/240).**
 
-1. Keep the existing mapping: class 0 = Low risk, class 1 = Medium risk, class 2 = High risk.
-2. Add deterministic tests for known low-, medium- and high-risk feature vectors.
-3. Verify synthetic label generation, training metadata, tree export and browser inference use the same mapping.
-4. Compare Python predictions with frontend/browser predictions for the same fixed inputs.
-5. Regenerate the model artifact from the approved training script.
-6. Confirm `ml/model.json` and `frontend/public/model.json` are identical and that the tree count matches the documented configuration.
-7. Re-run the holdout evaluation and capture actual output, including class ordering, per-class precision/recall/F1, confusion matrix and overall accuracy.
-8. Update this document only from that output, with the exact artifact/configuration identified.
+| Metric | Low | Medium | High | Macro average | Weighted average |
+|---|---:|---:|---:|---:|---:|
+| Precision | 0.91 | 0.70 | 0.94 | 0.85 | 0.88 |
+| Recall | 0.82 | 0.79 | 0.93 | 0.85 | 0.87 |
+| F1-score | 0.86 | 0.74 | 0.94 | 0.85 | 0.87 |
+| Test support | 61 | 56 | 123 | 240 | 240 |
 
-## Interpretation and limitations
+Confusion matrix (rows = actual, columns = predicted; order Low, Medium, High):
 
-The synthetic labels are generated by a hand-written formula using attendance, average marks, recent trend and missed assessments. Even after the mapping and artifact discrepancies are corrected, a holdout score on these formula-generated labels measures how well the model learns that synthetic labeling rule. It does **not** establish real-world academic-risk accuracy, fairness, calibration or usefulness.
+| Actual / predicted | Low | Medium | High |
+|---|---:|---:|---:|
+| Low | 50 | 11 | 0 |
+| Medium | 5 | 44 | 7 |
+| High | 0 | 8 | 115 |
 
-The frontend's tree-vote fraction for the selected class is not a calibrated probability. Predictions are demonstrative indicators and must not be used as the sole basis for decisions about students.
+## Artifact and inference verification
+
+- Both model artifacts contain 40 trees and are byte-identical.
+- The training script regenerates both artifacts deterministically using the pinned dependency versions.
+- Python tests verify risk-score thresholds, numeric label indices, deterministic synthetic data, tree-export parity, artifact equality and browser-vote holdout accuracy.
+- Browser tests verify the shipped artifact's class order, fixed feature-vector outputs, vote shares and rejection of invalid class indices.
+- The GitHub Actions workflow runs the model regeneration/diff check, Python tests, Firestore authorization tests, browser inference tests, ESLint and production build.
+
+The accuracy values above measure agreement with formula-generated synthetic labels. They do **not** establish real-world student-risk accuracy, fairness, calibration or usefulness. The dataset's labels are generated from a hand-written formula using attendance, average marks, recent trend and missed assessments.
+
+The frontend's tree-vote share for the selected class is **not a calibrated probability**. Predictions are demonstrative indicators and must not be the sole basis for decisions about students.
 
 ## Requirements for future research evaluation
 
