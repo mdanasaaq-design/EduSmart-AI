@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
-import { ArrowUpRight, Brain, Building2, CalendarDays, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, Users } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Users } from 'lucide-react'
 import { db } from '../firebase'
 import Brand from '../components/Brand'
 
@@ -13,18 +13,10 @@ const modules = [
   { title: 'Teachers', description: 'Maintain teacher profiles and details.', icon: Users, page: 'teachers', category: 'PEOPLE' },
   { title: 'Subjects', description: 'Keep subjects and course codes organized.', icon: School, page: 'subjects', category: 'ACADEMICS' },
   { title: 'Teacher Assignments', description: 'Connect teachers with classes and subjects.', icon: Link2, page: 'assignments', category: 'PEOPLE' },
-  { title: 'User Access & Roles', description: 'Create teacher/student accounts and manage their workspace access.', icon: ShieldCheckIcon, page: 'user-access', category: 'PEOPLE' },
+  { title: 'User Access & Roles', description: 'Create teacher/student accounts and manage their workspace access.', icon: ShieldCheck, page: 'user-access', category: 'PEOPLE' },
   { title: 'Attendance & Marks', description: 'Record performance and generate risk insights.', icon: ClipboardCheck, page: 'records', category: 'INSIGHTS' },
-  { title: 'Analytics', description: 'Explore institute metrics and risk patterns.', icon: BarChartIcon, page: 'analytics', category: 'INSIGHTS' },
+  { title: 'Analytics', description: 'Explore institute metrics and risk patterns.', icon: BarChart3, page: 'analytics', category: 'INSIGHTS' },
 ]
-
-function ShieldCheckIcon(props) {
-  return <Users {...props} />
-}
-
-function BarChartIcon(props) {
-  return <ArrowUpRight {...props} />
-}
 
 export default function Dashboard({ user, onLogout, onNavigate }) {
   const role = user?.role || 'user'
