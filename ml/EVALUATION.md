@@ -68,7 +68,7 @@ Confusion matrix (rows = actual, columns = predicted; order Low, Medium, High):
 
 The accuracy values above measure agreement with formula-generated synthetic labels. They do **not** establish real-world student-risk accuracy, fairness, calibration or usefulness. The dataset's labels are generated from a hand-written formula using attendance, average marks, recent trend and missed assessments.
 
-The frontend's tree-vote share for the selected class is **not a calibrated probability**. Predictions are demonstrative indicators and must not be the sole basis for decisions about students.
+The frontend's tree-vote share for the selected class is **not a calibrated probability**. It is a rounded fraction of tree votes; the implementation calculates the integer percentage from `voteCount * 100 / treeCount` to avoid floating-point under-rounding at exact half values. Predictions are demonstrative indicators and must not be the sole basis for decisions about students.
 
 ## Requirements for future research evaluation
 
