@@ -12,7 +12,7 @@ Use this checklist before presenting. A page rendering alone is not proof that a
 - [ ] Confirm the production build passes.
 - [ ] Record the exact commit tested.
 
-**Current status:** CI run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953) passed Firestore authorization tests (18/18), ESLint and production build on commit `1b453d5`. Source review indicates class-label semantics are internally consistent, but deterministic ML tests and the 5-tree versus 40-tree artifact reconciliation remain open.
+**Current status:** Full CI run [39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998) passed 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. Both shipped model files now contain 40 trees and are reproducible from the pinned training script. Manual Firebase Console setup and live role workflows still need verification.
 
 ## 2. Firebase prerequisites — no-billing path
 
@@ -61,7 +61,7 @@ Manual Console account provisioning is a demo workaround, not proof that automat
 - [ ] Open Analytics and verify the saved prediction count/risk distribution.
 - [ ] Explain that training data/labels are synthetic and tree-vote share is not a calibrated probability.
 
-**Do not present the current 86.25% metric as verified performance of the shipped browser model until the 5-tree versus 40-tree artifact mismatch is resolved and the exact artifact is reevaluated.**
+**For accurate reporting, distinguish the 86.25% scikit-learn baseline from the 87.08% browser majority-vote result. Both are measured against synthetic, formula-generated labels and are not real-world validation.**
 
 ## 6. Teacher and student workflows
 
