@@ -30,7 +30,7 @@ Use:
 - [ ] Synchronize to intended `origin/main` without destructive reset/clean commands.
 - [x] Original CI failure captured: self-registration test failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`.
 - [x] Reconcile self-registration test with administrator-managed account policy; admin-create test now targets a new UID.
-- [x] Full CI passed: 18 Firestore tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build, including vote-share rounding regression (run [39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846)).
+- [x] Full CI passed: 18 Firestore tests, 4 Python ML tests, 7 browser/helper tests, ESLint and production build, including vote-share rounding and class-query batching (run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050)).
 - [ ] Inspect local `git status --short`, current commit and `frontend/src/services/authService.js` diff; preserve and synchronize local work safely.
 
 ## Phase 2 — Firebase free-plan-safe demo readiness (P0)
@@ -63,7 +63,7 @@ Use:
 ## Phase 4 — Academic workflow integration (P1)
 
 - [x] Fix source-level teacher query truncation: batch `in` queries in groups of 30 instead of silently dropping assignments after the first 30.
-- [x] Add boundary tests for 0, 30 and 65 IDs; local Node tests pass. Full CI verification pending.
+- [x] Add boundary tests for 0, 30 and 65 IDs; verified in full CI run [39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
 - [~] Institute structure and academic-record screens exist in source.
 - [ ] Create branch → program → academic year → class/section.
 - [ ] Create student and active enrollment.
