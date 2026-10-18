@@ -323,7 +323,7 @@ main.min-h-screen.bg-slate-950 table td { color: var(--forest); }
 main.min-h-screen.bg-slate-950 table td.text-slate-400 { color: var(--muted) !important; }
 main.min-h-screen.bg-slate-950 .text-red-300 { color: #9C3E31 !important; }
 main.min-h-screen.bg-slate-950 .text-amber-300 { color: #805A13 !important; }
-main.min-h-screen.bg-slate-950 .hover\\:text-red-400:hover { color: #9C3E31 !important; }
+main.min-h-screen.bg-slate-950 .hover\:text-red-400:hover { color: #9C3E31 !important; }
 
 
 /* Role-based dashboards */
