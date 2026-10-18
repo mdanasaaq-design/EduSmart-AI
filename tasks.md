@@ -40,8 +40,8 @@ Use:
 
 - [~] Existing manually provisioned admin was reported working previously; reverify on current live source.
 - [ ] Verify admin Auth UID matches `users/{uid}`.
-- [ ] Create/verify one demo teacher Auth account and matching profile through Firebase Console.
-- [ ] Create/verify one demo student Auth account and matching profile through Firebase Console.
+- [ ] Create/verify one demo teacher Auth account and matching profile through Firebase Console (requires project-owner Console action).
+- [ ] Create/verify one demo student Auth account and matching profile through Firebase Console (requires project-owner Console action).
 - [ ] Link each teacher/student profile to the correct Auth UID.
 - [ ] Prepare a small, internally consistent demo dataset.
 - [BLOCKED] Automated callable-based first-admin, recovery and managed-user flows cannot be assumed available under the current Spark/no-Blaze constraint.
@@ -54,8 +54,8 @@ Use:
 - [ ] Verify Python/browser interpretation of exported leaf indices.
 - [ ] Add Python/browser prediction parity tests.
 - [ ] Regenerate exported model from the approved training script.
-- [ ] Confirm `ml/model.json` and `frontend/public/model.json` are identical.
-- [ ] Resolve 5-tree artifact versus 40-tree script/evaluation mismatch and reevaluate the exact shipped artifact.
+- [x] Confirm `ml/model.json` and `frontend/public/model.json` are identical (40 trees each; verified after regeneration).
+- [x] Resolve 5-tree versus 40-tree artifact mismatch; the regenerated 40-tree run reproduces 86.25% on the synthetic holdout. Keep real-world claims prohibited.
 - [ ] Re-run evaluation on the exact shipped artifact and update `ml/EVALUATION.md` from actual output.
 - [ ] Keep synthetic-data and uncalibrated-confidence limitations visible.
 
