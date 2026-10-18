@@ -114,7 +114,7 @@ The manual Hosting workflow requires repository secrets and a deployment identit
 - [ ] Teacher/student demo profiles are linked to the correct Auth UIDs.
 - [ ] Academic structure, enrollment and teacher assignment are valid.
 - [ ] Attendance/marks persist.
-- [ ] Prediction and recommendation persist with correct class-label mapping.
+- [ ] Prediction and recommendation persist with correct class-label mapping and the current 40-tree artifact.
 - [ ] Analytics reflects saved data.
 - [ ] Student and teacher access boundaries are verified.
 - [ ] Rules and indexes deployment state is recorded separately.
