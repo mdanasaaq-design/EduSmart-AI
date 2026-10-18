@@ -121,7 +121,7 @@ def train_and_export(root=None):
         output_path.write_text(serialized, encoding="utf-8")
         print(f"Wrote {output_path}")
 
-    return model, artifact, x_test, y_test, predicted
+    return model, artifact, x_test, y_test, sklearn_predictions
 
 
 if __name__ == "__main__":
