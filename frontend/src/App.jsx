@@ -30,13 +30,13 @@ function PageBoundary({ children }) {
 function App() {
   const [page, setPage] = useState('home')
   const [user, setUser] = useState(null)
-  const [authReady, setAuthReady] = useState(() => !hasSessionHint())
+  const [authReady, setAuthReady] = useState(() => !firebaseConfigReady || !hasSessionHint())
   const [sessionNotice, setSessionNotice] = useState('')
   const login = (nextUser) => { setUser(nextUser); setPage('dashboard'); setSessionHint(true); setSessionNotice(''); setAuthReady(true) }
   const logout = async () => { const { logoutUser } = await import('./services/authService'); await logoutUser(); setSessionHint(false); setUser(null); setPage('home'); setSessionNotice('') }
 
   useEffect(() => {
-    if (!firebaseConfigReady || !hasSessionHint()) { setAuthReady(true); return undefined }
+    if (!firebaseConfigReady || !hasSessionHint()) return undefined
     let cancelled = false
     let unsubscribe
     import('./services/authService').then(({ subscribeToAuthState }) => {
@@ -48,7 +48,8 @@ function App() {
           setUser(nextUser)
           setPage(nextUser ? 'dashboard' : 'home')
           setSessionHint(Boolean(nextUser))
-          setSessionNotice(!nextUser && hadSessionHint ? 'Your previous session could not be restored. Please sign in again.' : '')
+          if (nextUser) setSessionNotice('')
+          else if (hadSessionHint) setSessionNotice('Your previous session could not be restored. Please sign in again.')
           setAuthReady(true)
         },
         (error) => { if (!cancelled) console.error('Unable to restore EduSmart session.', error) },
