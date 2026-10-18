@@ -6,7 +6,7 @@
 **Documented split:** 80% training (960 records), 20% test (240 records), stratified; `random_state=42`  
 **Documented configuration:** `RandomForestClassifier`, 40 trees, `max_depth=6`, `min_samples_leaf=4`, `random_state=42`
 
-> **AUDIT WARNING (2026-10-18): Do not treat the historical class-specific metrics or the reported 86.25% as verified performance of the model currently served by the frontend.** Source review found that the numeric target labels do not match the human-readable `Low, Medium, High` metadata order, and the checked-in browser artifact contains 5 trees rather than the 40 specified by the training script and this document. The numeric-label mismatch can reverse the meaning of Low and High in per-class reports and frontend predictions. These discrepancies must be corrected and the exact shipped artifact reevaluated before the metrics are reused in a report or presentation.
+> **AUDIT NOTE (2026-10-18):** Source review indicates numeric label semantics are consistent with the `Low, Medium, High` metadata order: poor-performance scores map to class index 2 / High risk, midrange scores to index 1 / Medium, and strong-performance scores to index 0 / Low risk. The earlier audit's reversed-label claim was incorrect. Deterministic regression tests are still required. The checked-in browser artifact contains 5 trees, while the training script and this document specify 40; therefore the historical 86.25% metric must not be presented as verified performance of the current shipped browser artifact until the exact artifact is regenerated and reevaluated.
 
 This document preserves the previously recorded experiment results for audit traceability. The audit itself did not rerun training, tests or evaluation.
 
@@ -21,11 +21,11 @@ This document preserves the previously recorded experiment results for audit tra
 
 **Previously recorded overall test accuracy: 86.25% (207/240).**
 
-*The class-specific labels above are not currently reliable because the script's numeric labels and target-name order are inconsistent. The overall accuracy is a historical result for the numeric classification task, but it must not be attributed to the currently shipped 5-tree browser artifact without reevaluation.
+The class-specific labels above follow the source's documented numeric order 0 = Low risk, 1 = Medium risk, 2 = High risk; regenerate the report to verify the recorded values. The overall accuracy is historical and must not be attributed to the currently shipped 5-tree browser artifact without reevaluation.
 
-### Previously recorded confusion matrix — class names pending correction
+### Previously recorded confusion matrix — numeric order documented
 
-The old report labeled the rows and columns Low, Medium, High. Because the numeric target mapping is inconsistent with that order, those human-readable row/column names must be revalidated before this matrix is interpreted.
+By the current source mapping, numeric class 0 corresponds to Low risk, class 1 to Medium risk, and class 2 to High risk. The matrix is preserved for traceability, but its values must be regenerated from the exact artifact before reuse in the report.
 
 | Recorded actual / predicted label | Index 0 | Index 1 | Index 2 |
 |---|---:|---:|---:|
@@ -33,13 +33,13 @@ The old report labeled the rows and columns Low, Medium, High. Because the numer
 | Numeric class 1 | 7 | 42 | 7 |
 | Numeric class 2 | 0 | 8 | 115 |
 
-Do not map these numeric rows to Low/Medium/High until the target encoding and exporter have been corrected.
+Numeric rows correspond to Low/Medium/High risk respectively by source inspection; regenerate the matrix after artifact reconciliation.
 
 ## Required revalidation procedure
 
-1. Define and document one canonical mapping between target values and risk labels.
-2. Make synthetic label generation, training metadata, tree export and browser inference use the same mapping.
-3. Add deterministic tests for known low-, medium- and high-risk feature vectors.
+1. Keep the existing mapping: class 0 = Low risk, class 1 = Medium risk, class 2 = High risk.
+2. Add deterministic tests for known low-, medium- and high-risk feature vectors.
+3. Verify synthetic label generation, training metadata, tree export and browser inference use the same mapping.
 4. Compare Python predictions with frontend/browser predictions for the same fixed inputs.
 5. Regenerate the model artifact from the approved training script.
 6. Confirm `ml/model.json` and `frontend/public/model.json` are identical and that the tree count matches the documented configuration.
