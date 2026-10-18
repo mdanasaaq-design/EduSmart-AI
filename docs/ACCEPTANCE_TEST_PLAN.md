@@ -36,7 +36,7 @@ At the time this plan was written, current CI is **FAIL** at the Firestore autho
 | AUTH-05 | Missing profile for ordinary user | Access is denied with actionable guidance; no role inferred from input | SOURCE REVIEW only |
 | AUTH-06 | Admin profile recovery callable | Only same UID with server-issued admin claims can recover profile | BLOCKED on current Spark/no-Blaze plan unless callable already deployed |
 | AUTH-07 | Teacher/student profile linkage | Auth UID matches `users/{uid}` and linked teacher/student record | NOT RUN |
-| AUTH-08 | Student account self-promotion attempt | Rules deny role changes | Test exists; latest suite pending after self-registration test correction |
+| AUTH-08 | Student account self-promotion attempt | Rules deny role changes | PASS in full CI run 39116551389 |
 
 ## C. Free-plan account provisioning
 
@@ -94,11 +94,11 @@ Required adversarial cases:
 
 | ID | Test | Expected result | Current status |
 |---|---|---|---|
-| ML-01 | Check numeric target mapping | Poor indicators map to High risk, middle to Medium, strong to Low; leaf indices match metadata | SOURCE REVIEW: mapping appears consistent; deterministic test pending |
-| ML-02 | Check exported tree count | Artifact count matches documented training configuration | FAIL at source-review level; artifact has 5 trees, docs/script say 40 |
-| ML-03 | Compare Python and browser inference on fixed inputs | Same risk label for each fixed vector | NOT RUN |
-| ML-04 | Compare `ml/model.json` and `frontend/public/model.json` | Files are identical | PASS by source-content comparison during audit; both currently have 5 trees |
-| ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | NOT RUN |
+| ML-01 | Check numeric target mapping | Poor indicators map to High risk, middle to Medium, strong to Low; leaf indices match metadata | PASS: Python contract tests in CI run 39116551389 |
+| ML-02 | Check exported tree count | Artifact count matches documented training configuration | PASS: 40 trees; regeneration diff check passed in CI run 39116551389 |
+| ML-03 | Compare Python and browser inference on fixed inputs | Same risk label for each fixed vector | PASS: shared fixed vectors tested in Python and browser suites, CI run 39116551389 |
+| ML-04 | Compare `ml/model.json` and `frontend/public/model.json` | Files are identical | PASS: both contain 40 trees and CI regeneration produced no diff |
+| ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | PASS: 86.25% (207/240) on the pinned 40-tree synthetic holdout; not real-world validation |
 | ML-06 | Review UI confidence language | Tree-vote share is not described as calibrated probability | SOURCE REVIEW: limitation documented; live UI review pending |
 | ML-07 | Review report/PPT model claims | Synthetic results are not presented as real-world accuracy | NOT RUN |
 
