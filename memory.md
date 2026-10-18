@@ -43,7 +43,7 @@ Manage institute structure, student/teacher records, attendance and marks, then 
 
 ## Latest audit and verification state (2026-10-18)
 - Audited code baseline: commit `facd99297139a4e891ee461e3a674751d7bf24f0`; documentation-only audit commits followed.
-- The original Firestore test/rule mismatch was fixed by changing the test to expect denial for self-registration; rules were not weakened. Full CI passed 18 Firestore tests, 4 Python ML tests, 3 browser inference tests including vote-share rounding, ESLint and production build in run `39117262846`.
+- The original Firestore test/rule mismatch was fixed by changing the test to expect denial for self-registration; rules were not weakened. Full CI passed 18 Firestore tests, 4 Python ML tests, 7 browser/helper tests including vote-share rounding and teacher query batching, ESLint and production build in run `39117547050`.
 - A local `git pull --ff-only origin main` previously failed due to local changes in `frontend/src/services/authService.js`. Preserve local changes; never destructive-reset to solve a sync conflict.
 - A previous local Vite build and Hosting release succeeded on 2026-10-17, but the local checkout had not successfully pulled intended latest source first. Current live/source parity is unverified.
 - Hosting, Functions, Firestore rules and indexes are separate deployment targets. Do not infer one from another.
