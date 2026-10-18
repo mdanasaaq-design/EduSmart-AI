@@ -48,9 +48,9 @@ after(async () => {
   await testEnv?.cleanup()
 })
 
-test('a user can self-register only a constrained student profile for their own UID', async () => {
+test('a signed-in user cannot self-register a student profile', async () => {
   const db = testEnv.authenticatedContext('new-student', { email: 'student@example.com' }).firestore()
-  await assertSucceeds(setDoc(doc(db, 'users', 'new-student'), {
+  await assertFails(setDoc(doc(db, 'users', 'new-student'), {
     name: 'New Student',
     email: 'student@example.com',
     role: 'student',
@@ -63,11 +63,11 @@ test('a signed-in user cannot create their own role-bearing profile', async () =
   await assertFails(setDoc(doc(db, 'users', 'attacker'), { role: 'admin' }))
 })
 
-test('an administrator can provision a user profile', async () => {
+test('an administrator can create a user profile', async () => {
   const db = testEnv.authenticatedContext('admin-1').firestore()
-  await assertSucceeds(setDoc(doc(db, 'users', 'teacher-1'), {
+  await assertSucceeds(setDoc(doc(db, 'users', 'teacher-2'), {
     role: 'teacher',
-    name: 'Teacher',
+    name: 'New Teacher',
   }))
 })
 
