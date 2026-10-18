@@ -2,7 +2,8 @@
 
 **Status updated:** 2026-10-18  
 **Repository:** `mdanasaaq-design/EduSmart-AI`, branch `main`  
-**Code baseline audited:** `facd99297139a4e891ee461e3a674751d7bf24f0`  
+**Audit baseline:** `facd99297139a4e891ee461e3a674751d7bf24f0`  
+**Latest code/test change:** `f65742c8b04385ef609e92fc885e063c8f36b145`  
 **Firebase project:** `edusmart-ai-c4692`  
 **Hosting URL:** https://edusmart-ai-c4692.web.app
 
@@ -10,18 +11,18 @@
 
 **Not signed off.** The project has substantial implemented source, but current CI is failing, the ML label/artifact contract has source-level inconsistencies, the user's Firebase no-Blaze constraint blocks assumed callable workflows, and live deployment parity has not been verified.
 
-The current work is **planning/documentation only**. No application source was changed, no build or test was run, and no Firebase deployment or data change was performed during the 2026-10-18 audit.
+The 2026-10-18 work has moved from planning into Phase 1. One test-only change was committed to align the emulator test with the existing admin-only profile-creation rule. No application runtime code, Firebase deployment or Firebase data was changed. The GitHub Actions run for commit `f65742c8b04385ef609e92fc885e063c8f36b145` is the current verification gate.
 
 ## Latest automated verification evidence
 
-Latest CI run for the audited code baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131).
+Latest failing baseline run: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Current verification run after the test correction: [Frontend CI run 39115312291](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115312291).
 
 - Dependency installation: passed.
 - Firestore Emulator authorization test step: **failed**.
 - ESLint: **skipped** after the test failure.
 - Production build: **skipped** after the test failure.
 
-A current source-level mismatch is visible: one rules test expects a signed-in user to create their own student profile, while the current `users/{userId}` Firestore rule permits creation only for an administrator. This is a likely cause, but the exact failed assertion must be confirmed from CI output before a code change. Do not weaken authorization just to make CI green.
+The exact failed assertion was confirmed in CI: `a user can self-register only a constrained student profile for their own UID` failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`. The existing `users/{userId}` rule allows profile creation only for admins, consistent with the admin-managed provisioning policy. The test now expects self-registration to be denied, and the admin-create test now uses a new UID to exercise actual creation rather than updating a fixture profile. CI for this change is pending/in progress at the time of this update; do not mark Phase 1 complete until rules tests, lint and build all pass.
 
 ## Implemented in source (not equivalent to verified)
 
