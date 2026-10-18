@@ -2,7 +2,7 @@
 
 **Purpose:** Define the tests required to call a feature verified. This is a plan, not a claim that tests have been run.  
 **Audit date:** 2026-10-18  
-**Latest passing CI reference:** [run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998)
+**Latest passing CI reference:** [run 39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846)
 
 ## Status vocabulary
 
@@ -20,9 +20,9 @@ The original CI run failed on a stale self-registration test. After correcting t
 |---|---|---|---|
 | CI-01 | Inspect local `git status --short` and current commit before sync | All local changes identified and preserved | NOT RUN in current session |
 | CI-02 | Synchronize local source with intended `origin/main` | No local changes lost; expected commit confirmed | BLOCKED until local state inspected |
-| CI-03 | Run Firestore Emulator authorization suite | All tests pass against current rules | FAIL in latest GitHub Actions run; exact assertion to capture |
-| CI-04 | Run ESLint after tests pass | No lint errors | NOT RUN in latest run |
-| CI-05 | Run production build after lint passes | Build succeeds; record warnings/artifact size | NOT RUN in latest run |
+| CI-03 | Run Firestore Emulator authorization suite | All tests pass against current rules | PASS: 18 tests in CI run 39117262846 |
+| CI-04 | Run ESLint after tests pass | No lint errors | PASS in CI run 39117262846 |
+| CI-05 | Run production build after lint passes | Build succeeds; record warnings/artifact size | PASS in CI run 39117262846 |
 | CI-06 | Inspect current tree and package manifests | Documentation and test commands reflect actual repository | SOURCE REVIEW completed |
 
 ## B. Authentication and profile linkage
@@ -101,7 +101,7 @@ Required adversarial cases:
 | ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | PASS: sklearn baseline 86.25% (207/240); browser majority vote 87.08% (209/240), both synthetic-only |
 | ML-06 | Review UI confidence language | Tree-vote share is not described as calibrated probability | SOURCE REVIEW: limitation documented; live UI review pending |
 | ML-07 | Review report/PPT model claims | Synthetic results are not presented as real-world accuracy | NOT RUN |
-| ML-08 | Verify vote-share rounding | 23 of 40 votes rounds to 58%; displayed share is not called probability | Local Python/Node tests pass; CI run 39117171929 pending |
+| ML-08 | Verify vote-share rounding | 23 of 40 votes rounds to 58%; displayed share is not called probability | PASS in Python and browser tests, CI run 39117262846 |
 
 Required ML test vectors should include very low attendance/marks, midrange indicators and strong attendance/marks with few missed assessments. Expected labels must be established from the agreed label semantics, not reverse-engineered from the current model output.
 
