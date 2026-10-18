@@ -16,7 +16,7 @@ Use:
 - [x] Inspect current GitHub tree and project configuration.
 - [x] Record latest CI run metadata and failing step.
 - [x] Identify security test/rule inconsistency.
-- [x] Identify ML class mapping mismatch.
+- [x] Review ML label semantics; correct the audit finding to a regression-test gap rather than a confirmed mapping bug.
 - [x] Identify 5-tree artifact versus 40-tree documentation mismatch.
 - [x] Record Firebase no-Blaze constraint.
 - [x] Create repository audit, bug backlog, phased roadmap, acceptance test plan and decisions document.
@@ -49,13 +49,13 @@ Use:
 
 ## Phase 3 — ML correctness and artifact provenance (P0)
 
-- [ ] Define a canonical numeric mapping for Low/Medium/High.
-- [ ] Correct model export leaf-label mapping.
+- [x] Document the current numeric mapping semantics: index 0 = Low risk, 1 = Medium risk, 2 = High risk.
 - [ ] Add deterministic low/medium/high prediction tests.
+- [ ] Verify Python/browser interpretation of exported leaf indices.
 - [ ] Add Python/browser prediction parity tests.
 - [ ] Regenerate exported model from the approved training script.
 - [ ] Confirm `ml/model.json` and `frontend/public/model.json` are identical.
-- [ ] Resolve 5-tree artifact versus 40-tree script/evaluation mismatch.
+- [ ] Resolve 5-tree artifact versus 40-tree script/evaluation mismatch and reevaluate the exact shipped artifact.
 - [ ] Re-run evaluation on the exact shipped artifact and update `ml/EVALUATION.md` from actual output.
 - [ ] Keep synthetic-data and uncalibrated-confidence limitations visible.
 
