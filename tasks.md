@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-10-18  
 **Code baseline audited:** `facd992`  
-**Current status:** Latest remote CI passes on commit `6aed166` (run [39119008601](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119008601)): 21 Firestore tests, 4 Python ML tests, 15 browser/helper tests, ESLint and production build. Phase 1 local Windows source synchronization, Phase 2 live Firebase Console verification and end-to-end academic workflow acceptance remain open.
+**Current status:** Latest remote CI passes on commit `40bbe47` (run [39119454945](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39119454945)); this run includes ESLint, Firestore Emulator authorization tests, Python ML tests, browser/helper tests and production build. The build still reports a Firebase chunk over 500 kB and GitHub Actions warns that several actions are being forced from Node.js 20 to 24. Phase 1 local Windows source synchronization, Phase 2 live Firebase Console verification and end-to-end academic workflow acceptance remain open.
 
 Use:
 - `[x]` only for verified work.
