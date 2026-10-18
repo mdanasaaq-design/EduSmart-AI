@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
 import { firebaseConfigReady } from './firebaseConfig'
-import { ArrowUpRight, CheckCircle2, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowUpRight, BarChart3, Brain, CheckCircle2, School, ShieldCheck, Sparkles } from 'lucide-react'
 import Brand from './components/Brand'
 
 const Login = lazy(() => import('./pages/auth/Login'))
