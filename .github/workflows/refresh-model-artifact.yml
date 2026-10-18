@@ -39,4 +39,6 @@ jobs:
           git rm -f .github/workflows/refresh-model-artifact.yml
           git add ml/model.json frontend/public/model.json
           git commit -m "ml: regenerate and synchronize 40-tree model artifacts"
+          git fetch origin main
+          git rebase origin/main
           git push origin HEAD:main
