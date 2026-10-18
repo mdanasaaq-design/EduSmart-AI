@@ -2,7 +2,7 @@
 
 **Last reviewed:** 2026-10-18  
 **Code baseline audited:** `facd992`  
-**Current status:** Phase 0 complete; Phase 1 underway. A test-only correction is committed and awaiting CI.
+**Current status:** Phase 0 complete; CI recovery in Phase 1 passed on `1b453d5`. Local Windows source synchronization remains unverified.
 
 Use:
 - `[x]` only for verified work.
@@ -28,14 +28,13 @@ Use:
 - [ ] Inspect local `git status --short`, current commit and `frontend/src/services/authService.js` diff.
 - [ ] Preserve all local modifications before syncing.
 - [ ] Synchronize to intended `origin/main` without destructive reset/clean commands.
-- [FAIL] Latest recorded CI run fails during Firestore authorization tests.
-- [x] Capture exact failing assertion from GitHub Actions: self-registration test failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`.
+- [x] Original CI failure captured: self-registration test failed with `PERMISSION_DENIED` at `frontend/tests/firestore.rules.test.js:51`.
 - [x] Reconcile self-registration test with administrator-managed account policy; admin-create test now targets a new UID.
-- [ ] Verify the new CI run passes the full rules suite, ESLint and production build.
-- [ ] Run Firestore Emulator tests on current head.
-- [ ] Run ESLint after tests pass.
-- [ ] Run production build after lint passes.
-- [ ] Record commit SHA and results.
+- [x] Firestore Emulator suite passes on current head (18/18 tests; run `39115368953`).
+- [x] ESLint passes on current head (run `39115368953`).
+- [x] Production build passes on current head (run `39115368953`).
+- [x] Record tested commit `1b453d5ef83a758f2e3c90781e909a729fa1d70c` and run [39115368953](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39115368953).
+- [ ] Inspect local `git status --short`, current commit and `frontend/src/services/authService.js` diff; preserve and synchronize local work safely.
 
 ## Phase 2 — Firebase free-plan-safe demo readiness (P0)
 
@@ -75,7 +74,7 @@ Use:
 ## Phase 5 — Security acceptance (P0/P1)
 
 - [~] Firestore rules and emulator tests exist in source.
-- [ ] Fix the test/rule policy mismatch without weakening rules.
+- [x] Fix the test/rule policy mismatch without weakening rules; CI passes 18/18 emulator tests.
 - [ ] Test student role escalation and cross-student access denial.
 - [ ] Test teacher access against assignment and enrollment.
 - [ ] Test withdrawn/mismatched enrollment denial.
