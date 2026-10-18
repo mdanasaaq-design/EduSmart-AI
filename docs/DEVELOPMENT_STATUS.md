@@ -3,7 +3,7 @@
 **Status updated:** 2026-10-18  
 **Repository:** `mdanasaaq-design/EduSmart-AI`, branch `main`  
 **Audit baseline:** `facd99297139a4e891ee461e3a674751d7bf24f0`  
-**Latest verified source revision:** `6aed166301c68d77219496bb4793495629110a46`  
+**Latest verified source revision:** `40bbe47f24e7327bf6c1512261bd8a1cc2ae206d`  
 **Firebase project:** `edusmart-ai-c4692`  
 **Hosting URL:** https://edusmart-ai-c4692.web.app
 
