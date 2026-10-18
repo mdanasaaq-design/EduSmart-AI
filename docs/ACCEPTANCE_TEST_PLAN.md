@@ -101,6 +101,7 @@ Required adversarial cases:
 | ML-05 | Re-run synthetic holdout evaluation after artifact reconciliation | Metrics generated from the exact model/configuration are recorded | PASS: sklearn baseline 86.25% (207/240); browser majority vote 87.08% (209/240), both synthetic-only |
 | ML-06 | Review UI confidence language | Tree-vote share is not described as calibrated probability | SOURCE REVIEW: limitation documented; live UI review pending |
 | ML-07 | Review report/PPT model claims | Synthetic results are not presented as real-world accuracy | NOT RUN |
+| ML-08 | Verify vote-share rounding | 23 of 40 votes rounds to 58%; displayed share is not called probability | PASS locally; CI rerun pending after rounding correction |
 
 Required ML test vectors should include very low attendance/marks, midrange indicators and strong attendance/marks with few missed assessments. Expected labels must be established from the agreed label semantics, not reverse-engineered from the current model output.
 
