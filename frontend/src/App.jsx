@@ -1,21 +1,30 @@
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { collection, getDocs } from 'firebase/firestore'
 import { db, firebaseConfigReady } from './firebase'
 import { ArrowUpRight, BarChart3, Brain, Building2, CalendarDays, CheckCircle2, ClipboardCheck, GraduationCap, LayoutDashboard, Link2, LogOut, School, ShieldCheck, Sparkles, Users } from 'lucide-react'
-import Login from './pages/auth/Login'
-import Signup from './pages/auth/Signup'
-import Branches from './pages/admin/Branches'
-import Programs from './pages/admin/Programs'
-import AcademicYears from './pages/admin/AcademicYears'
-import ClassesSections from './pages/admin/ClassesSections'
-import StudentsEnrollments from './pages/admin/StudentsEnrollments'
-import Assignments from './pages/admin/Assignments'
-import AdminManagement from './pages/admin/AdminManagement'
-import UserAccess from './pages/admin/UserAccess'
-import AcademicRecords from './pages/AcademicRecords'
-import Analytics from './pages/Analytics'
-import RoleDashboard from './pages/RoleDashboard'
 import { logoutUser } from './services/authService'
+
+const Login = lazy(() => import('./pages/auth/Login'))
+const Signup = lazy(() => import('./pages/auth/Signup'))
+const Branches = lazy(() => import('./pages/admin/Branches'))
+const Programs = lazy(() => import('./pages/admin/Programs'))
+const AcademicYears = lazy(() => import('./pages/admin/AcademicYears'))
+const ClassesSections = lazy(() => import('./pages/admin/ClassesSections'))
+const StudentsEnrollments = lazy(() => import('./pages/admin/StudentsEnrollments'))
+const Assignments = lazy(() => import('./pages/admin/Assignments'))
+const AdminManagement = lazy(() => import('./pages/admin/AdminManagement'))
+const UserAccess = lazy(() => import('./pages/admin/UserAccess'))
+const AcademicRecords = lazy(() => import('./pages/AcademicRecords'))
+const Analytics = lazy(() => import('./pages/Analytics'))
+const RoleDashboard = lazy(() => import('./pages/RoleDashboard'))
+
+function PageBoundary({ children }) {
+  return (
+    <Suspense fallback={<div role="status" className="grid min-h-screen place-items-center bg-[#FFF4E1] px-6 text-[#1A312C]">Loading EduSmart AI…</div>}>
+      {children}
+    </Suspense>
+  )
+}
 
 const modules = [
   { title: 'Branches', description: 'Manage institute locations and campuses.', icon: Building2, page: 'branches', category: 'INSTITUTE' },
@@ -37,23 +46,23 @@ function App() {
   const login = (nextUser) => { setUser(nextUser); setPage('dashboard') }
   const logout = async () => { await logoutUser(); setUser(null); setPage('home') }
 
-  if (page === 'login') return <Login onLogin={login} onBack={() => setPage('home')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} />
-  if (page === 'signup') return <Signup onComplete={login} onBack={() => setPage('login')} firebaseConfigured={firebaseConfigReady} />
+  if (page === 'login') return <PageBoundary><Login onLogin={login} onBack={() => setPage('home')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} /></PageBoundary>
+  if (page === 'signup') return <PageBoundary><Signup onComplete={login} onBack={() => setPage('login')} firebaseConfigured={firebaseConfigReady} /></PageBoundary>
   const adminOnlyPages = ['branches', 'programs', 'academic-years', 'classes-sections', 'students', 'assignments', 'teachers', 'subjects', 'user-access', 'analytics']
   if (adminOnlyPages.includes(page) && user?.role !== 'admin') {
-    return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
+    return <PageBoundary><RoleDashboard user={user} onBack={() => setPage('dashboard')} /></PageBoundary>
   }
-  if (page === 'branches') return <Branches onBack={() => setPage('dashboard')} />
-  if (page === 'programs') return <Programs onBack={() => setPage('dashboard')} />
-  if (page === 'academic-years') return <AcademicYears onBack={() => setPage('dashboard')} />
-  if (page === 'classes-sections') return <ClassesSections onBack={() => setPage('dashboard')} />
-  if (page === 'students') return <StudentsEnrollments onBack={() => setPage('dashboard')} />
-  if (page === 'assignments') return <Assignments onBack={() => setPage('dashboard')} />
-  if (page === 'user-access') return user?.role === 'admin' ? <UserAccess user={user} onBack={() => setPage('dashboard')} /> : <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
-  if (['teachers', 'subjects'].includes(page)) return <AdminManagement type={page} onBack={() => setPage('dashboard')} />
-  if (page === 'records') return <AcademicRecords user={user} onBack={() => setPage('dashboard')} />
-  if (page === 'analytics') return <Analytics onBack={() => setPage('dashboard')} />
-  if (page === 'role') return <RoleDashboard user={user} onBack={() => setPage('dashboard')} />
+  if (page === 'branches') return <PageBoundary><Branches onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'programs') return <PageBoundary><Programs onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'academic-years') return <PageBoundary><AcademicYears onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'classes-sections') return <PageBoundary><ClassesSections onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'students') return <PageBoundary><StudentsEnrollments onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'assignments') return <PageBoundary><Assignments onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'user-access') return <PageBoundary>{user?.role === 'admin' ? <UserAccess user={user} onBack={() => setPage('dashboard')} /> : <RoleDashboard user={user} onBack={() => setPage('dashboard')} />}</PageBoundary>
+  if (['teachers', 'subjects'].includes(page)) return <PageBoundary><AdminManagement type={page} onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'records') return <PageBoundary><AcademicRecords user={user} onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'analytics') return <PageBoundary><Analytics onBack={() => setPage('dashboard')} /></PageBoundary>
+  if (page === 'role') return <PageBoundary><RoleDashboard user={user} onBack={() => setPage('dashboard')} /></PageBoundary>
   if (page === 'dashboard') return <Dashboard user={user} onLogout={logout} onNavigate={setPage} />
   return <Landing onSignIn={() => setPage('login')} onSignUp={() => setPage('signup')} firebaseConfigured={firebaseConfigReady} />
 }
