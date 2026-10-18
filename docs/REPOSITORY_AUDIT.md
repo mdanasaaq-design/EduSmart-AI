@@ -67,7 +67,7 @@ Do not recommend enabling billing as the default solution. For the near-term dem
 
 In `ml/train_model.py`, the synthetic label expression assigns numeric label `2` to the lowest score/low-risk case, `1` to medium, and `0` to the high-score/high-risk case. The exported metadata lists classes as `["Low", "Medium", "High"]`, while `tree_to_json` emits the argmax class index and the browser uses that index against the metadata list.
 
-This means the human-readable risk mapping is reversed for the low/high classes. Correct the class encoding/export contract and add deterministic unit tests before relying on any displayed prediction.
+This means the human-readable risk mapping is reversed for the low/high classes. The evaluation script also calls `classification_report(..., target_names=CLASSES)` while the numeric labels are sorted as 0, 1, 2, so per-class precision/recall/F1 names are likely reversed for Low and High; the old confusion matrix row/column labels are likewise unreliable. Overall numeric accuracy is not affected by relabeling, but its interpretation still cannot be attributed to the shipped artifact until the artifact mismatch is resolved. Correct the class encoding/export contract and add deterministic unit tests before relying on any displayed prediction.
 
 ### A-05 — Shipped model artifact does not match the documented training configuration
 
