@@ -47,8 +47,8 @@ This document records constraints and decisions that future implementation work 
 
 **Status:** Required correction identified by audit  
 **Decision:** Evaluation results must name the exact training configuration and exported artifact that is shipped to the browser.  
-**Current issue:** The checked-in frontend artifact has 5 trees, while the training script and evaluation document specify 40 trees.  
-**Required outcome:** Generate, compare and evaluate the artifact deliberately; keep `ml/model.json` and `frontend/public/model.json` synchronized. Do not claim the current 86.25% result describes the shipped artifact until verified.
+**Current issue (resolved in source):** The artifacts were regenerated to 40 trees and synchronized. CI must continue verifying reproducibility and equality.  
+**Required outcome:** Keep `ml/model.json` and `frontend/public/model.json` synchronized and reproducible. The 86.25% metric is tied to the 40-tree synthetic holdout run and must never be presented as real-world validation.
 
 ## DEC-008 — Synthetic ML results are demonstration-only
 
