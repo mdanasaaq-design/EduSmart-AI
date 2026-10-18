@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { addDoc, collection, doc, getDocs, query, serverTimestamp, where, writeBatch } from 'firebase/firestore'
 import { ArrowLeft, Brain, Save, TrendingDown, TrendingUp } from 'lucide-react'
 import { db } from '../firebase'
-
+import { chunkArray } from '../utils/chunkArray'
 import { predict, validateModel } from '../ml/modelInference'
 
 function rows(snapshot) {
@@ -68,7 +68,7 @@ export default function AcademicRecords({ user, onBack }) {
         if (user?.role !== 'teacher') throw new Error('Only administrators and teachers can record academic performance.')
         const assignmentSnap = await getDocs(query(collection(db, 'teacherAssignments'), where('teacherUserId', '==', user.uid)))
         const teacherAssignments = rows(assignmentSnap)
-        const classIds = [...new Set(teacherAssignments.map(item => item.classId).filter(Boolean))].slice(0, 30)
+        const classIds = [...new Set(teacherAssignments.map(item => item.classId).filter(Boolean))]
         if (!classIds.length) {
           const loadedModel = await modelPromise
           if (cancelled) return
@@ -82,9 +82,14 @@ export default function AcademicRecords({ user, onBack }) {
           setMsg('No classes are assigned to your teacher account yet. Ask the administrator to assign a class and subject.')
           return
         }
-        const [studentSnap, enrollmentSnap, subjectSnap, loadedModel] = await Promise.all([
-          getDocs(query(collection(db, 'students'), where('currentClassId', 'in', classIds))),
-          getDocs(query(collection(db, 'enrollments'), where('classId', 'in', classIds))),
+        const classIdBatches = chunkArray(classIds, 30)
+        const [studentSnaps, enrollmentSnaps, subjectSnap, loadedModel] = await Promise.all([
+          Promise.all(classIdBatches.map(batch => getDocs(query(
+            collection(db, 'students'), where('currentClassId', 'in', batch),
+          )))),
+          Promise.all(classIdBatches.map(batch => getDocs(query(
+            collection(db, 'enrollments'), where('classId', 'in', batch),
+          )))),
           getDocs(collection(db, 'subjects')),
           modelPromise,
         ])
@@ -98,8 +103,8 @@ export default function AcademicRecords({ user, onBack }) {
         }))
         if (cancelled) return
         setAssignments(teacherAssignments)
-        setStudents(rows(studentSnap))
-        setEnrollments(rows(enrollmentSnap))
+        setStudents(uniqueRows(studentSnaps.flatMap(snapshot => rows(snapshot))))
+        setEnrollments(uniqueRows(enrollmentSnaps.flatMap(snapshot => rows(snapshot))))
         setSubjects(rows(subjectSnap))
         setMarks(uniqueRows(recordResults.flatMap(item => item.marks)))
         setAttendance(uniqueRows(recordResults.flatMap(item => item.attendance)))
