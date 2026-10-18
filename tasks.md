@@ -62,6 +62,8 @@ Use:
 
 ## Phase 4 — Academic workflow integration (P1)
 
+- [x] Fix source-level teacher query truncation: batch `in` queries in groups of 30 instead of silently dropping assignments after the first 30.
+- [x] Add boundary tests for 0, 30 and 65 IDs; local Node tests pass. Full CI verification pending.
 - [~] Institute structure and academic-record screens exist in source.
 - [ ] Create branch → program → academic year → class/section.
 - [ ] Create student and active enrollment.
