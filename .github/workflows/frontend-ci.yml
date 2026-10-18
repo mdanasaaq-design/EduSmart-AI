@@ -24,6 +24,22 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Python for ML verification
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned ML verification dependencies
+        working-directory: .
+        run: python -m pip install -r ml/requirements.txt
+
+      - name: Verify deterministic model export and Python inference contract
+        working-directory: .
+        run: |
+          python ml/train_model.py
+          git diff --exit-code -- ml/model.json frontend/public/model.json
+          python -m unittest discover -s ml -p 'test_*.py' -v
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -45,6 +61,9 @@ jobs:
 
       - name: Test Firestore authorization rules
         run: npx firebase emulators:exec --config ../firebase.json --only firestore --project demo-edusmart-ai "node --test tests/firestore.rules.test.js"
+
+      - name: Test browser model inference contract
+        run: node --test tests/modelInference.test.js
 
       - name: Run ESLint
         run: npm run lint
