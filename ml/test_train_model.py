@@ -67,6 +67,14 @@ class RiskModelContractTests(unittest.TestCase):
                 expected_vote = int(np.argmax(np.bincount(tree_predictions, minlength=3)))
                 self.assertEqual(predict_exported_model(loaded, vector), expected_vote)
 
+            fixtures = json.loads(Path(__file__).with_name("model_test_vectors.json").read_text(encoding="utf-8"))
+            for fixture in fixtures["vectors"]:
+                index = predict_exported_model(loaded, fixture["features"])
+                self.assertEqual(loaded["classes"][index], fixture["expectedLabel"], fixture["name"])
+                votes = [predict_exported_tree(tree, fixture["features"]) for tree in loaded["trees"]]
+                vote_share = round(max(np.bincount(votes, minlength=3)) / len(votes) * 100)
+                self.assertEqual(vote_share, fixture["expectedVoteShare"], fixture["name"])
+
 
 if __name__ == "__main__":
     unittest.main()
