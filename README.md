@@ -22,10 +22,10 @@ EduSmart AI is a college mini-project prototype that brings institute administra
 
 ## Important current limitations
 
-- The latest recorded GitHub Actions run for the audited code baseline fails in the Firestore authorization test step; lint and build were skipped in that run. See [Development Status](docs/DEVELOPMENT_STATUS.md).
+- The original Firestore test failure was resolved without weakening rules. The expanded CI now covers Firestore, Python ML contract tests, browser inference tests, ESLint and production build. See [Development Status](docs/DEVELOPMENT_STATUS.md) for the latest run.
 - A source-level mismatch exists between a test that expects student self-registration and the current administrator-only user-profile creation rule. The intended security policy should be resolved without weakening authorization.
 - The user's Firebase project is constrained to the no-Blaze/free plan. Callable Cloud Functions are required by some automated onboarding/account workflows and must not be assumed deployed. Do not upgrade billing as a default recommendation. For the immediate demo, the existing administrator and manually provisioned demo accounts may be used, with matching Firestore profiles and restrictive rules.
-- The numeric class mapping is consistent with the Low/Medium/High metadata and now has deterministic Python and browser inference tests. The shipped model artifacts were regenerated to 40 trees from the canonical training script and are byte-identical. The 86.25% result is reproduced against synthetic labels only; it is not real-world validation.
+- The numeric class mapping is consistent with the Low/Medium/High metadata and has deterministic Python/browser inference tests. The shipped model artifacts contain 40 trees and are byte-identical. On the synthetic holdout, scikit-learn probability averaging scores 86.25% and browser majority voting scores 87.08%; neither is real-world validation.
 - The most recent known Hosting release used a local checkout that had not successfully synchronized to the intended latest GitHub source. Current live/source parity is unverified.
 
 ## Account and role workflow
@@ -46,7 +46,7 @@ Run the flow only after the relevant acceptance checks pass. If a feature is blo
 
 The demo Random Forest is trained by `ml/train_model.py` on synthetic data. Inputs include attendance, average marks, recent performance trend, and missed assessments. The compact model is loaded by the frontend for browser inference.
 
-The evaluation document records 86.25% holdout accuracy against formula-generated synthetic labels. The regenerated 40-tree artifacts match the training configuration and are byte-identical; CI now tests the artifact and inference contract. This metric is not evidence of real-world academic-risk accuracy, fairness or calibration. See [ML Evaluation](ml/EVALUATION.md), [Repository Audit](docs/REPOSITORY_AUDIT.md) and [Bug Backlog](docs/BUG_BACKLOG.md).
+The evaluation document distinguishes the 86.25% scikit-learn baseline from the 87.08% browser majority-vote result on formula-generated synthetic labels. The regenerated 40-tree artifacts match the training configuration and are byte-identical; CI tests artifact reproducibility and inference contracts. Neither metric establishes real-world academic-risk accuracy, fairness or calibration. See [ML Evaluation](ml/EVALUATION.md), [Repository Audit](docs/REPOSITORY_AUDIT.md) and [Bug Backlog](docs/BUG_BACKLOG.md).
 
 ## Run locally
 
