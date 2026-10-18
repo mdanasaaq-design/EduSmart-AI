@@ -15,13 +15,13 @@ Work has progressed through CI recovery and ML artifact validation. Source chang
 
 ## Latest automated verification evidence
 
-Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification including the vote-share rounding regression fix: [Frontend CI run 39117262846](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117262846).
+Historical failing baseline: [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). Latest full passing verification including the vote-share rounding and teacher query batching fixes: [Frontend CI run 39117547050](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39117547050).
 
 - Dependency installation: passed.
 - Original Firestore Emulator authorization test step: **failed** due to the stale self-registration success test.
 - Follow-up CI after test correction: **PASS** for Firestore Emulator authorization tests, ESLint and production build.
 
-The exact failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Full CI passed on run `39117262846`: 18 Firestore authorization tests, 4 Python ML tests, 3 browser inference tests, ESLint and production build. The vote-share rounding regression case passed. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
+The exact failed assertion was the self-registration success test receiving `PERMISSION_DENIED`; it now correctly expects denial, while the admin-create test uses a new UID. Full CI passed on run `39117547050`: 18 Firestore authorization tests, 4 Python ML tests, 7 browser/helper tests, ESLint and production build. The vote-share rounding and teacher query batching regression cases passed. Phase 1 remote CI recovery is complete. The full phase remains open until the user's local changes are inspected and synchronized safely.
 
 ## Implemented in source (not equivalent to verified)
 
@@ -47,7 +47,7 @@ The current project plan must not assume Cloud Functions can be deployed. The fi
 A deeper source review indicates the current numeric mapping is internally consistent: low score/poor indicators map to numeric class 2 / High risk; middle scores map to 1 / Medium; high scores/strong indicators map to 0 / Low risk. Metadata order `Low, Medium, High` and leaf indices align with that encoding. The earlier audit's claim of a reversed mapping was incorrect. Add deterministic regression tests; do not change the mapping without test evidence.
 
 ### 3. Model artifact mismatch
-The model artifacts now contain 40 trees and are byte-identical. On the pinned synthetic holdout, scikit-learn probability averaging scored 86.25% (207/240), while the browser's per-tree majority vote scored 87.08% (209/240). Both measure agreement with formula-generated labels only and do not establish real-world performance. The browser vote-share rounding correction is covered by a fixed 23/40 → 58% regression case. A further source-level fix now batches teacher queries beyond 30 assigned classes; its full CI verification is pending.
+The model artifacts now contain 40 trees and are byte-identical. On the pinned synthetic holdout, scikit-learn probability averaging scored 86.25% (207/240), while the browser's per-tree majority vote scored 87.08% (209/240). Both measure agreement with formula-generated labels only and do not establish real-world performance. The browser vote-share rounding correction is covered by a fixed 23/40 → 58% regression case. A source-level fix now batches teacher queries beyond 30 assigned classes; the batching tests passed in the latest full CI run. Live teacher-role verification remains pending.
 
 ### 4. Deployment/source parity
 A previous local pull was blocked by a local modification to `frontend/src/services/authService.js`; a Hosting deployment then succeeded from the existing checkout. Newer source changes existed on GitHub. The current live site's source parity is unknown. Preserve local changes and verify the exact revision before any future release.
