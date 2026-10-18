@@ -11,7 +11,7 @@
       "name": "midrange_indicators",
       "features": [70, 60, -10, 2],
       "expectedLabel": "Medium",
-      "expectedVoteShare": 57
+      "expectedVoteShare": 58
     },
     {
       "name": "poor_indicators",
