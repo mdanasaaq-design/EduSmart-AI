@@ -40,7 +40,7 @@ This document records constraints and decisions that future implementation work 
 
 **Status:** Required correction identified by audit  
 **Decision:** Use one documented numeric mapping for Low, Medium and High, shared by data labels, model training, exported leaf indices, browser metadata, test vectors and evaluation report.  
-**Current issue:** The training script encodes low risk as numeric 2 and high risk as numeric 0, but exported model metadata orders classes as Low, Medium, High and browser code indexes that list directly.  
+**Current finding:** Source review indicates the existing encoding is consistent: poor-performance scores map to numeric class 2 / High risk, middle scores to class 1 / Medium, and strong-performance scores to class 0 / Low risk. Metadata order is Low, Medium, High. The earlier audit's reversed-label claim was incorrect; add deterministic tests and preserve the mapping unless evidence shows a defect.  
 **Required outcome:** Python and browser inference must return the same human-readable label for deterministic test inputs.
 
 ## DEC-007 — The evaluated model must be the shipped model
