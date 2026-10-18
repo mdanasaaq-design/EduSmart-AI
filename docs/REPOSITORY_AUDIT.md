@@ -21,7 +21,7 @@ It is **not ready for a verified-complete sign-off**. The highest risks are:
 1. Current GitHub Actions CI fails in the Firestore authorization test step; lint and build are skipped in that run.
 2. A rule test expects public self-created student profiles, but the current Firestore rule allows profile creation only by an administrator.
 3. The user requires Firebase's no-Blaze/free-plan constraint to be preserved. Core onboarding and managed-account flows call Cloud Functions, while deployment of those functions is blocked under the current plan.
-4. The numeric risk labels in the training script do not match the human-readable class order in the exported model metadata.
+4. The numeric risk-label semantics appear consistent with the human-readable class order by source review; deterministic regression tests are needed to lock that behavior.
 5. The checked-in frontend model has 5 trees, while the training script and evaluation document describe 40 trees.
 6. The last documented Hosting deployment used a local checkout that had not successfully pulled the intended latest `main`; current live/source parity is unknown.
 7. Full admin → teacher → student workflows, deployed rules/indexes/functions, and the current live site have not been proven by current acceptance evidence.
