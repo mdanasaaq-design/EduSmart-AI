@@ -34,11 +34,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cp ml/model.json /tmp/edusmart-ml-model.json
+          cp frontend/public/model.json /tmp/edusmart-frontend-model.json
+          git fetch origin main
+          git checkout -B artifact-refresh origin/main
+          cp /tmp/edusmart-ml-model.json ml/model.json
+          cp /tmp/edusmart-frontend-model.json frontend/public/model.json
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rm -f .github/workflows/refresh-model-artifact.yml
           git add ml/model.json frontend/public/model.json
           git commit -m "ml: regenerate and synchronize 40-tree model artifacts"
-          git fetch origin main
-          git rebase origin/main
           git push origin HEAD:main
