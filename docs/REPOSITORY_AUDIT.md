@@ -40,11 +40,7 @@ The current frontend scripts are `dev`, `build`, `lint`, and `preview`. CI runs 
 
 ### A-01 — Initial CI failure; follow-up CI now passes
 
-The latest run for the reviewed head is [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131). The job summary shows:
-- Dependency installation: passed.
-- Firestore authorization test step: failed.
-- ESLint: skipped.
-- Production build: skipped.
+The initial run for the reviewed head was [Frontend CI run 39010124131](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39010124131), which failed at the Firestore authorization test step before lint/build. The test-policy mismatch was corrected. Follow-up full CI passed in [run 39116887998](https://github.com/mdanasaaq-design/EduSmart-AI/actions/runs/39116887998): Firestore authorization, Python ML tests, browser inference tests, ESLint and production build. The latest run after a vote-share rounding correction is pending.
 
 The exact assertion was captured: the self-registration success test failed with `PERMISSION_DENIED`. The test now expects denial, and the admin-create test uses a new UID.
 
@@ -64,7 +60,7 @@ Do not recommend enabling billing as the default solution. For the near-term dem
 
 Source review of `ml/train_model.py` indicates the numeric encoding is consistent with the intended risk semantics: scores below 3.0 (poorer indicators) map to numeric class `2` / `High` risk; scores from 3.0 to below 4.3 map to class `1` / `Medium`; scores at or above 4.3 (stronger indicators) map to class `0` / `Low` risk. The exported metadata order is `["Low", "Medium", "High"]`, and tree leaf argmax indices are interpreted against that order. The default numeric class order used by `classification_report` is 0, 1, 2, so the documented class-name order is consistent by source inspection.
 
-The earlier audit incorrectly described this as a reversed mapping. Deterministic Python and browser tests now cover the risk semantics and fixed inference vectors. The separate artifact mismatch was resolved by regenerating both model files to 40 trees and verifying deterministic equality in CI.
+The earlier audit incorrectly described this as a reversed mapping. Deterministic Python and browser tests now cover risk semantics and fixed inference vectors. Both model files contain 40 trees and CI verifies deterministic equality. The browser vote-share calculation was also adjusted to avoid floating-point under-rounding at exact half values; the latest CI run is pending.
 
 ### A-05 — Shipped model artifact does not match the documented training configuration
 
@@ -114,7 +110,7 @@ Keep the approved stack: React, Vite, Tailwind CSS, Recharts, Lucide React, Fire
 ## 7. Audit exit criteria
 
 The audit phase is complete when:
-- The current CI failure has a captured root cause.
+- The original CI failure has a captured root cause and the test-policy mismatch is resolved; the latest expanded suite is passing on the prior code revision.
 - Product policy for student account creation is explicit.
 - Risk class encoding and artifact-size/configuration mismatch are recorded as high-priority fixes.
 - Firebase free-plan constraints are reflected in the deployment and demo plan.
