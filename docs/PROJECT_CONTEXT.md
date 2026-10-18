@@ -90,7 +90,7 @@ Do not claim the current 86.25% synthetic holdout metric describes the shipped f
 
 1. Preserve local changes, synchronize source and repair CI.
 2. Prepare a no-billing demo using verified/manual account provisioning.
-3. Fix ML class mapping, artifact mismatch and Python/browser parity.
+3. Add ML label-semantic regression tests, reconcile the artifact mismatch and verify Python/browser parity.
 4. Verify the complete academic workflow.
 5. Complete security acceptance for all roles.
 6. Polish UI states, accessibility, responsive layout and performance.
